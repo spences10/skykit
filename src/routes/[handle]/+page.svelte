@@ -19,6 +19,8 @@
 	};
 </script>
 
+<pre>{JSON.stringify(data, null, 2)}</pre>
+
 <div class="container mx-auto max-w-3xl p-4">
 	<div class="mb-4">
 		<a href="/" class="btn btn-ghost"> ← Back to Search </a>
