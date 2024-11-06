@@ -69,7 +69,9 @@
 
 			{#if profile.description}
 				<div class="divider"></div>
-				<p class="text-base-content/80">{profile.description}</p>
+				<p class="whitespace-pre-line text-base-content/80">
+					{profile.description}
+				</p>
 			{/if}
 
 			<div class="card-actions mt-4 justify-end">
