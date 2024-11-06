@@ -1,7 +1,6 @@
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, params }) => {
+export const load = async ({ fetch, params }) => {
 	const { handle } = params;
 
 	try {
@@ -13,11 +12,9 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 			throw error(response.status, await response.text());
 		}
 
-		const profile = await response.json();
-
-		return { profile };
+		return await response.json();
 	} catch (err) {
-		console.error('Failed to fetch profile:', err);
+		console.error('Failed to fetch data:', err);
 		throw error(500, 'Failed to fetch profile data');
 	}
 };
