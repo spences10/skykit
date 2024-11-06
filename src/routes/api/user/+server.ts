@@ -1,19 +1,37 @@
 import { BSKY_PASSWORD, BSKY_USERNAME } from '$env/static/private';
 import { generate_insights } from '$lib/bsky/insights';
+import type { BskyProfile } from '$lib/bsky/types';
 import { Cache } from '$lib/cache';
-import { rateLimiter } from '$lib/rate-limiter';
+import { rate_limiter } from '$lib/rate-limiter';
+import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 
 const agent = new AtpAgent({ service: 'https://bsky.social' });
 const user_cache = new Cache(15);
 
-await rateLimiter.addToQueue(() =>
+await rate_limiter.addToQueue(() =>
 	agent.login({
 		identifier: BSKY_USERNAME,
 		password: BSKY_PASSWORD,
 	}),
 );
+
+function ensure_profile_fields(
+	profile: AppBskyActorDefs.ProfileViewDetailed,
+): BskyProfile {
+	return {
+		did: profile.did,
+		handle: profile.handle,
+		displayName: profile.displayName || profile.handle,
+		description: profile.description,
+		avatar: profile.avatar,
+		followersCount: profile.followersCount || 0,
+		followsCount: profile.followsCount || 0,
+		postsCount: profile.postsCount || 0,
+		indexedAt: profile.indexedAt || new Date().toISOString(),
+	};
+}
 
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
@@ -28,13 +46,13 @@ export const GET = async ({ url }) => {
 		}
 
 		const [feed_response, profile_response] = await Promise.all([
-			rateLimiter.addToQueue(() =>
+			rate_limiter.addToQueue(() =>
 				agent.api.app.bsky.feed.getAuthorFeed({
 					actor: handle,
 					limit: 100,
 				}),
 			),
-			rateLimiter.addToQueue(() =>
+			rate_limiter.addToQueue(() =>
 				agent.api.app.bsky.actor.getProfile({
 					actor: handle,
 				}),
@@ -47,7 +65,7 @@ export const GET = async ({ url }) => {
 
 		const insights = generate_insights(
 			feed_response.data.feed,
-			profile_response.data,
+			ensure_profile_fields(profile_response.data),
 		);
 		user_cache.set(handle, insights);
 		return Response.json({
@@ -56,9 +74,12 @@ export const GET = async ({ url }) => {
 		});
 	} catch (err) {
 		console.error('Bluesky API error:', err);
-		throw error(
-			err.status || 500,
-			err instanceof Error ? err.message : 'Failed to fetch data',
-		);
+		const status =
+			err && typeof err === 'object' && 'status' in err
+				? (err.status as number)
+				: 500;
+		const message =
+			err instanceof Error ? err.message : 'Failed to fetch data';
+		throw error(status, message);
 	}
 };

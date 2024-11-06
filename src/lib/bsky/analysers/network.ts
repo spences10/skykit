@@ -1,3 +1,4 @@
+import type { AppBskyActorDefs } from '@atproto/api';
 import type { BskyPost, NetworkAnalytics } from '../types';
 
 export function analyse_network(posts: BskyPost[]): NetworkAnalytics {
@@ -7,7 +8,7 @@ export function analyse_network(posts: BskyPost[]): NetworkAnalytics {
 	return {
 		interaction_network: {
 			...interaction_network,
-			frequent_conversations: [], // Add missing property
+			frequent_conversations: [],
 		},
 		community_detection: {
 			primary_communities:
@@ -26,28 +27,30 @@ function build_interaction_network(posts: BskyPost[]) {
 
 	posts.forEach((post) => {
 		// Track replies
-		if (post.reply?.parent?.author?.handle) {
-			const author = post.reply.parent.author.handle;
+		const reply_author = (
+			post.reply?.parent?.author as AppBskyActorDefs.ProfileViewBasic
+		)?.handle;
+		if (reply_author) {
 			interactions.most_replied_to.set(
-				author,
-				(interactions.most_replied_to.get(author) || 0) + 1,
+				reply_author,
+				(interactions.most_replied_to.get(reply_author) || 0) + 1,
 			);
 		}
 
 		// Track quotes
-		if (post.post.record?.['quote']?.author) {
-			const author = post.post.record['quote'].author;
+		const quote_author = (post.post.record as any).quote?.author;
+		if (quote_author) {
 			interactions.most_quoted.set(
-				author,
-				(interactions.most_quoted.get(author) || 0) + 1,
+				quote_author,
+				(interactions.most_quoted.get(quote_author) || 0) + 1,
 			);
 		}
 
 		// Track mentions from text content
-		const text = post.post.record?.text || '';
+		const text = (post.post.record as any).text || '';
 		const mentions = text.match(/(@\w+\.[\w.]+)/g) || [];
-		mentions.forEach((mention) => {
-			const handle = mention.slice(1); // Remove @ symbol
+		mentions.forEach((mention: string) => {
+			const handle = mention.slice(1);
 			interactions.most_mentioned.set(
 				handle,
 				(interactions.most_mentioned.get(handle) || 0) + 1,
@@ -72,18 +75,17 @@ function detect_communities(posts: BskyPost[]) {
 		const current_author = post.post.author.handle;
 
 		// Add interactions from replies
-		if (post.reply?.parent?.author?.handle) {
-			add_interaction(
-				interactions,
-				current_author,
-				post.reply.parent.author.handle,
-			);
+		const reply_author = (
+			post.reply?.parent?.author as AppBskyActorDefs.ProfileViewBasic
+		)?.handle;
+		if (reply_author) {
+			add_interaction(interactions, current_author, reply_author);
 		}
 
 		// Add interactions from mentions
-		const text = post.post.record?.text || '';
+		const text = (post.post.record as any).text || '';
 		const mentions = text.match(/(@\w+\.[\w.]+)/g) || [];
-		mentions.forEach((mention) => {
+		mentions.forEach((mention: string) => {
 			const handle = mention.slice(1);
 			add_interaction(interactions, current_author, handle);
 		});

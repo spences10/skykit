@@ -71,18 +71,22 @@ function calculate_posting_frequency(posts: BskyPost[]) {
 		}
 	}
 
+	const most_active_hours: [string, number][] = Array.from(
+		posts_by_hour.entries(),
+	)
+		.sort(([, a], [, b]) => b - a)
+		.map(([hour, count]): [string, number] => [
+			`${hour.toString().padStart(2, '0')}:00`,
+			count,
+		])
+		.slice(0, 5);
+
 	return {
 		posts_per_day: posts.length / total_days,
 		posts_per_week: (posts.length / total_days) * 7,
 		active_days_percentage: (posts_by_day.size / total_days) * 100,
 		longest_streak,
-		most_active_hours: Array.from(posts_by_hour.entries())
-			.sort(([, a], [, b]) => b - a)
-			.map(([hour, count]) => [
-				`${hour.toString().padStart(2, '0')}:00`,
-				count,
-			])
-			.slice(0, 5),
+		most_active_hours,
 		most_active_days: Array.from(posts_by_weekday.entries()).sort(
 			([, a], [, b]) => b - a,
 		),

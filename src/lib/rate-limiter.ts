@@ -1,3 +1,8 @@
+interface RateLimitHeaders {
+	'ratelimit-remaining'?: string;
+	'ratelimit-reset'?: string;
+}
+
 export class RateLimiter {
 	private queue: Array<() => Promise<any>> = [];
 	private processing = false;
@@ -10,7 +15,9 @@ export class RateLimiter {
 		return new Promise((resolve, reject) => {
 			this.queue.push(async () => {
 				try {
-					const result = await this.executeWithBackoff(request);
+					const result = await this.execute_with_backoff(() =>
+						request(),
+					);
 					resolve(result);
 				} catch (error) {
 					reject(error);
@@ -55,13 +62,13 @@ export class RateLimiter {
 		this.processing = false;
 	}
 
-	private async executeWithBackoff<T>(
+	private async execute_with_backoff<T>(
 		request: () => Promise<T>,
 		retryCount = 0,
 	): Promise<T> {
 		try {
 			const response = await request();
-			this.updateRateLimits(response);
+			this.update_rate_limits(response);
 			this.lastRequestTime = Date.now();
 			return response;
 		} catch (error: any) {
@@ -80,25 +87,26 @@ export class RateLimiter {
 				await new Promise((resolve) =>
 					setTimeout(resolve, backoffTime),
 				);
-				return this.executeWithBackoff(request, retryCount + 1);
+				return this.execute_with_backoff(request, retryCount + 1);
 			}
 			throw error;
 		}
 	}
 
-	private updateRateLimits(response: any) {
-		const headers = response?.headers;
-		if (headers) {
-			this.remainingRequests = Number(
-				headers['ratelimit-remaining'] || 100,
-			);
-			const resetTime = headers['ratelimit-reset'];
-			if (resetTime) {
-				this.resetTime = Number(resetTime) * 1000;
-			}
+	private update_rate_limits(response: any) {
+		if (!response?.headers) return;
+
+		const remaining = response.headers['ratelimit-remaining'];
+		const reset = response.headers['ratelimit-reset'];
+
+		if (remaining) {
+			this.remainingRequests = Number(remaining);
+		}
+		if (reset) {
+			this.resetTime = Number(reset) * 1000;
 		}
 	}
 }
 
 // Create a singleton instance
-export const rateLimiter = new RateLimiter();
+export const rate_limiter = new RateLimiter();

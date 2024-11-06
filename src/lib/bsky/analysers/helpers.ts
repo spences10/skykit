@@ -1,3 +1,4 @@
+import type { AppBskyEmbedImages } from '@atproto/api';
 import type { BskyPost } from '../types';
 
 export const is_reply = (post: BskyPost): boolean =>
@@ -6,8 +7,10 @@ export const is_reply = (post: BskyPost): boolean =>
 export const is_quote = (post: BskyPost): boolean =>
 	!!(post.post.record as any).quote;
 
-export const has_media = (post: BskyPost): boolean =>
-	!!post.post.embed?.images?.length;
+export const has_media = (post: BskyPost): boolean => {
+	const images = post.post.embed?.images as AppBskyEmbedImages.View[];
+	return Array.isArray(images) && images.length > 0;
+};
 
 export const has_links = (post: BskyPost): boolean =>
 	!!post.post.embed?.external;

@@ -1,10 +1,16 @@
-import type { BskyProfile } from '../types';
+import type {
+	BskyProfile,
+	ContentPatterns,
+	EngagementMetrics,
+	NetworkAnalytics,
+	TemporalPatterns,
+} from '../types';
 
 export function classify_account(data: {
-	engagement: any;
-	content: any;
-	temporal: any;
-	network: any;
+	engagement: EngagementMetrics;
+	content: ContentPatterns;
+	temporal: TemporalPatterns;
+	network: NetworkAnalytics;
 	profile: BskyProfile;
 }) {
 	const classifications = [];
@@ -39,10 +45,10 @@ export function classify_account(data: {
 }
 
 export function generate_behavioural_insights(data: {
-	engagement: any;
-	content: any;
-	temporal: any;
-	network: any;
+	engagement: EngagementMetrics;
+	content: ContentPatterns;
+	temporal: TemporalPatterns;
+	network: NetworkAnalytics;
 }) {
 	const insights = [];
 
@@ -73,10 +79,10 @@ export function generate_behavioural_insights(data: {
 }
 
 export function generate_content_strategy_suggestions(data: {
-	engagement: any;
-	content: any;
-	temporal: any;
-	network: any;
+	engagement: EngagementMetrics;
+	content: ContentPatterns;
+	temporal: TemporalPatterns;
+	network: NetworkAnalytics;
 }) {
 	const suggestions = [];
 

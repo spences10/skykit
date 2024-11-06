@@ -2,11 +2,16 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
+		interface PageData {
+			profile: import('$lib/bsky/types').BskyProfile;
+			engagement: import('$lib/bsky/types').EngagementMetrics;
+			content: import('$lib/bsky/types').ContentPatterns;
+			temporal: import('$lib/bsky/types').TemporalPatterns;
+			network: import('$lib/bsky/types').NetworkAnalytics;
+			account_classification: string[];
+			behavioural_insights: string[];
+			content_strategy_suggestions: string[];
+		}
 	}
 }
 

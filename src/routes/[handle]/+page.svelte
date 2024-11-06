@@ -1,18 +1,6 @@
 <script lang="ts">
-	interface Profile {
-		did: string;
-		handle: string;
-		displayName: string;
-		description?: string;
-		avatar?: string;
-		followersCount: number;
-		followsCount: number;
-		postsCount: number;
-		indexedAt: string;
-	}
-
 	let { data } = $props();
-	let { profile } = data as { profile: Profile };
+	let { profile } = data;
 
 	const format_date = (date_string: string) => {
 		return new Date(date_string).toLocaleString();
