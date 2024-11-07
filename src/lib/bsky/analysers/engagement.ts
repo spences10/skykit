@@ -9,15 +9,47 @@ export function analyse_engagement(
 	profile: BskyProfile,
 ): EngagementMetrics {
 	const total_posts = posts.length;
-	const total_engagement = calculate_total_engagement(posts);
+
+	// Calculate average engagements per post
+	const total_likes = posts.reduce(
+		(sum, post) => sum + (post.post.likeCount || 0),
+		0,
+	);
+	const total_reposts = posts.reduce(
+		(sum, post) => sum + (post.post.repostCount || 0),
+		0,
+	);
+	const total_replies = posts.reduce(
+		(sum, post) => sum + (post.post.replyCount || 0),
+		0,
+	);
+
+	const avg_engagement_per_post = total_posts
+		? (total_likes + total_reposts + total_replies) / total_posts
+		: 0;
+
+	// Engagement rate: Average engagements per post / followers * 100
+	const engagement_rate = profile.followersCount
+		? (avg_engagement_per_post / profile.followersCount) * 100
+		: 0;
 
 	return {
-		total_engagement,
-		engagement_rate: calculate_engagement_rate(
-			total_engagement,
-			profile.followersCount,
-		),
-		engagement_per_post: total_engagement / total_posts,
+		engagement_metrics: {
+			likes: {
+				total: total_likes,
+				average: total_posts ? total_likes / total_posts : 0,
+			},
+			reposts: {
+				total: total_reposts,
+				average: total_posts ? total_reposts / total_posts : 0,
+			},
+			replies: {
+				total: total_replies,
+				average: total_posts ? total_replies / total_posts : 0,
+			},
+		},
+		avg_engagement_per_post,
+		engagement_rate,
 		conversation_starter_ratio: get_conversation_starter_ratio(posts),
 		viral_post_percentage: calculate_viral_post_percentage(posts),
 		avg_replies_per_post: get_average_replies_per_post(posts),

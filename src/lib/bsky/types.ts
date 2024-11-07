@@ -14,9 +14,22 @@ export type BskyProfile = {
 };
 
 export type EngagementMetrics = {
-	total_engagement: number;
+	engagement_metrics: {
+		likes: {
+			total: number;
+			average: number;
+		};
+		reposts: {
+			total: number;
+			average: number;
+		};
+		replies: {
+			total: number;
+			average: number;
+		};
+	};
+	avg_engagement_per_post: number;
 	engagement_rate: number;
-	engagement_per_post: number;
 	conversation_starter_ratio: number;
 	viral_post_percentage: number;
 	avg_replies_per_post: number;
