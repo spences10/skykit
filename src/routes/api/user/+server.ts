@@ -42,7 +42,11 @@ export const GET = async ({ url }) => {
 	try {
 		const cached_data = user_cache.get(handle);
 		if (cached_data) {
-			return Response.json(cached_data);
+			return Response.json({
+				profile: cached_data.profile,
+				...cached_data,
+				rate_limit: rate_limiter.get_status(),
+			});
 		}
 
 		const [feed_response, profile_response] = await Promise.all([
@@ -63,14 +67,22 @@ export const GET = async ({ url }) => {
 			throw error(404, 'Profile not found');
 		}
 
+		const profile = ensure_profile_fields(profile_response.data);
 		const insights = generate_insights(
 			feed_response.data.feed,
-			ensure_profile_fields(profile_response.data),
+			profile,
 		);
-		user_cache.set(handle, insights);
-		return Response.json({
-			profile: profile_response.data,
+
+		const data_to_cache = {
+			profile,
 			...insights,
+		};
+
+		user_cache.set(handle, data_to_cache);
+
+		return Response.json({
+			...data_to_cache,
+			rate_limit: rate_limiter.get_status(),
 		});
 	} catch (err) {
 		console.error('Bluesky API error:', err);

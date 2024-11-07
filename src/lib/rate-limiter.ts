@@ -3,6 +3,13 @@ interface RateLimitHeaders {
 	'ratelimit-reset'?: string;
 }
 
+export interface RateLimitStatus {
+	remaining_requests: number;
+	queue_length: number;
+	is_limited: boolean;
+	reset_time?: Date;
+}
+
 export class RateLimiter {
 	private queue: Array<() => Promise<any>> = [];
 	private processing = false;
@@ -105,6 +112,15 @@ export class RateLimiter {
 		if (reset) {
 			this.resetTime = Number(reset) * 1000;
 		}
+	}
+
+	get_status(): RateLimitStatus {
+		return {
+			remaining_requests: this.remainingRequests,
+			queue_length: this.queue.length,
+			is_limited: this.remainingRequests <= 0,
+			reset_time: this.resetTime ? new Date(this.resetTime) : undefined
+		};
 	}
 }
 
