@@ -40,10 +40,12 @@ export const GET = async ({ url }) => {
 	}
 
 	try {
-		const cached_data = user_cache.get(handle);
+		const cached_data = user_cache.get(handle) as {
+			profile: BskyProfile;
+			[key: string]: any;
+		} | null;
 		if (cached_data) {
 			return Response.json({
-				profile: cached_data.profile,
 				...cached_data,
 				rate_limit: rate_limiter.get_status(),
 			});
