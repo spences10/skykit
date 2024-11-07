@@ -2,6 +2,7 @@
 	import {
 		ContentAnalysis,
 		EngagementStats,
+		Insights,
 		NetworkAnalysis,
 		ProfileCard,
 		TemporalAnalysis,
@@ -37,45 +38,7 @@
 	<ContentAnalysis />
 	<TemporalAnalysis />
 	<NetworkAnalysis />
-
-	<!-- Insights and Suggestions -->
-	<div class="card mb-4 bg-base-100 shadow-xl">
-		<div class="card-body">
-			<h2 class="card-title mb-4">Account Insights</h2>
-
-			<!-- Account Classification -->
-			<div class="mb-4">
-				<h3 class="mb-2 font-semibold">Account Type</h3>
-				<div class="flex flex-wrap gap-2">
-					{#each account_classification as classification}
-						<span class="badge badge-primary">{classification}</span>
-					{/each}
-				</div>
-			</div>
-
-			<!-- Behavioural Insights -->
-			<div class="mb-4">
-				<h3 class="mb-2 font-semibold">Behavioural Insights</h3>
-				<ul class="list-inside list-disc space-y-1">
-					{#each behavioural_insights as insight}
-						<li>{insight}</li>
-					{/each}
-				</ul>
-			</div>
-
-			<!-- Content Strategy -->
-			<div>
-				<h3 class="mb-2 font-semibold">
-					Content Strategy Suggestions
-				</h3>
-				<ul class="list-inside list-disc space-y-1">
-					{#each content_strategy_suggestions as suggestion}
-						<li>{suggestion}</li>
-					{/each}
-				</ul>
-			</div>
-		</div>
-	</div>
+	<Insights />
 
 	<!-- API Status -->
 	<div class="card mb-4 bg-base-100 shadow-xl">
