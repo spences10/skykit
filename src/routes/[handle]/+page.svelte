@@ -10,14 +10,7 @@
 	import { user_store } from '$lib/user-data.svelte';
 
 	let { data } = $props();
-	let {
-		profile,
-		rate_limit,
-		network,
-		account_classification,
-		behavioural_insights,
-		content_strategy_suggestions,
-	} = data;
+	let { profile, rate_limit } = data;
 
 	const format_date = (date_string: string) => {
 		return new Date(date_string).toLocaleString();
