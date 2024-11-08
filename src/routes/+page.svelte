@@ -18,7 +18,7 @@
 	};
 </script>
 
-<div class="container mx-auto max-w-3xl p-4">
+<div class="container mx-auto max-w-xl p-4">
 	<h1 class="mb-6 text-3xl font-bold">Bluesky User Stats</h1>
 
 	<div class="mb-6">
