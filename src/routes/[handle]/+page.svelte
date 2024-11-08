@@ -7,6 +7,12 @@
 		ProfileCard,
 		TemporalAnalysis,
 	} from '$lib/components';
+	import {
+		InformationCircle,
+		Queue,
+		Spark,
+		Warning,
+	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 	import { format_date } from '$lib/utils.js';
 
@@ -53,20 +59,7 @@
 				<div class="stats shadow">
 					<div class="stat">
 						<div class="stat-figure text-primary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13 10V3L4 14h7v7l9-11h-7z"
-								/>
-							</svg>
+							<Spark />
 						</div>
 						<div class="stat-title">Remaining Requests</div>
 						<div class="stat-value text-primary">
@@ -80,20 +73,7 @@
 				<div class="stats shadow">
 					<div class="stat">
 						<div class="stat-figure text-secondary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-								/>
-							</svg>
+							<Queue />
 						</div>
 						<div class="stat-title">Queue Length</div>
 						<div class="stat-value text-secondary">
@@ -107,19 +87,7 @@
 			<!-- Rate Limit Info -->
 			{#if rate_limit.is_limited}
 				<div class="alert alert-warning mt-4">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6 shrink-0 stroke-current"
-						fill="none"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-						/>
-					</svg>
+					<Warning class_names="h-6 w-6 shrink-0 stroke-current" />
 					<div>
 						<h3 class="font-bold">Rate Limit Reached</h3>
 						<div class="text-sm">
@@ -132,19 +100,7 @@
 				</div>
 			{:else}
 				<div class="alert alert-info mt-4">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6 shrink-0 stroke-current"
-						fill="none"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						/>
-					</svg>
+					<InformationCircle />
 					<div>
 						<h3 class="font-bold">API is responding normally</h3>
 						<div class="text-sm">

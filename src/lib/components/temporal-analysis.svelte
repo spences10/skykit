@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Calender, CircleCheck, Spark } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -13,20 +14,7 @@
 				<div class="stats stats-vertical w-full shadow">
 					<div class="stat">
 						<div class="stat-figure text-primary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-								/>
-							</svg>
+							<Calender />
 						</div>
 						<div class="stat-title">Daily Posts</div>
 						<div class="stat-value text-primary">
@@ -39,20 +27,7 @@
 
 					<div class="stat">
 						<div class="stat-figure text-secondary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
+							<CircleCheck />
 						</div>
 						<div class="stat-title">Active Days</div>
 						<div class="stat-value text-secondary">
@@ -65,20 +40,7 @@
 
 					<div class="stat">
 						<div class="stat-figure text-accent">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13 10V3L4 14h7v7l9-11h-7z"
-								/>
-							</svg>
+							<Spark />
 						</div>
 						<div class="stat-title">Posting Streak</div>
 						<div class="stat-value text-accent">

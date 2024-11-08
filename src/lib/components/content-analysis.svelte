@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Comment, Edit, Image, Link, Upload } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -13,20 +14,7 @@
 				<div class="stats stats-vertical w-full shadow">
 					<div class="stat">
 						<div class="stat-figure text-primary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-								/>
-							</svg>
+							<Edit />
 						</div>
 						<div class="stat-title">Original Posts</div>
 						<div class="stat-value text-primary">
@@ -39,20 +27,7 @@
 
 					<div class="stat">
 						<div class="stat-figure text-secondary">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-								/>
-							</svg>
+							<Comment />
 						</div>
 						<div class="stat-title">Replies</div>
 						<div class="stat-value text-secondary">
@@ -63,20 +38,7 @@
 
 					<div class="stat">
 						<div class="stat-figure text-accent">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-								/>
-							</svg>
+							<Upload />
 						</div>
 						<div class="stat-title">Reposts</div>
 						<div class="stat-value text-accent">
@@ -93,20 +55,7 @@
 				<div class="stats stats-vertical w-full shadow">
 					<div class="stat">
 						<div class="stat-figure text-info">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-								/>
-							</svg>
+							<Image />
 						</div>
 						<div class="stat-title">Media Posts</div>
 						<div class="stat-value text-info">
@@ -117,20 +66,7 @@
 
 					<div class="stat">
 						<div class="stat-figure text-success">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-								/>
-							</svg>
+							<Link />
 						</div>
 						<div class="stat-title">Posts with Links</div>
 						<div class="stat-value text-success">
