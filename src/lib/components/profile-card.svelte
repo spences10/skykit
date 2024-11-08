@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
 
 	const format_date = (date_string: string) => {
@@ -39,20 +40,22 @@
 				<div class="stat">
 					<div class="stat-title">Followers</div>
 					<div class="stat-value">
-						{user_store.data.profile.followersCount}
+						{number_crunch(user_store.data.profile.followersCount)}
 					</div>
 				</div>
 
 				<div class="stat">
 					<div class="stat-title">Following</div>
 					<div class="stat-value">
-						{user_store.data.profile.followsCount}
+						{number_crunch(user_store.data.profile.followsCount)}
 					</div>
 				</div>
 
 				<div class="stat">
 					<div class="stat-title">Posts</div>
-					<div class="stat-value">{user_store.data.profile.postsCount}</div>
+					<div class="stat-value">
+						{number_crunch(user_store.data.profile.postsCount)}
+					</div>
 				</div>
 			</div>
 
@@ -65,7 +68,9 @@
 
 			<div class="card-actions mt-4 justify-end">
 				<div class="text-sm text-base-content/60">
-					Last updated: {format_date(user_store.data.profile.indexedAt)}
+					Last updated: {format_date(
+						user_store.data.profile.indexedAt,
+					)}
 				</div>
 			</div>
 		</div>
