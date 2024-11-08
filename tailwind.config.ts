@@ -12,6 +12,6 @@ export default {
 	plugins: [typography, daisyui],
 
 	daisyui: {
-		themes: ['aqua'],
+		themes: true,
 	},
 } satisfies Config;

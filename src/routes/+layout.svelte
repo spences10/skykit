@@ -5,6 +5,7 @@
 		PUBLIC_FATHOM_ID,
 		PUBLIC_FATHOM_URL,
 	} from '$env/static/public';
+	import { ThemeSelect } from '$lib/components';
 	import * as Fathom from 'fathom-client';
 	import '../app.css';
 
@@ -23,5 +24,7 @@
 		$page.url.pathname, browser && Fathom.trackPageview();
 	});
 </script>
+
+<ThemeSelect />
 
 {@render children?.()}
