@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
-
-	const format_date = (date_string: string) => {
-		return new Date(date_string).toLocaleString();
-	};
+	import { format_date, get_tooltip_props } from '$lib/utils';
 </script>
 
 {#if user_store.data.profile}
@@ -28,7 +25,11 @@
 						{user_store.data.profile.displayName}
 					</h2>
 					<p class="text-base-content/60">
-						@{user_store.data.profile.handle}
+						<a
+							href={`https://x.com/${user_store.data.profile.handle}`}
+						>
+							@{user_store.data.profile.handle}
+						</a>
 					</p>
 					<p class="mt-1 font-mono text-xs text-base-content/40">
 						{user_store.data.profile.did}
@@ -40,21 +41,39 @@
 				<div class="stat">
 					<div class="stat-title">Followers</div>
 					<div class="stat-value">
-						{number_crunch(user_store.data.profile.followersCount)}
+						<span
+							{...get_tooltip_props(
+								user_store.data.profile.followersCount,
+							)}
+						>
+							{number_crunch(user_store.data.profile.followersCount)}
+						</span>
 					</div>
 				</div>
 
 				<div class="stat">
 					<div class="stat-title">Following</div>
 					<div class="stat-value">
-						{number_crunch(user_store.data.profile.followsCount)}
+						<span
+							{...get_tooltip_props(
+								user_store.data.profile.followsCount,
+							)}
+						>
+							{number_crunch(user_store.data.profile.followsCount)}
+						</span>
 					</div>
 				</div>
 
 				<div class="stat">
 					<div class="stat-title">Posts</div>
 					<div class="stat-value">
-						{number_crunch(user_store.data.profile.postsCount)}
+						<span
+							{...get_tooltip_props(
+								user_store.data.profile.postsCount,
+							)}
+						>
+							{number_crunch(user_store.data.profile.postsCount)}
+						</span>
 					</div>
 				</div>
 			</div>

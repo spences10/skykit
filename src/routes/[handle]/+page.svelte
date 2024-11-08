@@ -8,13 +8,10 @@
 		TemporalAnalysis,
 	} from '$lib/components';
 	import { user_store } from '$lib/user-data.svelte';
+	import { format_date } from '$lib/utils.js';
 
 	let { data } = $props();
 	let { profile, rate_limit } = data;
-
-	const format_date = (date_string: string) => {
-		return new Date(date_string).toLocaleString();
-	};
 
 	$effect(() => {
 		user_store.update_data(data);
