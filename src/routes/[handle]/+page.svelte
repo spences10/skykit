@@ -24,6 +24,14 @@
 	});
 </script>
 
+<svelte:head>
+	<title>SkyKit - {profile.handle}</title>
+	<meta
+		name="description"
+		content={`Check out ${profile.handle}'s Bluesky stats`}
+	/>
+</svelte:head>
+
 <div class="container mx-auto max-w-4xl p-4">
 	<div class="mb-4">
 		<a href="/" class="btn btn-ghost"> ← Back to Search </a>
