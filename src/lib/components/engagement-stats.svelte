@@ -4,125 +4,132 @@
 </script>
 
 {#if user_store.data.engagement}
-	<div class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">Engagement Stats</h2>
 
 			<!-- Average per post stats -->
-			<div class="mb-4">
+			<section class="mb-4">
 				<h3 class="mb-2 text-lg font-semibold">Average Per Post</h3>
-				<div class="stats stats-vertical w-full shadow">
+				<dl
+					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+				>
 					<div class="stat">
-						<div class="stat-figure text-primary">
+						<dt class="stat-figure text-primary">
 							<Heart />
-						</div>
-						<div class="stat-title">Likes</div>
-						<div class="stat-value text-primary">
+						</dt>
+						<dd class="stat-title">Likes</dd>
+						<dd class="stat-value text-primary">
 							{user_store.data.engagement.engagement_metrics.likes.average.toFixed(
 								0,
 							)}
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Total: {user_store.data.engagement.engagement_metrics
 								.likes.total}
-						</div>
+						</dd>
 					</div>
 
 					<div class="stat">
-						<div class="stat-figure text-secondary">
+						<dt class="stat-figure text-secondary">
 							<Refresh />
-						</div>
-						<div class="stat-title">Reposts</div>
-						<div class="stat-value text-secondary">
+						</dt>
+						<dd class="stat-title">Reposts</dd>
+						<dd class="stat-value text-secondary">
 							{user_store.data.engagement.engagement_metrics.reposts.average.toFixed(
 								0,
 							)}
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Total: {user_store.data.engagement.engagement_metrics
 								.reposts.total}
-						</div>
+						</dd>
 					</div>
 
 					<div class="stat">
-						<div class="stat-figure text-accent">
+						<dt class="stat-figure text-accent">
 							<Comment />
-						</div>
-						<div class="stat-title">Replies</div>
-						<div class="stat-value text-accent">
+						</dt>
+						<dd class="stat-title">Replies</dd>
+						<dd class="stat-value text-accent">
 							{user_store.data.engagement.engagement_metrics.replies.average.toFixed(
 								0,
 							)}
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Total: {user_store.data.engagement.engagement_metrics
 								.replies.total}
-						</div>
+						</dd>
 					</div>
-				</div>
-			</div>
+				</dl>
+			</section>
 
 			<!-- Other engagement metrics -->
-			<div class="grid gap-4 md:grid-cols-2">
-				<div class="stats shadow">
+			<section class="mt-4">
+				<h3 class="mb-2 text-lg font-semibold">
+					Other Engagement Metrics
+				</h3>
+				<dl
+					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+				>
 					<div class="stat">
-						<div class="stat-title">Total Engagement per Post</div>
-						<div class="stat-value">
+						<dt class="stat-title">Total Engagement per Post</dt>
+						<dd class="stat-value">
 							{user_store.data.engagement.avg_engagement_per_post.toFixed(
 								0,
 							)}
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Average likes + reposts + replies
-						</div>
+						</dd>
 					</div>
-				</div>
 
-				<div class="stats shadow">
 					<div class="stat">
-						<div class="stat-title">Viral Posts</div>
-						<div class="stat-value">
+						<dt class="stat-title">Viral Posts</dt>
+						<dd class="stat-value">
 							{user_store.data.engagement.viral_post_percentage.toFixed(
 								0,
 							)}%
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Posts with 2x average engagement
-						</div>
+						</dd>
 					</div>
-				</div>
-			</div>
+				</dl>
+			</section>
 
 			<!-- Conversation metrics -->
-			<div class="mt-4">
+			<section class="mt-4">
 				<h3 class="mb-2 text-lg font-semibold">
 					Conversation Metrics
 				</h3>
-				<div class="stats stats-vertical w-full shadow">
+				<dl
+					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+				>
 					<div class="stat">
-						<div class="stat-title">Conversation Starter Rate</div>
-						<div class="stat-value">
+						<dt class="stat-title">Conversation Starter Rate</dt>
+						<dd class="stat-value">
 							{(
 								user_store.data.engagement
 									.conversation_starter_ratio * 100
 							).toFixed(0)}%
-						</div>
-						<div class="stat-desc">Posts that start discussions</div>
+						</dd>
+						<dd class="stat-desc">Posts that start discussions</dd>
 					</div>
 
 					<div class="stat">
-						<div class="stat-title">Reply Rate</div>
-						<div class="stat-value">
+						<dt class="stat-title">Reply Rate</dt>
+						<dd class="stat-value">
 							{(user_store.data.engagement.reply_rate * 100).toFixed(
 								0,
 							)}%
-						</div>
-						<div class="stat-desc">
+						</dd>
+						<dd class="stat-desc">
 							Percentage of posts that are replies
-						</div>
+						</dd>
 					</div>
-				</div>
-			</div>
+				</dl>
+			</section>
 		</div>
-	</div>
+	</article>
 {/if}

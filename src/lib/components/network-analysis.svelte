@@ -19,12 +19,12 @@
 </script>
 
 {#if user_store.data.network}
-	<div class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">Network Analysis</h2>
 
 			<!-- Interaction Stats -->
-			<div class="mb-6">
+			<section class="mb-6">
 				<h3 class="mb-2 text-lg font-semibold">Top Interactions</h3>
 				<p class="mb-4 text-sm text-base-content/60">
 					Shows who you interact with most through replies, quotes,
@@ -32,79 +32,85 @@
 				</p>
 				<div class="grid gap-4 md:grid-cols-2">
 					<!-- Most Replied To -->
-					<div class="card bg-base-200">
+					<section class="card bg-base-200">
 						<div class="card-body">
 							<h4 class="card-title text-sm">
 								<Comment class_names="h-5 w-5" />
 								Most Replied To
 							</h4>
-							<div class="space-y-2">
+							<dl class="space-y-2">
 								{#each user_store.data.network.interaction_network.most_replied_to.slice(0, 5) as [handle, count]}
 									<div class="flex items-center justify-between">
-										<a
-											href={`https://bsky.app/profile/${handle}`}
-											class="link link-primary text-sm"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											@{handle}
-										</a>
-										<div class="badge badge-primary">{count}</div>
+										<dt>
+											<a
+												href={`https://bsky.app/profile/${handle}`}
+												class="link link-primary text-sm"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												@{handle}
+											</a>
+										</dt>
+										<dd class="badge badge-primary">{count}</dd>
 									</div>
 								{/each}
-							</div>
+							</dl>
 						</div>
-					</div>
+					</section>
 
 					<!-- Most Mentioned -->
-					<div class="card bg-base-200">
+					<section class="card bg-base-200">
 						<div class="card-body">
 							<h4 class="card-title text-sm">
 								<Bell class_names="h-5 w-5" />
 								Most Mentioned
 							</h4>
-							<div class="space-y-2">
+							<dl class="space-y-2">
 								{#each user_store.data.network.interaction_network.most_mentioned.slice(0, 5) as [handle, count]}
 									<div class="flex items-center justify-between">
-										<a
-											href={`https://bsky.app/profile/${handle}`}
-											class="link link-primary text-sm"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											@{handle}
-										</a>
-										<div class="badge badge-secondary">{count}</div>
+										<dt>
+											<a
+												href={`https://bsky.app/profile/${handle}`}
+												class="link link-primary text-sm"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												@{handle}
+											</a>
+										</dt>
+										<dd class="badge badge-secondary">{count}</dd>
 									</div>
 								{/each}
-							</div>
+							</dl>
 						</div>
-					</div>
+					</section>
 				</div>
-			</div>
+			</section>
 
 			<!-- Community Analysis -->
 			{#if user_store.data.network.community_detection.interaction_clusters.length > 0}
-				<div>
+				<section>
 					<h3 class="mb-2 text-lg font-semibold">
 						Community Analysis
 					</h3>
 					<div class="grid gap-4 md:grid-cols-1">
 						{#each user_store.data.network.community_detection.interaction_clusters as cluster}
-							<div class="card bg-base-200">
+							<article class="card bg-base-200">
 								<div class="card-body">
-									<h4
+									<header
 										class="card-title flex items-center gap-2 text-sm"
 									>
 										<People class_names="h-5 w-5" />
-
 										{cluster.name}
-										<div class="badge badge-accent">
+										<span class="badge badge-accent">
 											{cluster.interaction_count} interactions
-										</div>
-									</h4>
+										</span>
+									</header>
 									<div class="mt-2">
-										<div class="flex flex-wrap gap-1">
+										<nav
+											class="flex flex-wrap gap-1"
+											aria-label="Community members"
+										>
 											{#each cluster.users.slice(0, is_expanded(cluster.name) ? cluster.users.length : 15) as user}
 												<a
 													href={`https://bsky.app/profile/${user}`}
@@ -119,6 +125,7 @@
 												<button
 													class="badge badge-ghost badge-lg cursor-pointer hover:bg-base-300"
 													onclick={() => toggle_cluster(cluster.name)}
+													aria-expanded={is_expanded(cluster.name)}
 												>
 													{#if is_expanded(cluster.name)}
 														Show Less
@@ -127,14 +134,14 @@
 													{/if}
 												</button>
 											{/if}
-										</div>
+										</nav>
 									</div>
 								</div>
-							</div>
+							</article>
 						{/each}
 					</div>
-				</div>
+				</section>
 			{/if}
 		</div>
-	</div>
+	</article>
 {/if}

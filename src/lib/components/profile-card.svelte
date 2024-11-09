@@ -5,9 +5,9 @@
 </script>
 
 {#if user_store.data.profile}
-	<div class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<div class="mb-4 flex items-center gap-4">
+			<header class="mb-4 flex items-center gap-4">
 				{#if user_store.data.profile.avatar}
 					<div class="avatar">
 						<div
@@ -21,9 +21,9 @@
 					</div>
 				{/if}
 				<div>
-					<h2 class="card-title text-2xl">
+					<h1 class="card-title text-2xl">
 						{user_store.data.profile.displayName}
-					</h2>
+					</h1>
 					<p class="text-base-content/60">
 						<a
 							href={`https://bsky.app/profile/${user_store.data.profile.handle}`}
@@ -37,9 +37,12 @@
 						{user_store.data.profile.did}
 					</p>
 				</div>
-			</div>
+			</header>
 
-			<div class="stats mb-4 shadow">
+			<section
+				class="stats stats-vertical mb-4 shadow sm:stats-horizontal"
+				aria-label="Profile statistics"
+			>
 				<div class="stat">
 					<div class="stat-title">Followers</div>
 					<div class="stat-value">
@@ -78,22 +81,30 @@
 						</span>
 					</div>
 				</div>
-			</div>
+			</section>
 
 			{#if user_store.data.profile.description}
-				<div class="divider"></div>
-				<p class="whitespace-pre-line text-base-content/80">
-					{user_store.data.profile.description}
-				</p>
+				<section
+					class="profile-description"
+					aria-label="Profile description"
+				>
+					<div class="divider"></div>
+					<p class="whitespace-pre-line text-base-content/80">
+						{user_store.data.profile.description}
+					</p>
+				</section>
 			{/if}
 
-			<div class="card-actions mt-4 justify-end">
-				<div class="text-sm text-base-content/60">
+			<footer class="card-actions mt-4 justify-end">
+				<time
+					class="text-sm text-base-content/60"
+					datetime={user_store.data.profile.indexedAt}
+				>
 					Last updated: {format_date(
 						user_store.data.profile.indexedAt,
 					)}
-				</div>
-			</div>
+				</time>
+			</footer>
 		</div>
-	</div>
+	</article>
 {/if}

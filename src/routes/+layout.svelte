@@ -25,6 +25,10 @@
 	});
 </script>
 
-<ThemeSelect />
+<header>
+	<ThemeSelect />
+</header>
 
-{@render children?.()}
+<main>
+	{@render children?.()}
+</main>
