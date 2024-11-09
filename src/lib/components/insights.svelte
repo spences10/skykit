@@ -6,6 +6,36 @@
 		LightBulb,
 	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
+
+	const get_classification_description = (classification: string) => {
+		const descriptions: Record<string, string> = {
+			'Conversation Starter':
+				'High ratio of posts that generate multiple replies and extended discussions',
+			'Content Creator':
+				'Regularly posts original content with high media usage',
+			'Community Engager':
+				'Frequently interacts with others through replies and mentions',
+			'Consistent Poster':
+				'Posts regularly with a steady daily or weekly pattern',
+			'Casual User':
+				'Posts occasionally with varied engagement patterns',
+			'Network Builder':
+				'Strong focus on building connections through mentions and replies',
+			'Visual Sharer':
+				'High percentage of posts containing images or media',
+			'Discussion Participant':
+				'Actively engages in existing conversations through replies',
+			'Thought Leader':
+				'Posts generate above-average engagement and spark discussions',
+			'Content Curator':
+				'Frequently shares and reposts content from others',
+		};
+
+		return (
+			descriptions[classification] ||
+			'Classification based on posting patterns and engagement'
+		);
+	};
 </script>
 
 {#if user_store.data.account_classification}
@@ -31,8 +61,8 @@
 					<Clipboard class_names="h-5 w-5" />
 					Account Type
 					<div
-						class="tooltip"
-						data-tip="Categories that best describe your posting style"
+						class="tooltip tooltip-left"
+						data-tip="Based on your posting frequency, engagement patterns, and content style. These categories are determined by analyzing your last 300 posts."
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -41,7 +71,12 @@
 				</header>
 				<ul class="flex flex-wrap gap-2" role="list">
 					{#each user_store.data.account_classification as classification}
-						<li class="badge badge-primary badge-lg">
+						<li
+							class="badge badge-primary badge-lg tooltip cursor-pointer"
+							data-tip={get_classification_description(
+								classification,
+							)}
+						>
 							{classification}
 						</li>
 					{/each}
