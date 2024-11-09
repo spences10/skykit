@@ -5,7 +5,7 @@
 </script>
 
 {#if user_store.data.profile}
-	<div class="card mb-4 bg-base-100 shadow-xl">
+	<div class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<div class="mb-4 flex items-center gap-4">
 				{#if user_store.data.profile.avatar}
@@ -26,7 +26,9 @@
 					</h2>
 					<p class="text-base-content/60">
 						<a
-							href={`https://x.com/${user_store.data.profile.handle}`}
+							href={`https://bsky.app/profile/${user_store.data.profile.handle}`}
+							target="_blank"
+							rel="noopener noreferrer"
 						>
 							@{user_store.data.profile.handle}
 						</a>

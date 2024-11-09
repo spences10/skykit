@@ -11,7 +11,7 @@
 	const { status } = api_status;
 </script>
 
-<div class="card bg-base-100 shadow-xl">
+<div class="card mb-11 bg-base-100 shadow-xl">
 	<div class="card-body">
 		<h2 class="card-title mb-4">
 			<span>API Status</span>

@@ -19,7 +19,7 @@
 </script>
 
 {#if user_store.data.network}
-	<div class="card mb-4 bg-base-100 shadow-xl">
+	<div class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">Network Analysis</h2>
 
@@ -40,6 +40,8 @@
 										<a
 											href={`https://bsky.app/profile/${handle}`}
 											class="link link-primary text-sm"
+											target="_blank"
+											rel="noopener noreferrer"
 										>
 											@{handle}
 										</a>
@@ -63,6 +65,8 @@
 										<a
 											href={`https://bsky.app/profile/${handle}`}
 											class="link link-primary text-sm"
+											target="_blank"
+											rel="noopener noreferrer"
 										>
 											@{handle}
 										</a>
@@ -101,6 +105,8 @@
 												<a
 													href={`https://bsky.app/profile/${user}`}
 													class="badge badge-outline badge-md hover:badge-primary"
+													target="_blank"
+													rel="noopener noreferrer"
 												>
 													{user}
 												</a>

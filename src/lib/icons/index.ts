@@ -1,6 +1,7 @@
 export { default as BarGraph } from './bar-graph.svelte';
 export { default as Bell } from './bell.svelte';
 export { default as Calender } from './calender.svelte';
+export { default as Chevron } from './chevron.svelte';
 export { default as CircleCheck } from './circle-check.svelte';
 export { default as Clipboard } from './clipboard.svelte';
 export { default as Comment } from './comment.svelte';

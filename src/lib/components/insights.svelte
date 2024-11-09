@@ -4,7 +4,7 @@
 </script>
 
 {#if user_store.data.account_classification}
-	<div class="card mb-4 bg-base-100 shadow-xl">
+	<div class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">Account Insights</h2>
 
