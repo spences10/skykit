@@ -1,4 +1,3 @@
-import { BSKY_PASSWORD, BSKY_USERNAME } from '$env/static/private';
 import { generate_insights } from '$lib/bsky/insights';
 import type { BskyProfile } from '$lib/bsky/types';
 import { Cache } from '$lib/cache';
@@ -7,15 +6,11 @@ import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 
-const agent = new AtpAgent({ service: 'https://bsky.social' });
-const user_cache = new Cache(15);
+// Use public API for read operations
+const PUBLIC_API = 'https://public.api.bsky.app';
+const agent = new AtpAgent({ service: PUBLIC_API });
 
-await rate_limiter.addToQueue(() =>
-	agent.login({
-		identifier: BSKY_USERNAME,
-		password: BSKY_PASSWORD,
-	}),
-);
+const user_cache = new Cache(15);
 
 function ensure_profile_fields(
 	profile: AppBskyActorDefs.ProfileViewDetailed,
