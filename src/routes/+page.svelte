@@ -9,7 +9,10 @@
 	const handle_search = async () => {
 		if (!handle) return;
 		loading = true;
-		await goto(`/${handle}`);
+		const cleaned_handle = handle.startsWith('@')
+			? handle.slice(1)
+			: handle;
+		await goto(`/${cleaned_handle}`);
 		loading = false;
 	};
 
