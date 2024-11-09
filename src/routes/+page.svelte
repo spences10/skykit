@@ -66,7 +66,7 @@
 							<MagnifyingGlass class_names="h-5 w-5" />
 						{/if}
 						<span class="ml-2">
-							{loading ? 'Loading...' : 'Search'}
+							{loading ? null : 'Search'}
 						</span>
 					</button>
 				</div>
