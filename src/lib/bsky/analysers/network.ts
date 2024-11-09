@@ -26,11 +26,11 @@ function build_interaction_network(posts: BskyPost[]) {
 	};
 
 	posts.forEach((post) => {
-		// Track replies
+		// Track replies - exclude self-replies
 		const reply_author = (
 			post.reply?.parent?.author as AppBskyActorDefs.ProfileViewBasic
 		)?.handle;
-		if (reply_author) {
+		if (reply_author && reply_author !== post.post.author.handle) {
 			interactions.most_replied_to.set(
 				reply_author,
 				(interactions.most_replied_to.get(reply_author) || 0) + 1,

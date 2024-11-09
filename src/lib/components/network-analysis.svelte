@@ -26,6 +26,10 @@
 			<!-- Interaction Stats -->
 			<div class="mb-6">
 				<h3 class="mb-2 text-lg font-semibold">Top Interactions</h3>
+				<p class="mb-4 text-sm text-base-content/60">
+					Shows who you interact with most through replies, quotes,
+					and mentions across your posts.
+				</p>
 				<div class="grid gap-4 md:grid-cols-2">
 					<!-- Most Replied To -->
 					<div class="card bg-base-200">
