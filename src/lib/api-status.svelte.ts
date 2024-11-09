@@ -3,11 +3,12 @@ import { rate_limiter } from './rate-limiter';
 
 export function create_api_status() {
 	let status = $state<RateLimitStatus>({
-		remaining_requests: 100,
+		remaining_requests: 300,
 		queue_length: 0,
 		is_limited: false,
+		is_healthy: true,
 		reset_time: undefined,
-		max_requests: 100,
+		max_requests: 300,
 	});
 
 	function update_status(new_status: RateLimitStatus) {
@@ -16,11 +17,12 @@ export function create_api_status() {
 
 	function reset() {
 		status = {
-			remaining_requests: 100,
+			remaining_requests: 300,
 			queue_length: 0,
 			is_limited: false,
+			is_healthy: true,
 			reset_time: undefined,
-			max_requests: 100,
+			max_requests: 300,
 		};
 	}
 

@@ -69,7 +69,7 @@ export const GET = async ({ url }) => {
 		// Fetch what we need
 		const [feed_response, profile_response] = await Promise.all([
 			!cached_feed
-				? rate_limiter.addToQueue(() =>
+				? rate_limiter.add_to_queue(() =>
 						agent.api.app.bsky.feed.getAuthorFeed({
 							actor: handle,
 							limit: 100,
@@ -77,7 +77,7 @@ export const GET = async ({ url }) => {
 					)
 				: Promise.resolve(cached_feed as CachedFeedResponse),
 			!cached_profile
-				? rate_limiter.addToQueue(() =>
+				? rate_limiter.add_to_queue(() =>
 						agent.api.app.bsky.actor.getProfile({
 							actor: handle,
 						}),

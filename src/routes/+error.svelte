@@ -25,6 +25,7 @@
 		if (is_rate_limited) {
 			api_status.update_status({
 				...api_status.status,
+				is_healthy: false,
 				is_limited: true,
 				remaining_requests: 0,
 			});

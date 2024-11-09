@@ -1,25 +1,20 @@
-interface RateLimitHeaders {
-	'ratelimit-remaining'?: string;
-	'ratelimit-reset'?: string;
-	'ratelimit-limit'?: string;
-}
-
-export interface RateLimitStatus {
+export type RateLimitStatus = {
 	remaining_requests: number;
-	queue_length: number;
-	is_limited: boolean;
 	reset_time?: Date;
 	max_requests: number;
-}
+	is_healthy: boolean;
+	retry_after?: number;
+	queue_length: number;
+	is_limited: boolean;
+};
 
 export class RateLimiter {
 	private queue: Array<() => Promise<any>> = [];
 	private processing = false;
 	private lastRequestTime = 0;
-	private remainingRequests = 100; // BlueskyAPI default
+	private remainingRequests = 300;
 	private resetTime = 0;
-	private maxRequests = 100; // BlueskyAPI default
-	private minRequestInterval = 1000; // Minimum 1 second between requests
+	private maxRequests = 300;
 	private statusUpdateCallback?: (status: RateLimitStatus) => void;
 
 	set_status_callback(callback: (status: RateLimitStatus) => void) {
@@ -32,61 +27,7 @@ export class RateLimiter {
 		}
 	}
 
-	async addToQueue<T>(request: () => Promise<T>): Promise<T> {
-		return new Promise((resolve, reject) => {
-			this.queue.push(async () => {
-				try {
-					const result = await this.execute_with_backoff(() =>
-						request(),
-					);
-					resolve(result);
-				} catch (error) {
-					reject(error);
-				}
-			});
-
-			this.processQueue();
-		});
-	}
-
-	private async processQueue() {
-		if (this.processing || this.queue.length === 0) return;
-
-		this.processing = true;
-
-		while (this.queue.length > 0) {
-			const now = Date.now();
-
-			// Check if we need to wait for rate limit reset
-			if (this.remainingRequests <= 0 && now < this.resetTime) {
-				const waitTime = this.resetTime - now;
-				await new Promise((resolve) => setTimeout(resolve, waitTime));
-			}
-
-			// Ensure minimum interval between requests
-			const timeSinceLastRequest = now - this.lastRequestTime;
-			if (timeSinceLastRequest < this.minRequestInterval) {
-				await new Promise((resolve) =>
-					setTimeout(
-						resolve,
-						this.minRequestInterval - timeSinceLastRequest,
-					),
-				);
-			}
-
-			const request = this.queue.shift();
-			if (request) {
-				await request();
-			}
-		}
-
-		this.processing = false;
-	}
-
-	private async execute_with_backoff<T>(
-		request: () => Promise<T>,
-		retryCount = 0,
-	): Promise<T> {
+	async execute_request<T>(request: () => Promise<T>): Promise<T> {
 		try {
 			const response = await request();
 			this.update_rate_limits(response);
@@ -97,17 +38,6 @@ export class RateLimiter {
 				const headers = error?.headers;
 				if (headers) {
 					this.update_rate_limits({ headers });
-				}
-
-				if (retryCount < 3) {
-					const backoffTime = Math.min(
-						1000 * Math.pow(2, retryCount),
-						this.resetTime - Date.now(),
-					);
-					await new Promise((resolve) =>
-						setTimeout(resolve, backoffTime),
-					);
-					return this.execute_with_backoff(request, retryCount + 1);
 				}
 			}
 			throw error;
@@ -137,15 +67,52 @@ export class RateLimiter {
 	get_status(): RateLimitStatus {
 		return {
 			remaining_requests: this.remainingRequests,
-			queue_length: this.queue.length,
+			is_healthy: this.remainingRequests > 0,
 			is_limited: this.remainingRequests <= 0,
+			queue_length: this.queue.length,
 			reset_time: this.resetTime
 				? new Date(this.resetTime)
 				: undefined,
 			max_requests: this.maxRequests,
 		};
 	}
+
+	// Track rate limits from response headers
+	async process_response(response: Response) {
+		const status: RateLimitStatus = {
+			remaining_requests: parseInt(
+				response.headers.get('x-ratelimit-remaining') ||
+					response.headers.get('ratelimit-remaining') ||
+					'300',
+			),
+			max_requests: parseInt(
+				response.headers.get('x-ratelimit-limit') ||
+					response.headers.get('ratelimit-limit') ||
+					'300',
+			),
+			is_healthy: response.ok && response.status !== 429,
+			retry_after: parseInt(
+				response.headers.get('retry-after') || '0',
+			),
+			reset_time: new Date(
+				response.headers.get('x-ratelimit-reset') ||
+					response.headers.get('ratelimit-reset') ||
+					Date.now() + 300000,
+			),
+			queue_length: this.queue.length,
+			is_limited: this.remainingRequests <= 0,
+		};
+
+		if (this.statusUpdateCallback) {
+			this.statusUpdateCallback(status);
+		}
+
+		return status;
+	}
+
+	async add_to_queue<T>(request: () => Promise<T>): Promise<T> {
+		return this.execute_request(request);
+	}
 }
 
-// Create a singleton instance
 export const rate_limiter = new RateLimiter();
