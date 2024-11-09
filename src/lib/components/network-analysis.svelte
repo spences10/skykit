@@ -98,10 +98,12 @@
 							<article class="card bg-base-200">
 								<div class="card-body">
 									<header
-										class="card-title flex items-center gap-2 text-sm"
+										class="flex flex-col gap-2 sm:flex-row sm:items-center"
 									>
-										<People class_names="h-5 w-5" />
-										{cluster.name}
+										<div class="card-title text-sm">
+											<People class_names="h-5 w-5" />
+											{cluster.name}
+										</div>
 										<span class="badge badge-accent">
 											{cluster.interaction_count} interactions
 										</span>
@@ -114,7 +116,7 @@
 											{#each cluster.users.slice(0, is_expanded(cluster.name) ? cluster.users.length : 15) as user}
 												<a
 													href={`https://bsky.app/profile/${user}`}
-													class="badge badge-outline badge-md hover:badge-primary"
+													class="badge badge-outline badge-md transition-colors hover:border-primary hover:bg-primary hover:text-primary-content hover:no-underline"
 													target="_blank"
 													rel="noopener noreferrer"
 												>
@@ -123,7 +125,7 @@
 											{/each}
 											{#if cluster.users.length > 15}
 												<button
-													class="badge badge-ghost badge-lg cursor-pointer hover:bg-base-300"
+													class="badge badge-ghost badge-lg cursor-pointer transition-colors hover:border-base-300 hover:bg-base-300"
 													onclick={() => toggle_cluster(cluster.name)}
 													aria-expanded={is_expanded(cluster.name)}
 												>
