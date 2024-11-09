@@ -13,5 +13,6 @@ export default {
 
 	daisyui: {
 		themes: true,
+		logs: false,
 	},
 } satisfies Config;
