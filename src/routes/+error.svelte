@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { api_status } from '$lib/api-status.svelte';
 	import { ApiStatus } from '$lib/components';
 
 	const funny_messages = [
@@ -18,6 +19,17 @@
 	];
 
 	const is_rate_limited = $page.status === 429;
+
+	// If we hit a rate limit error, make sure the API status reflects it
+	$effect(() => {
+		if (is_rate_limited) {
+			api_status.update_status({
+				...api_status.status,
+				is_limited: true,
+				remaining_requests: 0,
+			});
+		}
+	});
 
 	const get_message = () => {
 		if (is_rate_limited) {

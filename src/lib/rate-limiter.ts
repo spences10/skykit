@@ -1,6 +1,7 @@
 interface RateLimitHeaders {
 	'ratelimit-remaining'?: string;
 	'ratelimit-reset'?: string;
+	'ratelimit-limit'?: string;
 }
 
 export interface RateLimitStatus {
@@ -8,6 +9,7 @@ export interface RateLimitStatus {
 	queue_length: number;
 	is_limited: boolean;
 	reset_time?: Date;
+	max_requests: number;
 }
 
 export class RateLimiter {
@@ -16,7 +18,19 @@ export class RateLimiter {
 	private lastRequestTime = 0;
 	private remainingRequests = 100; // BlueskyAPI default
 	private resetTime = 0;
+	private maxRequests = 100; // BlueskyAPI default
 	private minRequestInterval = 1000; // Minimum 1 second between requests
+	private statusUpdateCallback?: (status: RateLimitStatus) => void;
+
+	set_status_callback(callback: (status: RateLimitStatus) => void) {
+		this.statusUpdateCallback = callback;
+	}
+
+	private notify_status_update() {
+		if (this.statusUpdateCallback) {
+			this.statusUpdateCallback(this.get_status());
+		}
+	}
 
 	async addToQueue<T>(request: () => Promise<T>): Promise<T> {
 		return new Promise((resolve, reject) => {
@@ -79,22 +93,22 @@ export class RateLimiter {
 			this.lastRequestTime = Date.now();
 			return response;
 		} catch (error: any) {
-			if (error?.status === 429 && retryCount < 3) {
-				const resetTime = error?.headers?.['ratelimit-reset'];
-				if (resetTime) {
-					this.resetTime = Number(resetTime) * 1000;
-					this.remainingRequests = 0;
+			if (error?.status === 429) {
+				const headers = error?.headers;
+				if (headers) {
+					this.update_rate_limits({ headers });
 				}
 
-				const backoffTime = Math.min(
-					1000 * Math.pow(2, retryCount),
-					this.resetTime - Date.now(),
-				);
-
-				await new Promise((resolve) =>
-					setTimeout(resolve, backoffTime),
-				);
-				return this.execute_with_backoff(request, retryCount + 1);
+				if (retryCount < 3) {
+					const backoffTime = Math.min(
+						1000 * Math.pow(2, retryCount),
+						this.resetTime - Date.now(),
+					);
+					await new Promise((resolve) =>
+						setTimeout(resolve, backoffTime),
+					);
+					return this.execute_with_backoff(request, retryCount + 1);
+				}
 			}
 			throw error;
 		}
@@ -105,13 +119,19 @@ export class RateLimiter {
 
 		const remaining = response.headers['ratelimit-remaining'];
 		const reset = response.headers['ratelimit-reset'];
+		const limit = response.headers['ratelimit-limit'];
 
-		if (remaining) {
+		if (remaining !== undefined) {
 			this.remainingRequests = Number(remaining);
 		}
 		if (reset) {
-			this.resetTime = Number(reset) * 1000;
+			this.resetTime = Number(reset) * 1000; // Convert to milliseconds
 		}
+		if (limit) {
+			this.maxRequests = Number(limit);
+		}
+
+		this.notify_status_update();
 	}
 
 	get_status(): RateLimitStatus {
@@ -119,7 +139,10 @@ export class RateLimiter {
 			remaining_requests: this.remainingRequests,
 			queue_length: this.queue.length,
 			is_limited: this.remainingRequests <= 0,
-			reset_time: this.resetTime ? new Date(this.resetTime) : undefined
+			reset_time: this.resetTime
+				? new Date(this.resetTime)
+				: undefined,
+			max_requests: this.maxRequests,
 		};
 	}
 }
