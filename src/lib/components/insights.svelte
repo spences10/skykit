@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		BarGraph,
-		Clipboard,
-		InformationCircle,
-		LightBulb,
-		Spark,
-	} from '$lib/icons';
+	import { BarGraph, Clipboard, LightBulb } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -37,14 +31,15 @@
 							<BarGraph class_names="h-5 w-5" />
 							Behavioural Insights
 						</h3>
-						<div class="space-y-2">
-							{#each user_store.data.behavioural_insights as insight}
-								<div class="alert alert-info py-2">
-									<InformationCircle class_names="h-5 w-5" />
-									<span class="text-sm">{insight}</span>
-								</div>
-							{/each}
-						</div>
+						{#if user_store.data.behavioural_insights}
+							<div class="space-y-2">
+								{#each user_store.data.behavioural_insights as insight}
+									<div class="alert alert-info py-2">
+										{insight}
+									</div>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				</div>
 
@@ -55,14 +50,15 @@
 							<LightBulb class_names="h-5 w-5" />
 							Strategy Suggestions
 						</h3>
-						<div class="space-y-2">
-							{#each user_store.data.content_strategy_suggestions as suggestion}
-								<div class="alert alert-success py-2">
-									<Spark class_names="h-5 w-5 shrink-0" />
-									<span class="text-sm">{suggestion}</span>
-								</div>
-							{/each}
-						</div>
+						{#if user_store.data.content_strategy_suggestions}
+							<div class="space-y-2">
+								{#each user_store.data.content_strategy_suggestions as suggestion}
+									<div class="alert alert-success py-2">
+										{suggestion}
+									</div>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
