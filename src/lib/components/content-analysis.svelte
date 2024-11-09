@@ -59,7 +59,9 @@
 						</div>
 						<div class="stat-title">Media Posts</div>
 						<div class="stat-value text-info">
-							{user_store.data.content.post_types.with_media}
+							{user_store.data.content.post_types.with_media.toFixed(
+								0,
+							)}
 						</div>
 						<div class="stat-desc">Posts containing images</div>
 					</div>
