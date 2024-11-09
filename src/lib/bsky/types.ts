@@ -1,4 +1,4 @@
-import type { AppBskyFeedDefs, AppBskyFeedPost } from '@atproto/api';
+import type { AppBskyFeedDefs } from '@atproto/api';
 
 export type BskyPost = AppBskyFeedDefs.FeedViewPost;
 export type BskyProfile = {
@@ -62,6 +62,11 @@ export type TemporalPatterns = {
 		longest_streak: number;
 		most_active_hours: Array<[string, number]>;
 		most_active_days: Array<[string, number]>;
+		date_range: {
+			from: string | null;
+			to: string | null;
+			total_days: number;
+		};
 	};
 	consistency_score: number;
 	peak_activity_windows: string[];

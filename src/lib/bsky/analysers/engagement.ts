@@ -9,8 +9,23 @@ export function analyse_engagement(
 	profile: BskyProfile,
 ): EngagementMetrics {
 	const total_posts = posts.length;
+	if (!total_posts) {
+		return {
+			engagement_metrics: {
+				likes: { total: 0, average: 0 },
+				reposts: { total: 0, average: 0 },
+				replies: { total: 0, average: 0 },
+			},
+			avg_engagement_per_post: 0,
+			engagement_rate: 0,
+			conversation_starter_ratio: 0,
+			viral_post_percentage: 0,
+			avg_replies_per_post: 0,
+			reply_rate: 0,
+		};
+	}
 
-	// Calculate average engagements per post
+	// Calculate total engagements
 	const total_likes = posts.reduce(
 		(sum, post) => sum + (post.post.likeCount || 0),
 		0,
@@ -24,11 +39,10 @@ export function analyse_engagement(
 		0,
 	);
 
-	const avg_engagement_per_post = total_posts
-		? (total_likes + total_reposts + total_replies) / total_posts
-		: 0;
+	const avg_engagement_per_post = 
+		(total_likes + total_reposts + total_replies) / total_posts;
 
-	// Engagement rate: Average engagements per post / followers * 100
+	// Calculate engagement rate as a percentage
 	const engagement_rate = profile.followersCount
 		? (avg_engagement_per_post / profile.followersCount) * 100
 		: 0;
@@ -37,15 +51,15 @@ export function analyse_engagement(
 		engagement_metrics: {
 			likes: {
 				total: total_likes,
-				average: total_posts ? total_likes / total_posts : 0,
+				average: total_likes / total_posts,
 			},
 			reposts: {
 				total: total_reposts,
-				average: total_posts ? total_reposts / total_posts : 0,
+				average: total_reposts / total_posts,
 			},
 			replies: {
 				total: total_replies,
-				average: total_posts ? total_replies / total_posts : 0,
+				average: total_replies / total_posts,
 			},
 		},
 		avg_engagement_per_post,
@@ -98,17 +112,18 @@ export function calculate_viral_post_percentage(
 ): number {
 	if (!posts.length) return 0;
 
-	const avgEngagement =
+	const avg_engagement =
 		calculate_total_engagement(posts) / posts.length;
-	const viralPosts = posts.filter((post) => {
+	const viral_posts = posts.filter((post) => {
 		const engagement =
 			(post.post.likeCount || 0) +
 			(post.post.repostCount || 0) +
 			(post.post.replyCount || 0);
-		return engagement > avgEngagement * 2;
+		return engagement > avg_engagement * 2;
 	});
 
-	return (viralPosts.length / posts.length) * 100;
+	// Convert to percentage
+	return (viral_posts.length / posts.length) * 100;
 }
 
 export function get_average_replies_per_post(

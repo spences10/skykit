@@ -20,9 +20,12 @@ export type UserData = {
 	content_strategy_suggestions: string[] | null;
 };
 
-// Helper function to format numbers
-const format_number = (value: number): number => {
-	return Number(value.toFixed(0));
+// Helper function to format numbers with specific precision
+const format_number = (
+	value: number,
+	precision: number = 0,
+): number => {
+	return Number(value.toFixed(precision));
 };
 
 // Helper function to format engagement metrics
@@ -51,12 +54,10 @@ const format_engagement_data = (
 		data.avg_engagement_per_post,
 	),
 	engagement_rate: format_number(data.engagement_rate),
-	conversation_starter_ratio: format_number(
-		data.conversation_starter_ratio,
-	),
+	conversation_starter_ratio: data.conversation_starter_ratio,
 	viral_post_percentage: format_number(data.viral_post_percentage),
 	avg_replies_per_post: format_number(data.avg_replies_per_post),
-	reply_rate: format_number(data.reply_rate),
+	reply_rate: data.reply_rate,
 });
 
 // Helper function to format content data
@@ -90,12 +91,15 @@ const format_temporal_data = (data: TemporalData): TemporalData => ({
 	posting_frequency: {
 		posts_per_day: format_number(
 			data.posting_frequency.posts_per_day,
+			2, // 2 decimal places for daily posts
 		),
 		posts_per_week: format_number(
 			data.posting_frequency.posts_per_week,
+			1, // 1 decimal place for weekly posts
 		),
 		active_days_percentage: format_number(
-			data.posting_frequency.active_days_percentage,
+			Math.min(data.posting_frequency.active_days_percentage, 100),
+			1, // 1 decimal place for percentages
 		),
 		longest_streak: format_number(
 			data.posting_frequency.longest_streak,
@@ -106,8 +110,15 @@ const format_temporal_data = (data: TemporalData): TemporalData => ({
 		most_active_days: data.posting_frequency.most_active_days.map(
 			([day, count]) => [day, format_number(count)],
 		),
+		date_range: {
+			from: data.posting_frequency.date_range.from,
+			to: data.posting_frequency.date_range.to,
+			total_days: format_number(
+				data.posting_frequency.date_range.total_days,
+			),
+		},
 	},
-	consistency_score: format_number(data.consistency_score),
+	consistency_score: format_number(data.consistency_score, 2),
 	peak_activity_windows: data.peak_activity_windows,
 });
 

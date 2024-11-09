@@ -4,9 +4,23 @@
 </script>
 
 {#if user_store.data.temporal}
-	<div class="card mb-4 bg-base-100 shadow-xl">
+	<div class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">Posting Patterns</h2>
+			<div class="mb-4 flex items-center gap-2">
+				<h2 class="card-title">Posting Patterns</h2>
+
+				{#if user_store.data.temporal.posting_frequency.date_range.from && user_store.data.temporal.posting_frequency.date_range.to}
+					<div
+						class="tooltip tooltip-right"
+						data-tip={`Analysis from ${new Date(user_store.data.temporal.posting_frequency.date_range.from).toLocaleDateString()} to ${new Date(user_store.data.temporal.posting_frequency.date_range.to).toLocaleDateString()}`}
+					>
+						<span class="badge badge-sm">
+							{user_store.data.temporal.posting_frequency.date_range
+								.total_days} days
+						</span>
+					</div>
+				{/if}
+			</div>
 
 			<!-- Posting Frequency -->
 			<div class="mb-6">
@@ -19,10 +33,14 @@
 						<div class="stat-title">Daily Posts</div>
 						<div class="stat-value text-primary">
 							{user_store.data.temporal.posting_frequency.posts_per_day.toFixed(
-								0,
+								2,
 							)}
 						</div>
-						<div class="stat-desc">Average posts per day</div>
+						<div class="stat-desc">
+							{user_store.data.temporal.posting_frequency.posts_per_week.toFixed(
+								1,
+							)} posts per week
+						</div>
 					</div>
 
 					<div class="stat">
@@ -35,7 +53,19 @@
 								0,
 							)}%
 						</div>
-						<div class="stat-desc">Days with at least one post</div>
+						<div class="stat-desc">
+							Over {user_store.data.temporal.posting_frequency
+								.date_range.total_days} days
+							{#if user_store.data.temporal.posting_frequency.date_range.from && user_store.data.temporal.posting_frequency.date_range.to}
+								({new Date(
+									user_store.data.temporal.posting_frequency.date_range.from,
+								).toLocaleDateString()}
+								-
+								{new Date(
+									user_store.data.temporal.posting_frequency.date_range.to,
+								).toLocaleDateString()})
+							{/if}
+						</div>
 					</div>
 
 					<div class="stat">

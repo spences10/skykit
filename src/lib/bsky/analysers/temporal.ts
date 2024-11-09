@@ -19,6 +19,11 @@ function calculate_posting_frequency(posts: BskyPost[]) {
 			longest_streak: 0,
 			most_active_hours: [],
 			most_active_days: [],
+			date_range: {
+				from: null,
+				to: null,
+				total_days: 0,
+			},
 		};
 
 	const dates = posts.map((p) => new Date(p.post.indexedAt));
@@ -27,8 +32,12 @@ function calculate_posting_frequency(posts: BskyPost[]) {
 	);
 	const latest = new Date(Math.max(...dates.map((d) => d.getTime())));
 
-	const total_days =
-		(latest.getTime() - earliest.getTime()) / (1000 * 60 * 60 * 24);
+	const total_days = Math.max(
+		1,
+		Math.ceil(
+			(latest.getTime() - earliest.getTime()) / (1000 * 60 * 60 * 24),
+		),
+	);
 
 	// Group posts by day
 	const posts_by_day = new Map<string, number>();
@@ -81,15 +90,23 @@ function calculate_posting_frequency(posts: BskyPost[]) {
 		])
 		.slice(0, 5);
 
+	const active_days_percentage =
+		(posts_by_day.size / total_days) * 100;
+
 	return {
 		posts_per_day: posts.length / total_days,
 		posts_per_week: (posts.length / total_days) * 7,
-		active_days_percentage: (posts_by_day.size / total_days) * 100,
+		active_days_percentage,
 		longest_streak,
 		most_active_hours,
 		most_active_days: Array.from(posts_by_weekday.entries()).sort(
 			([, a], [, b]) => b - a,
 		),
+		date_range: {
+			from: earliest.toISOString(),
+			to: latest.toISOString(),
+			total_days,
+		},
 	};
 }
 
