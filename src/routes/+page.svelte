@@ -47,6 +47,10 @@
 						type="text"
 						bind:value={handle}
 						onkeydown={handle_keydown}
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
 						placeholder="Enter Bluesky handle (e.g. alice.bsky.social)"
 						class="input join-item input-bordered flex-1 focus:outline-none"
 					/>
