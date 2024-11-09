@@ -57,7 +57,7 @@
 
 	<div class="mt-4 grid gap-4">
 		<!-- Rate Limits -->
-		<div class="stats stats-vertical shadow lg:stats-horizontal">
+		<div class="stats stats-vertical lg:stats-horizontal">
 			<div class="stat">
 				<div class="stat-figure text-primary">
 					<Bell class_names="h-6 w-6" />
