@@ -1,3 +1,13 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+html {
+	scroll-behavior: smooth;
+	word-break: break-word;
+}
+
+::selection {
+	color: oklch(var(--pc));
+	background: oklch(var(--p));
+}
