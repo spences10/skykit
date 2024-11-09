@@ -1,16 +1,26 @@
 <script lang="ts">
-	import { Comment, Heart, Refresh } from '$lib/icons';
+	import { Comment, Heart, Refresh, InformationCircle } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
 {#if user_store.data.engagement}
 	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">Engagement Stats</h2>
+			<h2 class="card-title mb-4">
+				Engagement Stats
+				<div class="tooltip" data-tip="Overview of how users interact with your posts through likes, reposts, and replies">
+					<InformationCircle class_names="h-5 w-5 text-base-content/60" />
+				</div>
+			</h2>
 
 			<!-- Average per post stats -->
 			<section class="mb-4">
-				<h3 class="mb-2 text-lg font-semibold">Average Per Post</h3>
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+					Average Per Post
+					<div class="tooltip" data-tip="The typical number of interactions you receive on each post">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
+				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow sm:stats-horizontal"
 				>
@@ -66,8 +76,11 @@
 
 			<!-- Other engagement metrics -->
 			<section class="mt-4">
-				<h3 class="mb-2 text-lg font-semibold">
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
 					Other Engagement Metrics
+					<div class="tooltip" data-tip="Additional metrics showing overall engagement performance and viral post success">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
 				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow sm:stats-horizontal"
@@ -100,8 +113,11 @@
 
 			<!-- Conversation metrics -->
 			<section class="mt-4">
-				<h3 class="mb-2 text-lg font-semibold">
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
 					Conversation Metrics
+					<div class="tooltip" data-tip="Measures how well your posts spark discussions and your participation in conversations">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
 				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow sm:stats-horizontal"

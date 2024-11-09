@@ -1,16 +1,26 @@
 <script lang="ts">
-	import { Comment, Edit, Image, Link, Upload } from '$lib/icons';
+	import { Comment, Edit, Image, Link, Upload, InformationCircle } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
 {#if user_store.data.content}
 	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">Content Analysis</h2>
+			<h2 class="card-title mb-4">
+				Content Analysis
+				<div class="tooltip" data-tip="Breakdown of your posting habits and content patterns">
+					<InformationCircle class_names="h-5 w-5 text-base-content/60" />
+				</div>
+			</h2>
 
 			<!-- Post Types -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold">Post Types</h3>
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+					Post Types
+					<div class="tooltip" data-tip="Distribution of your different types of posts: original content, replies, and reposts">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
+				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow md:stats-horizontal"
 				>
@@ -53,7 +63,12 @@
 
 			<!-- Content Style -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold">Content Style</h3>
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+					Content Style
+					<div class="tooltip" data-tip="How you format your posts with media and external links">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
+				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow sm:stats-horizontal"
 				>
@@ -87,8 +102,11 @@
 
 			<!-- Post Length Analysis -->
 			<section>
-				<h3 class="mb-2 text-lg font-semibold">
+				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
 					Post Length Analysis
+					<div class="tooltip" data-tip="Statistics about how long your posts typically are">
+						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					</div>
 				</h3>
 				<div class="grid gap-4 md:grid-cols-2">
 					<dl class="stats shadow">

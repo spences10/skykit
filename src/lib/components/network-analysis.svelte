@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { Bell, Comment, People } from '$lib/icons';
+	import {
+		Bell,
+		Comment,
+		InformationCircle,
+		People,
+	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 
 	let expanded_clusters = $state<string[]>([]);
@@ -21,11 +26,33 @@
 {#if user_store.data.network}
 	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">Network Analysis</h2>
+			<h2 class="card-title mb-4">
+				Network Analysis
+				<div
+					class="tooltip"
+					data-tip="Analysis of your interactions and connections with other users"
+				>
+					<InformationCircle
+						class_names="h-5 w-5 text-base-content/60"
+					/>
+				</div>
+			</h2>
 
 			<!-- Interaction Stats -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold">Top Interactions</h3>
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
+					Top Interactions
+					<div
+						class="tooltip"
+						data-tip="Users you most frequently engage with through replies and mentions"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
+					</div>
+				</h3>
 				<p class="mb-4 text-sm text-base-content/60">
 					Shows who you interact with most through replies, quotes,
 					and mentions across your posts.
@@ -90,8 +117,18 @@
 			<!-- Community Analysis -->
 			{#if user_store.data.network.community_detection.interaction_clusters.length > 0}
 				<section>
-					<h3 class="mb-2 text-lg font-semibold">
+					<h3
+						class="mb-2 flex items-center gap-2 text-lg font-semibold"
+					>
 						Community Analysis
+						<div
+							class="tooltip"
+							data-tip="Groups of users you regularly interact with"
+						>
+							<InformationCircle
+								class_names="h-4 w-4 text-base-content/60"
+							/>
+						</div>
 					</h3>
 					<div class="grid gap-4 md:grid-cols-1">
 						{#each user_store.data.network.community_detection.interaction_clusters as cluster}

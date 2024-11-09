@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { Calender, CircleCheck, Spark } from '$lib/icons';
+	import {
+		Calender,
+		CircleCheck,
+		InformationCircle,
+		Spark,
+	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -7,7 +12,17 @@
 	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<header class="mb-4 flex items-center gap-2">
-				<h2 class="card-title">Posting Patterns</h2>
+				<h2 class="card-title">
+					Posting Patterns
+					<div
+						class="tooltip"
+						data-tip="Analysis of when and how frequently you post"
+					>
+						<InformationCircle
+							class_names="h-5 w-5 text-base-content/60"
+						/>
+					</div>
+				</h2>
 
 				{#if user_store.data.temporal.posting_frequency.date_range.from && user_store.data.temporal.posting_frequency.date_range.to}
 					<div
@@ -24,7 +39,19 @@
 
 			<!-- Posting Frequency -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold">Posting Frequency</h3>
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
+					Posting Frequency
+					<div
+						class="tooltip"
+						data-tip="How often you post and your consistency over time"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
+					</div>
+				</h3>
 				<dl
 					class="stats stats-vertical w-full shadow md:stats-horizontal"
 				>
@@ -90,7 +117,17 @@
 				<!-- Peak Hours -->
 				<section class="card bg-base-200">
 					<div class="card-body">
-						<h3 class="card-title text-sm">Most Active Hours</h3>
+						<h3 class="card-title flex items-center gap-2 text-sm">
+							Most Active Hours
+							<div
+								class="tooltip"
+								data-tip="Times of day when you post most frequently"
+							>
+								<InformationCircle
+									class_names="h-4 w-4 text-base-content/60"
+								/>
+							</div>
+						</h3>
 						<dl class="space-y-2">
 							{#each user_store.data.temporal.posting_frequency.most_active_hours.slice(0, 3) as [hour, count]}
 								<div class="flex items-center justify-between">
@@ -107,7 +144,17 @@
 				<!-- Active Days -->
 				<section class="card bg-base-200">
 					<div class="card-body">
-						<h3 class="card-title text-sm">Most Active Days</h3>
+						<h3 class="card-title flex items-center gap-2 text-sm">
+							Most Active Days
+							<div
+								class="tooltip"
+								data-tip="Days of the week when you're most active"
+							>
+								<InformationCircle
+									class_names="h-4 w-4 text-base-content/60"
+								/>
+							</div>
+						</h3>
 						<dl class="space-y-2">
 							{#each user_store.data.temporal.posting_frequency.most_active_days.slice(0, 3) as [day, count]}
 								<div class="flex items-center justify-between">
@@ -124,8 +171,18 @@
 
 			<!-- Peak Activity Windows -->
 			<section class="mt-6">
-				<h3 class="mb-2 text-lg font-semibold">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Peak Activity Windows
+					<div
+						class="tooltip"
+						data-tip="Time periods when you're consistently most active"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
+					</div>
 				</h3>
 				<ul class="flex flex-wrap gap-2" role="list">
 					{#each user_store.data.temporal.peak_activity_windows as window}
