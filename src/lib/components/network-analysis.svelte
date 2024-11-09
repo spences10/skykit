@@ -119,13 +119,14 @@
 													class="badge badge-outline badge-md transition-colors hover:border-primary hover:bg-primary hover:text-primary-content hover:no-underline"
 													target="_blank"
 													rel="noopener noreferrer"
+													title={user}
 												>
-													{user}
+													{user.split('.')[0]}
 												</a>
 											{/each}
 											{#if cluster.users.length > 15}
 												<button
-													class="badge badge-ghost badge-lg cursor-pointer transition-colors hover:border-base-300 hover:bg-base-300"
+													class="badge badge-ghost badge-md cursor-pointer transition-colors hover:border-base-300 hover:bg-base-300"
 													onclick={() => toggle_cluster(cluster.name)}
 													aria-expanded={is_expanded(cluster.name)}
 												>
