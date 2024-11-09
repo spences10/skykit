@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { ApiStatus } from '$lib/components';
 
 	const funny_messages = [
 		'Oops! Looks like this page took a wrong turn at Albuquerque!',
@@ -9,7 +10,29 @@
 		'This page has gone to get milk and may never return 🥛',
 	];
 
-	type ErrorStatus = 404 | 400 | 500;
+	const rate_limit_messages = [
+		"Whoa there! You're moving too fast! 🏃‍♂️💨",
+		'Time for a quick break! ⏰',
+		"Let's take it easy for a moment! 🧘‍♂️",
+		'Too many requests - even ninjas need to rest! 🥷',
+	];
+
+	const is_rate_limited = $page.status === 429;
+
+	const get_message = () => {
+		if (is_rate_limited) {
+			const random_rate_message =
+				rate_limit_messages[
+					Math.floor(Math.random() * rate_limit_messages.length)
+				];
+			const retry_after =
+				$page.error?.message?.match(/\d+/)?.[0] || 'a few';
+			return `${random_rate_message} Try again in ${retry_after} seconds`;
+		}
+		return $page.error?.message || random_message;
+	};
+
+	type ErrorStatus = 404 | 400 | 500 | 429;
 	type ErrorEmojis = {
 		[key in ErrorStatus | 'default']: string[];
 	};
@@ -18,6 +41,7 @@
 		404: ['👻', '🕵️', '🗺️', '🌫️', '❓'],
 		400: ['🤔', '😅', '🫠', '🤦', '😵‍💫'],
 		500: ['🔥', '💥', '⚡', '🚨', '🎢'],
+		429: ['⏳', '🐌', '🚦', '⏰', '🧘‍♂️'],
 		default: ['🤖', '👾', '🎮', '🎲', '🎯'],
 	};
 
@@ -33,7 +57,7 @@
 </script>
 
 <div class="error_container">
-	<h1>{$page.status}: {$page.error?.message || random_message}</h1>
+	<h1>{$page.status}: {get_message()}</h1>
 
 	<div class="animation">
 		<div class="emoji">
@@ -42,6 +66,7 @@
 	</div>
 
 	<a href="/" class="home_button">Take me home</a>
+	<ApiStatus />
 </div>
 
 <style>

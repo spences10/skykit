@@ -1,3 +1,4 @@
+export { default as ApiStatus } from './api-status.svelte';
 export { default as ContentAnalysis } from './content-analysis.svelte';
 export { default as EngagementStats } from './engagement-stats.svelte';
 export { default as Insights } from './insights.svelte';
