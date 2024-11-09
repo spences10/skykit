@@ -29,7 +29,7 @@
 			<h2 class="card-title mb-4">
 				Network Analysis
 				<div
-					class="tooltip"
+					class="tooltip cursor-pointer"
 					data-tip="Analysis of your interactions and connections with other users"
 				>
 					<InformationCircle
@@ -45,7 +45,7 @@
 				>
 					Top Interactions
 					<div
-						class="tooltip"
+						class="tooltip cursor-pointer"
 						data-tip="Users you most frequently engage with through replies and mentions"
 					>
 						<InformationCircle
@@ -122,7 +122,7 @@
 					>
 						Community Analysis
 						<div
-							class="tooltip"
+							class="tooltip cursor-pointer"
 							data-tip="Groups of users you regularly interact with"
 						>
 							<InformationCircle

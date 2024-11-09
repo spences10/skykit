@@ -15,7 +15,7 @@
 				<h2 class="card-title">
 					Posting Patterns
 					<div
-						class="tooltip"
+						class="tooltip cursor-pointer"
 						data-tip="Analysis of when and how frequently you post"
 					>
 						<InformationCircle
@@ -26,7 +26,7 @@
 
 				{#if user_store.data.temporal.posting_frequency.date_range.from && user_store.data.temporal.posting_frequency.date_range.to}
 					<div
-						class="tooltip tooltip-right"
+						class="tooltip tooltip-right cursor-pointer"
 						data-tip={`Analysis from ${new Date(user_store.data.temporal.posting_frequency.date_range.from).toLocaleDateString()} to ${new Date(user_store.data.temporal.posting_frequency.date_range.to).toLocaleDateString()}`}
 					>
 						<span class="badge badge-sm">
@@ -44,7 +44,7 @@
 				>
 					Posting Frequency
 					<div
-						class="tooltip"
+						class="tooltip cursor-pointer"
 						data-tip="How often you post and your consistency over time"
 					>
 						<InformationCircle
@@ -120,7 +120,7 @@
 						<h3 class="card-title flex items-center gap-2 text-sm">
 							Most Active Hours
 							<div
-								class="tooltip"
+								class="tooltip cursor-pointer"
 								data-tip="Times of day when you post most frequently"
 							>
 								<InformationCircle
@@ -147,7 +147,7 @@
 						<h3 class="card-title flex items-center gap-2 text-sm">
 							Most Active Days
 							<div
-								class="tooltip"
+								class="tooltip cursor-pointer"
 								data-tip="Days of the week when you're most active"
 							>
 								<InformationCircle
@@ -176,7 +176,7 @@
 				>
 					Peak Activity Windows
 					<div
-						class="tooltip"
+						class="tooltip cursor-pointer"
 						data-tip="Time periods when you're consistently most active"
 					>
 						<InformationCircle

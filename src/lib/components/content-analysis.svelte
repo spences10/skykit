@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { Comment, Edit, Image, Link, Upload, InformationCircle } from '$lib/icons';
+	import {
+		Comment,
+		Edit,
+		Image,
+		InformationCircle,
+		Link,
+		Upload,
+	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -8,17 +15,29 @@
 		<div class="card-body">
 			<h2 class="card-title mb-4">
 				Content Analysis
-				<div class="tooltip" data-tip="Breakdown of your posting habits and content patterns">
-					<InformationCircle class_names="h-5 w-5 text-base-content/60" />
+				<div
+					class="tooltip cursor-pointer"
+					data-tip="Breakdown of your posting habits and content patterns"
+				>
+					<InformationCircle
+						class_names="h-5 w-5 text-base-content/60"
+					/>
 				</div>
 			</h2>
 
 			<!-- Post Types -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Post Types
-					<div class="tooltip" data-tip="Distribution of your different types of posts: original content, replies, and reposts">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="Distribution of your different types of posts: original content, replies, and reposts"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<dl
@@ -63,10 +82,17 @@
 
 			<!-- Content Style -->
 			<section class="mb-6">
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Content Style
-					<div class="tooltip" data-tip="How you format your posts with media and external links">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="How you format your posts with media and external links"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<dl
@@ -102,10 +128,17 @@
 
 			<!-- Post Length Analysis -->
 			<section>
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Post Length Analysis
-					<div class="tooltip" data-tip="Statistics about how long your posts typically are">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="Statistics about how long your posts typically are"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<div class="grid gap-4 md:grid-cols-2">

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { Comment, Heart, Refresh, InformationCircle } from '$lib/icons';
+	import {
+		Comment,
+		Heart,
+		InformationCircle,
+		Refresh,
+	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -8,17 +13,29 @@
 		<div class="card-body">
 			<h2 class="card-title mb-4">
 				Engagement Stats
-				<div class="tooltip" data-tip="Overview of how users interact with your posts through likes, reposts, and replies">
-					<InformationCircle class_names="h-5 w-5 text-base-content/60" />
+				<div
+					class="tooltip cursor-pointer"
+					data-tip="Overview of how users interact with your posts through likes, reposts, and replies"
+				>
+					<InformationCircle
+						class_names="h-5 w-5 text-base-content/60"
+					/>
 				</div>
 			</h2>
 
 			<!-- Average per post stats -->
 			<section class="mb-4">
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Average Per Post
-					<div class="tooltip" data-tip="The typical number of interactions you receive on each post">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="The typical number of interactions you receive on each post"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<dl
@@ -76,10 +93,17 @@
 
 			<!-- Other engagement metrics -->
 			<section class="mt-4">
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Other Engagement Metrics
-					<div class="tooltip" data-tip="Additional metrics showing overall engagement performance and viral post success">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="Additional metrics showing overall engagement performance and viral post success"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<dl
@@ -113,10 +137,17 @@
 
 			<!-- Conversation metrics -->
 			<section class="mt-4">
-				<h3 class="mb-2 text-lg font-semibold flex items-center gap-2">
+				<h3
+					class="mb-2 flex items-center gap-2 text-lg font-semibold"
+				>
 					Conversation Metrics
-					<div class="tooltip" data-tip="Measures how well your posts spark discussions and your participation in conversations">
-						<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+					<div
+						class="tooltip cursor-pointer"
+						data-tip="Measures how well your posts spark discussions and your participation in conversations"
+					>
+						<InformationCircle
+							class_names="h-4 w-4 text-base-content/60"
+						/>
 					</div>
 				</h3>
 				<dl

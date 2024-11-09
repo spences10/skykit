@@ -44,7 +44,7 @@
 			<h2 class="card-title mb-4">
 				Account Insights
 				<div
-					class="tooltip"
+					class="tooltip cursor-pointer"
 					data-tip="Best guess analysis of your account behavior and suggestions"
 				>
 					<InformationCircle
@@ -61,7 +61,7 @@
 					<Clipboard class_names="h-5 w-5" />
 					Account Type
 					<div
-						class="tooltip tooltip-left"
+						class="tooltip tooltip-left cursor-pointer"
 						data-tip="Based on your posting frequency, engagement patterns, and content style. These categories are determined by analyzing your last 300 posts."
 					>
 						<InformationCircle
@@ -93,7 +93,7 @@
 							<BarGraph class_names="h-5 w-5" />
 							Behavioural Insights
 							<div
-								class="tooltip"
+								class="tooltip cursor-pointer"
 								data-tip="Observations about your posting and interaction patterns"
 							>
 								<InformationCircle
@@ -122,7 +122,7 @@
 							<LightBulb class_names="h-5 w-5" />
 							Strategy Suggestions
 							<div
-								class="tooltip"
+								class="tooltip cursor-pointer"
 								data-tip="Guessed recommendation to improve your engagement"
 							>
 								<InformationCircle
