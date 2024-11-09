@@ -2,15 +2,17 @@ import { generate_insights } from '$lib/bsky/insights';
 import type { BskyProfile } from '$lib/bsky/types';
 import { Cache } from '$lib/cache';
 import { rate_limiter } from '$lib/rate-limiter';
-import type { AppBskyActorDefs } from '@atproto/api';
+import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 
-// Use public API for read operations
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
 
-const user_cache = new Cache(15);
+// Separate caches for different types of data with different TTLs
+const profile_cache = new Cache(5); // 5 minutes for profiles
+const feed_cache = new Cache(2); // 2 minutes for feeds
+const insights_cache = new Cache(10); // 10 minutes for insights
 
 function ensure_profile_fields(
 	profile: AppBskyActorDefs.ProfileViewDetailed,
@@ -28,6 +30,16 @@ function ensure_profile_fields(
 	};
 }
 
+type CachedFeedResponse = {
+	data: {
+		feed: AppBskyFeedDefs.FeedViewPost[];
+	};
+};
+
+type CachedProfileResponse = {
+	data: AppBskyActorDefs.ProfileViewDetailed;
+};
+
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
 	if (!handle) {
@@ -35,29 +47,44 @@ export const GET = async ({ url }) => {
 	}
 
 	try {
-		const cached_data = user_cache.get(handle) as {
-			profile: BskyProfile;
-			[key: string]: any;
-		} | null;
-		if (cached_data) {
+		// Try to get cached data
+		const cached_profile = profile_cache.get(handle);
+		const cached_feed = feed_cache.get(handle);
+		const cached_insights = insights_cache.get(handle);
+
+		// If we have all cached data, return it
+		if (cached_profile && cached_feed && cached_insights) {
 			return Response.json({
-				...cached_data,
+				profile: cached_profile,
+				...cached_insights,
 				rate_limit: rate_limiter.get_status(),
+				cache_status: {
+					profile: 'hit',
+					feed: 'hit',
+					insights: 'hit',
+				},
 			});
 		}
 
+		// Fetch what we need
 		const [feed_response, profile_response] = await Promise.all([
-			rate_limiter.addToQueue(() =>
-				agent.api.app.bsky.feed.getAuthorFeed({
-					actor: handle,
-					limit: 100,
-				}),
-			),
-			rate_limiter.addToQueue(() =>
-				agent.api.app.bsky.actor.getProfile({
-					actor: handle,
-				}),
-			),
+			!cached_feed
+				? rate_limiter.addToQueue(() =>
+						agent.api.app.bsky.feed.getAuthorFeed({
+							actor: handle,
+							limit: 100,
+						}),
+					)
+				: Promise.resolve(cached_feed as CachedFeedResponse),
+			!cached_profile
+				? rate_limiter.addToQueue(() =>
+						agent.api.app.bsky.actor.getProfile({
+							actor: handle,
+						}),
+					)
+				: Promise.resolve({
+						data: cached_profile,
+					} as CachedProfileResponse),
 		]);
 
 		if (!profile_response.data) {
@@ -65,21 +92,26 @@ export const GET = async ({ url }) => {
 		}
 
 		const profile = ensure_profile_fields(profile_response.data);
-		const insights = generate_insights(
-			feed_response.data.feed,
-			profile,
-		);
 
-		const data_to_cache = {
-			profile,
-			...insights,
-		};
+		// Only generate insights if we need to
+		const insights =
+			cached_insights ||
+			generate_insights(feed_response.data.feed, profile);
 
-		user_cache.set(handle, data_to_cache);
+		// Cache each piece separately
+		if (!cached_profile) profile_cache.set(handle, profile);
+		if (!cached_feed) feed_cache.set(handle, feed_response);
+		if (!cached_insights) insights_cache.set(handle, insights);
 
 		return Response.json({
-			...data_to_cache,
+			profile,
+			...insights,
 			rate_limit: rate_limiter.get_status(),
+			cache_status: {
+				profile: cached_profile ? 'hit' : 'miss',
+				feed: cached_feed ? 'hit' : 'miss',
+				insights: cached_insights ? 'hit' : 'miss',
+			},
 		});
 	} catch (err) {
 		console.error('Bluesky API error:', err);
