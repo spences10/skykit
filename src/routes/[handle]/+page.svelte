@@ -120,6 +120,8 @@
 				</p>
 				<pre><code>{JSON.stringify(data, null, 2)}</code></pre>
 			</div>
+		{:else}
+			<span class="sr-only">Raw data is currently hidden</span>
 		{/if}
 	</section>
 </main>
