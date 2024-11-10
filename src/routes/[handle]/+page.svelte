@@ -93,14 +93,15 @@
 
 	<ApiStatus />
 
-	<!-- Debug section -->
-	<section aria-label="Debug data">
+	<!-- Raw Data View -->
+	<section aria-label="Raw data view">
 		<button
 			class="btn btn-ghost btn-sm"
 			onclick={toggle_data_view}
 			aria-expanded={is_data_visible}
+			aria-controls="raw-data"
 		>
-			{is_data_visible ? 'Hide' : 'Show'} page data
+			{is_data_visible ? 'Hide' : 'Show'} raw data
 			<Chevron
 				class_names="ml-2 h-4 w-4 transition-transform {is_data_visible
 					? 'rotate-180'
@@ -109,13 +110,14 @@
 		</button>
 
 		{#if is_data_visible}
-			<p class="ml-3 mt-2">
-				This is all the data that makes up this page.
-			</p>
 			<div
+				id="raw-data"
 				class="mockup-code mt-2"
 				transition:slide={{ duration: 300 }}
 			>
+				<p class="ml-3 mt-2">
+					This is all the data that makes up this page.
+				</p>
 				<pre><code>{JSON.stringify(data, null, 2)}</code></pre>
 			</div>
 		{/if}
