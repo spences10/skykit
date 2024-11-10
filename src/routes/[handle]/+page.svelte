@@ -38,10 +38,12 @@
 	});
 
 	let { data } = $props<{ data: PageData }>();
-	let { profile } = data;
+	let store_initialized = $state(false);
 
+	// Initialize user store with data
 	$effect(() => {
 		user_store.update_data(data);
+		store_initialized = true;
 	});
 
 	$effect(() => {
@@ -55,10 +57,10 @@
 </script>
 
 <svelte:head>
-	<title>SkyKit - {profile.handle}</title>
+	<title>SkyKit - {data.profile?.handle || 'Loading...'}</title>
 	<meta
 		name="description"
-		content={`Check out ${profile.handle}'s Bluesky stats`}
+		content={`Check out ${data.profile?.handle || ''}'s Bluesky stats`}
 	/>
 </svelte:head>
 
@@ -67,61 +69,62 @@
 		<a href="/" class="btn btn-ghost"> ← Back to Search </a>
 	</nav>
 
-	<ProfileCard />
-	<DataNotice />
-	<SettingsPanel />
+	{#if store_initialized && data.profile}
+		<ProfileCard />
+		<SettingsPanel />
+		<DataNotice />
+		<div class="sections">
+			{#each visibility_state.sections as section (section)}
+				<div
+					animate:flip={{ duration: 400, easing: quintOut }}
+					in:receive={{ key: section }}
+					out:send={{ key: section }}
+				>
+					{#if section === 'engagement'}
+						<EngagementStats />
+					{:else if section === 'content'}
+						<ContentAnalysis />
+					{:else if section === 'temporal'}
+						<TemporalAnalysis />
+					{:else if section === 'network'}
+						<NetworkAnalysis />
+					{:else if section === 'insights'}
+						<Insights />
+					{/if}
+				</div>
+			{/each}
+		</div>
 
-	<div class="sections">
-		{#each visibility_state.sections as section (section)}
-			<div
-				animate:flip={{ duration: 400, easing: quintOut }}
-				in:receive={{ key: section }}
-				out:send={{ key: section }}
+		<!-- Raw Data View -->
+		<section aria-label="Raw data view">
+			<button
+				class="btn btn-ghost btn-sm"
+				onclick={toggle_data_view}
+				aria-expanded={is_data_visible}
+				aria-controls="raw-data"
 			>
-				{#if section === 'engagement'}
-					<EngagementStats />
-				{:else if section === 'content'}
-					<ContentAnalysis />
-				{:else if section === 'temporal'}
-					<TemporalAnalysis />
-				{:else if section === 'network'}
-					<NetworkAnalysis />
-				{:else if section === 'insights'}
-					<Insights />
-				{/if}
-			</div>
-		{/each}
-	</div>
+				{is_data_visible ? 'Hide' : 'Show'} raw data
+				<Chevron
+					class_names="ml-2 h-4 w-4 transition-transform {is_data_visible
+						? 'rotate-180'
+						: ''}"
+				/>
+			</button>
 
-	<!-- Raw Data View -->
-	<section aria-label="Raw data view">
-		<button
-			class="btn btn-ghost btn-sm"
-			onclick={toggle_data_view}
-			aria-expanded={is_data_visible}
-			aria-controls="raw-data"
-		>
-			{is_data_visible ? 'Hide' : 'Show'} raw data
-			<Chevron
-				class_names="ml-2 h-4 w-4 transition-transform {is_data_visible
-					? 'rotate-180'
-					: ''}"
-			/>
-		</button>
-
-		{#if is_data_visible}
-			<div
-				id="raw-data"
-				class="mockup-code mt-2"
-				transition:slide={{ duration: 300 }}
-			>
-				<p class="ml-3 mt-2">
-					This is all the data that makes up this page.
-				</p>
-				<pre><code>{JSON.stringify(data, null, 2)}</code></pre>
-			</div>
-		{:else}
-			<span class="sr-only">Raw data is currently hidden</span>
-		{/if}
-	</section>
+			{#if is_data_visible}
+				<div
+					id="raw-data"
+					class="mockup-code mt-2"
+					transition:slide={{ duration: 300 }}
+				>
+					<p class="ml-3 mt-2">
+						This is all the data that makes up this page.
+					</p>
+					<pre><code>{JSON.stringify(data, null, 2)}</code></pre>
+				</div>
+			{:else}
+				<span class="sr-only">Raw data is currently hidden</span>
+			{/if}
+		</section>
+	{/if}
 </main>

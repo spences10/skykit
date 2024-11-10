@@ -4,7 +4,7 @@
 	import { format_date, get_tooltip_props } from '$lib/utils';
 </script>
 
-{#if user_store.data.profile}
+{#if user_store.data?.profile}
 	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<header class="mb-4 flex items-center gap-4">

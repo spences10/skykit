@@ -2,7 +2,6 @@
 	import { InformationCircle } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
 
-	let is_loading = $state(false);
 	const max_posts = 100; // We can only analyze 100 posts at a time
 
 	// Use derived values from the store
@@ -18,42 +17,48 @@
 	);
 </script>
 
-<div class="card bg-base-200 shadow-lg">
+<article class="card mb-11 bg-base-200 shadow-xl">
 	<div class="card-body">
-		<div class="flex items-start gap-4">
-			<div class="flex-none">
-				<InformationCircle class_names="h-5 w-5 text-info" />
-			</div>
-			<div class="flex-1">
-				<h3 class="card-title text-lg">Analysis Scope</h3>
+		<header class="mb-4 flex items-center gap-2">
+			<h2 class="card-title">
+				Analysis Scope
 				<div
-					class="stats stats-vertical my-4 w-full shadow lg:stats-horizontal"
+					class="tooltip cursor-pointer"
+					data-tip="Overview of how many posts are included in this analysis"
 				>
-					<div class="stat">
-						<div class="stat-title">Analysed Posts</div>
-						<div class="stat-value text-primary">
-							{analysed_posts}
-						</div>
-						<div class="stat-desc">most recent posts</div>
-					</div>
-					<div class="stat">
-						<div class="stat-title">Total Posts</div>
-						<div class="stat-value">{total_posts}</div>
-						<div class="stat-desc">all time</div>
-					</div>
+					<InformationCircle
+						class_names="h-5 w-5 text-base-content/60"
+					/>
 				</div>
+			</h2>
+		</header>
 
-				<div class="alert alert-info">
-					<InformationCircle class_names="h-4 w-4" />
-					<span>
-						Analysis is based on your {max_posts} most recent posts to
-						provide relevant insights about current posting patterns.
-						{#if total_posts > max_posts}
-							This represents {percentage}% of your total posts.
-						{/if}
-					</span>
+		<section class="mb-6">
+			<dl
+				class="stats stats-vertical w-full shadow lg:stats-horizontal"
+			>
+				<div class="stat">
+					<dt class="stat-title">Analysed Posts</dt>
+					<dd class="stat-value text-primary">{analysed_posts}</dd>
+					<dd class="stat-desc">most recent posts</dd>
 				</div>
-			</div>
+				<div class="stat">
+					<dt class="stat-title">Total Posts</dt>
+					<dd class="stat-value">{total_posts}</dd>
+					<dd class="stat-desc">all time</dd>
+				</div>
+			</dl>
+		</section>
+
+		<div class="alert alert-info">
+			<InformationCircle class_names="h-4 w-4" />
+			<span>
+				Analysis is based on your {max_posts} most recent posts to provide
+				relevant insights about current posting patterns.
+				{#if total_posts > max_posts}
+					This represents {percentage}% of your total posts.
+				{/if}
+			</span>
 		</div>
 	</div>
-</div>
+</article>

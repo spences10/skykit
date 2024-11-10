@@ -5,19 +5,25 @@ export type VisibilityState = {
 };
 
 export function create_visibility_state() {
-	let sections = $state<string[]>([]);
+	let sections = $state<string[]>([
+		'engagement',
+		'content',
+		'temporal',
+		'network',
+		'insights',
+	]);
 
 	const update_sections = (
 		handle: string,
 		new_sections: string[],
 	) => {
-		sections = new_sections;
 		if (browser) {
 			localStorage.setItem(
 				`visible_sections_${handle}`,
 				JSON.stringify(new_sections),
 			);
 		}
+		sections = new_sections;
 	};
 
 	const load_sections = (handle: string) => {
@@ -25,15 +31,9 @@ export function create_visibility_state() {
 			const stored_sections = localStorage.getItem(
 				`visible_sections_${handle}`,
 			);
-			sections = stored_sections
-				? JSON.parse(stored_sections)
-				: [
-						'engagement',
-						'content',
-						'temporal',
-						'network',
-						'insights',
-					];
+			if (stored_sections) {
+				sections = JSON.parse(stored_sections);
+			}
 		}
 	};
 
