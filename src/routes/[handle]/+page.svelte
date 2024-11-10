@@ -16,7 +16,7 @@
 	import { visibility_state } from '$lib/visibility.svelte';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
-	import { crossfade } from 'svelte/transition';
+	import { crossfade, slide } from 'svelte/transition';
 
 	const [send, receive] = crossfade({
 		duration: (d) => Math.sqrt(d * 200),
@@ -51,23 +51,6 @@
 
 	let is_data_visible = $state(false);
 	const toggle_data_view = () => (is_data_visible = !is_data_visible);
-
-	const get_component = (section: string) => {
-		switch (section) {
-			case 'engagement':
-				return EngagementStats;
-			case 'content':
-				return ContentAnalysis;
-			case 'temporal':
-				return TemporalAnalysis;
-			case 'network':
-				return NetworkAnalysis;
-			case 'insights':
-				return Insights;
-			default:
-				return null;
-		}
-	};
 </script>
 
 <svelte:head>
@@ -93,7 +76,17 @@
 				in:receive={{ key: section }}
 				out:send={{ key: section }}
 			>
-				<svelte:component this={get_component(section)} />
+				{#if section === 'engagement'}
+					<EngagementStats />
+				{:else if section === 'content'}
+					<ContentAnalysis />
+				{:else if section === 'temporal'}
+					<TemporalAnalysis />
+				{:else if section === 'network'}
+					<NetworkAnalysis />
+				{:else if section === 'insights'}
+					<Insights />
+				{/if}
 			</div>
 		{/each}
 	</div>
