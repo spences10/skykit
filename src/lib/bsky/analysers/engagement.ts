@@ -33,7 +33,7 @@ export function analyse_engagement(
 		};
 	}
 
-	// Calculate totals only for original posts
+	// Calculate engagement totals for original posts
 	const total_likes = original_posts.reduce(
 		(sum, post) => sum + (post.post.likeCount || 0),
 		0,
@@ -47,35 +47,67 @@ export function analyse_engagement(
 		0,
 	);
 
+	// Calculate averages
+	const avg_likes = total_likes / total_posts;
+	const avg_reposts = total_reposts / total_posts;
+	const avg_replies = total_replies / total_posts;
 	const avg_engagement_per_post =
 		(total_likes + total_reposts + total_replies) / total_posts;
 
-	// Calculate engagement rate as a percentage
-	const engagement_rate = profile.followersCount
-		? (avg_engagement_per_post / profile.followersCount) * 100
-		: 0;
+	// A post is considered viral if it has:
+	// - At least 5 total engagements (likes + reposts + replies) AND
+	// - Engagement is at least 3x the user's average engagement AND
+	// - Has more engagements than the user has followers/10 (to account for follower count)
+	const viral_posts = original_posts.filter((post) => {
+		const post_engagement =
+			(post.post.likeCount || 0) +
+			(post.post.repostCount || 0) +
+			(post.post.replyCount || 0);
+		const follower_threshold = Math.max(
+			5,
+			Math.floor((profile.followersCount || 0) / 10),
+		);
+
+		return (
+			post_engagement >= 5 &&
+			post_engagement >= avg_engagement_per_post * 3 &&
+			post_engagement >= follower_threshold
+		);
+	});
+
+	const viral_post_percentage =
+		(viral_posts.length / total_posts) * 100;
+
+	// Fixed conversation metrics
+	// Count posts that are replies to others
+	const posts_that_are_replies = original_posts.filter((post) => {
+		const record = post.post.record as any;
+		return !!record.reply;
+	}).length;
+
+	// Count posts that received replies
+	const posts_with_replies = original_posts.filter(
+		(post) => (post.post.replyCount || 0) > 0,
+	).length;
+
+	// Calculate percentages correctly
+	const reply_rate = (posts_that_are_replies / total_posts) * 100;
+	const conversation_starter_ratio =
+		(posts_with_replies / total_posts) * 100;
 
 	return {
 		engagement_metrics: {
-			likes: {
-				total: total_likes,
-				average: total_likes / total_posts,
-			},
-			reposts: {
-				total: total_reposts,
-				average: total_reposts / total_posts,
-			},
-			replies: {
-				total: total_replies,
-				average: total_replies / total_posts,
-			},
+			likes: { total: total_likes, average: avg_likes },
+			reposts: { total: total_reposts, average: avg_reposts },
+			replies: { total: total_replies, average: avg_replies },
 		},
 		avg_engagement_per_post,
-		engagement_rate,
-		conversation_starter_ratio: get_conversation_starter_ratio(posts),
-		viral_post_percentage: calculate_viral_post_percentage(posts),
-		avg_replies_per_post: get_average_replies_per_post(posts),
-		reply_rate: get_reply_rate(posts),
+		engagement_rate:
+			(avg_engagement_per_post / (profile.followersCount || 1)) * 100,
+		conversation_starter_ratio,
+		viral_post_percentage,
+		avg_replies_per_post: avg_replies,
+		reply_rate,
 	};
 }
 

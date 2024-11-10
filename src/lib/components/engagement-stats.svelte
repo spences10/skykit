@@ -15,7 +15,7 @@
 				Engagement Stats
 				<div
 					class="tooltip cursor-pointer"
-					data-tip="Overview of how users interact with your posts through likes, reposts, and replies"
+					data-tip="Analysis of interactions with your original posts (excluding reposts)"
 				>
 					<InformationCircle
 						class_names="h-5 w-5 text-base-content/60"
@@ -31,7 +31,7 @@
 					Average Per Post
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="The typical number of interactions you receive on each post"
+						data-tip="Average interactions received on your original posts"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -99,7 +99,7 @@
 					Other Engagement Metrics
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="Additional metrics showing overall engagement performance and viral post success"
+						data-tip="Overall engagement performance and identification of high-performing posts"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -107,7 +107,7 @@
 					</div>
 				</h3>
 				<dl
-					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+					class="stats stats-vertical w-full shadow md:stats-horizontal"
 				>
 					<div class="stat">
 						<dt class="stat-title">Total Engagement per Post</dt>
@@ -117,7 +117,7 @@
 							)}
 						</dd>
 						<dd class="stat-desc">
-							Average likes + reposts + replies
+							Combined average of all interactions
 						</dd>
 					</div>
 
@@ -129,7 +129,7 @@
 							)}%
 						</dd>
 						<dd class="stat-desc">
-							Posts with 2x average engagement
+							Posts with 5+ engagements and 3x average
 						</dd>
 					</div>
 				</dl>
@@ -143,7 +143,7 @@
 					Conversation Metrics
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="Measures how well your posts spark discussions and your participation in conversations"
+						data-tip="How your posts contribute to and spark discussions"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -151,28 +151,27 @@
 					</div>
 				</h3>
 				<dl
-					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+					class="stats stats-vertical w-full shadow md:stats-horizontal"
 				>
 					<div class="stat">
 						<dt class="stat-title">Conversation Starter Rate</dt>
 						<dd class="stat-value">
-							{(
-								user_store.data.engagement
-									.conversation_starter_ratio * 100
-							).toFixed(0)}%
+							{user_store.data.engagement.conversation_starter_ratio.toFixed(
+								0,
+							)}%
 						</dd>
-						<dd class="stat-desc">Posts that start discussions</dd>
+						<dd class="stat-desc">
+							Posts that received replies from others
+						</dd>
 					</div>
 
 					<div class="stat">
 						<dt class="stat-title">Reply Rate</dt>
 						<dd class="stat-value">
-							{(user_store.data.engagement.reply_rate * 100).toFixed(
-								0,
-							)}%
+							{user_store.data.engagement.reply_rate.toFixed(0)}%
 						</dd>
 						<dd class="stat-desc">
-							Percentage of posts that are replies
+							Your posts that are replies to others
 						</dd>
 					</div>
 				</dl>

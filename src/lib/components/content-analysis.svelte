@@ -33,7 +33,7 @@
 					Post Types
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="Distribution of your different types of posts: original content, replies, and reposts"
+						data-tip="Breakdown of your posts by type (original posts, replies, and reposts)"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -41,7 +41,7 @@
 					</div>
 				</h3>
 				<dl
-					class="stats stats-vertical w-full shadow md:stats-horizontal"
+					class="stats stats-vertical w-full shadow sm:stats-horizontal"
 				>
 					<div class="stat">
 						<dt class="stat-figure text-primary">
@@ -49,9 +49,7 @@
 						</dt>
 						<dd class="stat-title">Original Posts</dd>
 						<dd class="stat-value text-primary">
-							{user_store.data.content.post_types.original_posts.toFixed(
-								0,
-							)}
+							{user_store.data.content.post_types.original_posts}
 						</dd>
 						<dd class="stat-desc">Direct posts to your feed</dd>
 					</div>
@@ -62,7 +60,7 @@
 						</dt>
 						<dd class="stat-title">Replies</dd>
 						<dd class="stat-value text-secondary">
-							{user_store.data.content.post_types.replies.toFixed(0)}
+							{user_store.data.content.post_types.replies}
 						</dd>
 						<dd class="stat-desc">Responses to other posts</dd>
 					</div>
@@ -73,7 +71,7 @@
 						</dt>
 						<dd class="stat-title">Reposts</dd>
 						<dd class="stat-value text-accent">
-							{user_store.data.content.post_types.reposts.toFixed(0)}
+							{user_store.data.content.post_types.reposts}
 						</dd>
 						<dd class="stat-desc">Shared posts from others</dd>
 					</div>
@@ -88,7 +86,7 @@
 					Content Style
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="How you format your posts with media and external links"
+						data-tip="How you format your original posts with media and external links"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
@@ -104,9 +102,7 @@
 						</dt>
 						<dd class="stat-title">Media Posts</dd>
 						<dd class="stat-value text-info">
-							{user_store.data.content.post_types.with_media.toFixed(
-								0,
-							)}
+							{user_store.data.content.post_types.with_media}
 						</dd>
 						<dd class="stat-desc">Posts containing images</dd>
 					</div>
@@ -117,9 +113,7 @@
 						</dt>
 						<dd class="stat-title">Posts with Links</dd>
 						<dd class="stat-value text-success">
-							{user_store.data.content.post_types.with_links.toFixed(
-								0,
-							)}
+							{user_store.data.content.post_types.with_links}
 						</dd>
 						<dd class="stat-desc">Posts containing external links</dd>
 					</div>

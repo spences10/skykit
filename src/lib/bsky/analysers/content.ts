@@ -2,47 +2,39 @@ import type { BskyPost, ContentPatterns } from '../types';
 import { has_links, has_media, is_quote, is_reply } from './helpers';
 
 export function analyse_content(posts: BskyPost[]): ContentPatterns {
+	const post_types = calculate_post_types(posts);
+	const post_lengths = analyse_post_lengths(posts);
+	const hashtag_usage = extract_hashtag_usage(posts);
+
 	return {
-		post_types: calculate_post_types(posts),
-		post_lengths: analyse_post_lengths(posts),
-		hashtag_usage: extract_hashtag_usage(posts),
+		post_types,
+		post_lengths,
+		hashtag_usage,
 	};
 }
 
 export function calculate_post_types(posts: BskyPost[]) {
-	const total = posts.length;
-	if (!total)
-		return {
-			original_posts: 0,
-			replies: 0,
-			reposts: 0,
-			quotes: 0,
-			with_media: 0,
-			with_links: 0,
-			text_only: 0,
-		};
+	// First identify reposts
+	const reposts = posts.filter(
+		(post) =>
+			post.reason?.['$type'] === 'app.bsky.feed.defs#reasonRepost',
+	);
+
+	// Get posts that aren't reposts
+	const non_reposts = posts.filter((post) => !post.reason);
 
 	return {
-		original_posts:
-			(posts.filter((p) => !is_reply(p) && !is_quote(p)).length /
-				total) *
-			100,
-		replies: (posts.filter((p) => is_reply(p)).length / total) * 100,
-		reposts:
-			(posts.filter(
-				(p) => p.post.repostCount && p.post.repostCount > 0,
-			).length /
-				total) *
-			100,
-		quotes: (posts.filter((p) => is_quote(p)).length / total) * 100,
-		with_media:
-			(posts.filter((p) => has_media(p)).length / total) * 100,
-		with_links:
-			(posts.filter((p) => has_links(p)).length / total) * 100,
-		text_only:
-			(posts.filter((p) => !has_media(p) && !has_links(p)).length /
-				total) *
-			100,
+		original_posts: non_reposts.filter(
+			(p) => !is_reply(p) && !is_quote(p),
+		).length,
+		replies: non_reposts.filter((p) => is_reply(p)).length,
+		reposts: reposts.length,
+		quotes: non_reposts.filter((p) => is_quote(p)).length,
+		with_media: non_reposts.filter((p) => has_media(p)).length,
+		with_links: non_reposts.filter((p) => has_links(p)).length,
+		text_only: non_reposts.filter(
+			(p) => !has_media(p) && !has_links(p),
+		).length,
 	};
 }
 
