@@ -8,7 +8,15 @@ export function analyse_engagement(
 	posts: BskyPost[],
 	profile: BskyProfile,
 ): EngagementMetrics {
-	const total_posts = posts.length;
+	// Filter out reposts and get only original posts
+	const original_posts = posts.filter((post) => {
+		const record = post.post.record as any;
+		// Check if it's not a repost and the post is authored by the profile
+		return !record.repost && post.post.author.did === profile.did;
+	});
+
+	const total_posts = original_posts.length;
+
 	if (!total_posts) {
 		return {
 			engagement_metrics: {
@@ -25,21 +33,21 @@ export function analyse_engagement(
 		};
 	}
 
-	// Calculate total engagements
-	const total_likes = posts.reduce(
+	// Calculate totals only for original posts
+	const total_likes = original_posts.reduce(
 		(sum, post) => sum + (post.post.likeCount || 0),
 		0,
 	);
-	const total_reposts = posts.reduce(
+	const total_reposts = original_posts.reduce(
 		(sum, post) => sum + (post.post.repostCount || 0),
 		0,
 	);
-	const total_replies = posts.reduce(
+	const total_replies = original_posts.reduce(
 		(sum, post) => sum + (post.post.replyCount || 0),
 		0,
 	);
 
-	const avg_engagement_per_post = 
+	const avg_engagement_per_post =
 		(total_likes + total_reposts + total_replies) / total_posts;
 
 	// Calculate engagement rate as a percentage
