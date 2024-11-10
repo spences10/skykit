@@ -1,132 +1,82 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { api_status } from '$lib/api-status.svelte';
-	import { ApiStatus } from '$lib/components';
 
 	const funny_messages = [
-		'Oops! Looks like this page took a wrong turn at Albuquerque!',
+		'Oops! Looks like this page took a wrong turn at Albuquerque! 🗺️',
 		'404: User not found. They might be out getting coffee ☕',
 		"Houston, we have a problem... This page doesn't exist 🚀",
-		'Looks like this page is playing hide and seek (and winning)',
+		'Looks like this page is playing hide and seek (and winning) 🙈',
 		'This page has gone to get milk and may never return 🥛',
+		'Error 404: Page got lost in the Bluesky! ☁️',
+		'Whoopsie! This page is on a digital vacation 🏖️',
+		'Page not found - must be chasing butterflies 🦋',
 	];
 
 	const rate_limit_messages = [
-		"Whoa there! You're moving too fast! 🏃‍♂️💨",
-		'Time for a quick break! ⏰',
+		"Whoa there, speed racer! You're moving too fast! 🏃‍♂️💨",
+		'Time for a quick tea break! ☕',
 		"Let's take it easy for a moment! 🧘‍♂️",
 		'Too many requests - even ninjas need to rest! 🥷',
+		'Our hamsters need a breather! 🐹',
+		"Slow down buttercup, Rome wasn't analyzed in a day! 🏛️",
 	];
 
+	const error_message = $page.error?.message;
 	const is_rate_limited = $page.status === 429;
 
-	// If we hit a rate limit error, make sure the API status reflects it
-	$effect(() => {
-		if (is_rate_limited) {
-			api_status.update_status({
-				...api_status.status,
-				is_healthy: false,
-				is_limited: true,
-				remaining_requests: 0,
-			});
-		}
-	});
-
-	const get_message = () => {
-		if (is_rate_limited) {
-			const random_rate_message =
-				rate_limit_messages[
-					Math.floor(Math.random() * rate_limit_messages.length)
-				];
-			const retry_after =
-				$page.error?.message?.match(/\d+/)?.[0] || 'a few';
-			return `${random_rate_message} Try again in ${retry_after} seconds`;
-		}
-		return $page.error?.message || random_message;
-	};
-
-	type ErrorStatus = 404 | 400 | 500 | 429;
-	type ErrorEmojis = {
-		[key in ErrorStatus | 'default']: string[];
-	};
-
-	const error_emojis: ErrorEmojis = {
-		404: ['👻', '🕵️', '🗺️', '🌫️', '❓'],
-		400: ['🤔', '😅', '🫠', '🤦', '😵‍💫'],
-		500: ['🔥', '💥', '⚡', '🚨', '🎢'],
-		429: ['⏳', '🐌', '🚦', '⏰', '🧘‍♂️'],
-		default: ['🤖', '👾', '🎮', '🎲', '🎯'],
-	};
-
-	const get_random_emoji = () => {
-		const status = $page.status as ErrorStatus;
-		const emoji_list = error_emojis[status] || error_emojis.default;
-		return emoji_list[Math.floor(Math.random() * emoji_list.length)];
-	};
-
-	const random_message =
-		funny_messages[Math.floor(Math.random() * funny_messages.length)];
-	const random_emoji = get_random_emoji();
+	const random_message = is_rate_limited
+		? rate_limit_messages[
+				Math.floor(Math.random() * rate_limit_messages.length)
+			]
+		: funny_messages[
+				Math.floor(Math.random() * funny_messages.length)
+			];
 </script>
 
-<div class="error_container">
-	<h1>{$page.status}: {get_message()}</h1>
+<div class="hero min-h-screen bg-base-200">
+	<div class="hero-content text-center">
+		<div class="max-w-md">
+			<div class="mb-8 flex justify-center">
+				<div class="avatar placeholder">
+					<div class="bg-neutral-focus w-32 rounded-full text-5xl">
+						{#if is_rate_limited}
+							🐌
+						{:else if $page.status === 404}
+							🔍
+						{:else}
+							🤔
+						{/if}
+					</div>
+				</div>
+			</div>
 
-	<div class="animation">
-		<div class="emoji">
-			{random_emoji}
+			<h1 class="mb-4 text-5xl font-bold">
+				{#if error_message}
+					<span class="text-error">{error_message}</span>
+				{:else}
+					<span class="text-primary">{$page.status}</span>
+				{/if}
+			</h1>
+
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<p class="text-lg">{random_message}</p>
+					{#if is_rate_limited}
+						<div class="alert alert-warning mt-4">
+							<p>
+								The API needs a little break. Try again in a few
+								moments! 🎭
+							</p>
+						</div>
+					{/if}
+					<div class="card-actions mt-6 justify-center">
+						<a href="/" class="btn btn-primary btn-wide gap-2">
+							<span>Take Me Home</span>
+							<span>🏠</span>
+						</a>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-
-	<a href="/" class="home_button">Take me home</a>
-	<ApiStatus />
 </div>
-
-<style>
-	.error_container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		height: 100vh;
-		text-align: center;
-		padding: 2rem;
-	}
-
-	h1 {
-		font-size: 2rem;
-		margin-bottom: 2rem;
-		color: #ff3e00;
-	}
-
-	.emoji {
-		font-size: 5rem;
-		animation: float 3s ease-in-out infinite;
-	}
-
-	.home_button {
-		margin-top: 2rem;
-		padding: 0.8rem 1.5rem;
-		background-color: #ff3e00;
-		color: white;
-		border-radius: 8px;
-		text-decoration: none;
-		transition: transform 0.2s;
-	}
-
-	.home_button:hover {
-		transform: scale(1.05);
-	}
-
-	@keyframes float {
-		0% {
-			transform: translateY(0px);
-		}
-		50% {
-			transform: translateY(-20px);
-		}
-		100% {
-			transform: translateY(0px);
-		}
-	}
-</style>

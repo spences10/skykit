@@ -1,5 +1,5 @@
-export { default as ApiStatus } from './api-status.svelte';
 export { default as ContentAnalysis } from './content-analysis.svelte';
+export { default as DataNotice } from './data-notice.svelte';
 export { default as EngagementStats } from './engagement-stats.svelte';
 export { default as Insights } from './insights.svelte';
 export { default as NetworkAnalysis } from './network-analysis.svelte';

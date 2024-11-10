@@ -2,8 +2,8 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import {
-		ApiStatus,
 		ContentAnalysis,
+		DataNotice,
 		EngagementStats,
 		Insights,
 		NetworkAnalysis,
@@ -17,6 +17,7 @@
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, slide } from 'svelte/transition';
+	import type { PageData } from './$types';
 
 	const [send, receive] = crossfade({
 		duration: (d) => Math.sqrt(d * 200),
@@ -36,7 +37,7 @@
 		},
 	});
 
-	let { data } = $props();
+	let { data } = $props<{ data: PageData }>();
 	let { profile } = data;
 
 	$effect(() => {
@@ -67,6 +68,7 @@
 	</nav>
 
 	<ProfileCard />
+	<DataNotice />
 	<SettingsPanel />
 
 	<div class="sections">
@@ -90,8 +92,6 @@
 			</div>
 		{/each}
 	</div>
-
-	<ApiStatus />
 
 	<!-- Raw Data View -->
 	<section aria-label="Raw data view">

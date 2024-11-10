@@ -10,7 +10,6 @@ export type { Profile };
 
 export type UserData = {
 	profile: Profile | null;
-	rate_limit: any;
 	engagement: EngagementData | null;
 	content: ContentData | null;
 	temporal: TemporalData | null;
@@ -161,7 +160,6 @@ const format_network_data = (data: NetworkData): NetworkData => ({
 export function create_user_data() {
 	let data = $state<UserData>({
 		profile: null,
-		rate_limit: null,
 		engagement: null,
 		content: null,
 		temporal: null,
@@ -195,9 +193,10 @@ export function create_user_data() {
 			);
 		}
 
-		for (const [key, value] of Object.entries(formatted_data)) {
-			data[key as keyof UserData] = value;
-		}
+		data = {
+			...data,
+			...formatted_data,
+		};
 	}
 
 	return {

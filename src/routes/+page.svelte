@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { ApiStatus } from '$lib/components';
 	import { MagnifyingGlass } from '$lib/icons';
 
 	let handle = $state('');
@@ -74,10 +73,6 @@
 					</button>
 				</div>
 			</div>
-		</div>
-
-		<div class="mt-16">
-			<ApiStatus />
 		</div>
 	</div>
 </div>

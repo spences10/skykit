@@ -42,22 +42,21 @@ type CachedProfileResponse = {
 
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
+
 	if (!handle) {
 		throw error(400, 'Handle is required');
 	}
 
 	try {
-		// Try to get cached data
+		// Try to get cached data first
 		const cached_profile = profile_cache.get(handle);
 		const cached_feed = feed_cache.get(handle);
 		const cached_insights = insights_cache.get(handle);
 
-		// If we have all cached data, return it
 		if (cached_profile && cached_feed && cached_insights) {
 			return Response.json({
 				profile: cached_profile,
 				...cached_insights,
-				rate_limit: rate_limiter.get_status(),
 				cache_status: {
 					profile: 'hit',
 					feed: 'hit',
@@ -68,23 +67,17 @@ export const GET = async ({ url }) => {
 
 		// Fetch what we need
 		const [feed_response, profile_response] = await Promise.all([
-			!cached_feed
-				? rate_limiter.add_to_queue(() =>
-						agent.api.app.bsky.feed.getAuthorFeed({
-							actor: handle,
-							limit: 100,
-						}),
-					)
-				: Promise.resolve(cached_feed as CachedFeedResponse),
-			!cached_profile
-				? rate_limiter.add_to_queue(() =>
-						agent.api.app.bsky.actor.getProfile({
-							actor: handle,
-						}),
-					)
-				: Promise.resolve({
-						data: cached_profile,
-					} as CachedProfileResponse),
+			rate_limiter.add_to_queue(() =>
+				agent.api.app.bsky.feed.getAuthorFeed({
+					actor: handle,
+					limit: 100, // Always fetch 100 posts
+				}),
+			),
+			rate_limiter.add_to_queue(() =>
+				agent.api.app.bsky.actor.getProfile({
+					actor: handle,
+				}),
+			),
 		]);
 
 		if (!profile_response.data) {
@@ -92,25 +85,23 @@ export const GET = async ({ url }) => {
 		}
 
 		const profile = ensure_profile_fields(profile_response.data);
+		const insights = generate_insights(
+			feed_response.data.feed,
+			profile,
+		);
 
-		// Only generate insights if we need to
-		const insights =
-			cached_insights ||
-			generate_insights(feed_response.data.feed, profile);
-
-		// Cache each piece separately
-		if (!cached_profile) profile_cache.set(handle, profile);
-		if (!cached_feed) feed_cache.set(handle, feed_response);
-		if (!cached_insights) insights_cache.set(handle, insights);
+		// Cache the data
+		profile_cache.set(handle, profile);
+		feed_cache.set(handle, feed_response);
+		insights_cache.set(handle, insights);
 
 		return Response.json({
 			profile,
 			...insights,
-			rate_limit: rate_limiter.get_status(),
 			cache_status: {
-				profile: cached_profile ? 'hit' : 'miss',
-				feed: cached_feed ? 'hit' : 'miss',
-				insights: cached_insights ? 'hit' : 'miss',
+				profile: 'miss',
+				feed: 'miss',
+				insights: 'miss',
 			},
 		});
 	} catch (err) {
