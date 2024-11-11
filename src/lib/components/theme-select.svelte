@@ -26,16 +26,14 @@
 	};
 </script>
 
-<div class="fixed right-4 top-4 z-50">
-	<select
-		bind:value={current_theme}
-		data-choose-theme
-		class="select select-ghost select-sm capitalize text-base-content/70 hover:text-base-content focus:text-base-content"
-		onchange={set_theme}
-	>
-		<option value="" disabled={current_theme !== ''}>Theme</option>
-		{#each themes as theme}
-			<option value={theme} class="capitalize">{theme}</option>
-		{/each}
-	</select>
-</div>
+<select
+	bind:value={current_theme}
+	data-choose-theme
+	class="select select-bordered w-full"
+	onchange={set_theme}
+>
+	<option value="" disabled={current_theme !== ''}>Theme</option>
+	{#each themes as theme}
+		<option value={theme} class="capitalize">{theme}</option>
+	{/each}
+</select>

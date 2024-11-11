@@ -2,9 +2,9 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { Chevron } from '$lib/icons';
-	import { themes } from '$lib/themes';
 	import { visibility_state } from '$lib/visibility.svelte';
 	import { slide } from 'svelte/transition';
+	import ThemeSelect from './theme-select.svelte';
 
 	// Define the sections that can be toggled
 	const sections = [
@@ -17,15 +17,12 @@
 
 	// State management
 	let is_open = $state(false);
-	let current_theme = $state('');
 
 	// Load settings from localStorage on mount
 	$effect(() => {
 		const handle = $page.params.handle;
 		if (browser) {
 			visibility_state.load_sections(handle);
-			const stored_theme = localStorage.getItem('theme');
-			current_theme = stored_theme || '';
 		}
 	});
 
@@ -45,15 +42,6 @@
 				current_sections.filter((s) => s !== id),
 			);
 		}
-	};
-
-	const set_theme = (event: Event) => {
-		const theme = (event.target as HTMLSelectElement).value;
-		if (browser) {
-			localStorage.setItem('theme', theme);
-			document.documentElement.setAttribute('data-theme', theme);
-		}
-		current_theme = theme;
 	};
 </script>
 
@@ -95,18 +83,7 @@
 				<div class="divider"></div>
 
 				<h3 class="card-title text-sm">Theme</h3>
-				<select
-					bind:value={current_theme}
-					class="select select-bordered w-full"
-					onchange={set_theme}
-				>
-					<option value="" disabled>Choose theme</option>
-					{#each themes as theme}
-						<option value={theme} class="capitalize">
-							{theme}
-						</option>
-					{/each}
-				</select>
+				<ThemeSelect />
 			</div>
 		</div>
 	{/if}
