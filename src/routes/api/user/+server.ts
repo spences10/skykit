@@ -1,6 +1,7 @@
 import { generate_insights } from '$lib/bsky/insights';
 import type { BskyProfile } from '$lib/bsky/types';
 import { Cache } from '$lib/cache';
+import { user_service } from '$lib/db/user-service';
 import { rate_limiter } from '$lib/rate-limiter';
 import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
@@ -90,14 +91,22 @@ export const GET = async ({ url }) => {
 			profile,
 		);
 
+		// Store profile and posts data
+		await Promise.all([
+			user_service.upsert_user(profile),
+			user_service.store_posts(profile.did, feed_response.data.feed),
+		]);
+
 		// Cache the data
 		profile_cache.set(handle, profile);
 		feed_cache.set(handle, feed_response);
+
 		insights_cache.set(handle, insights);
 
 		return Response.json({
 			profile,
 			...insights,
+			unfollowers: await user_service.get_unfollowers(profile.did),
 			cache_status: {
 				profile: 'miss',
 				feed: 'miss',
