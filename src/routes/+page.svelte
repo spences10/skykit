@@ -5,6 +5,20 @@
 	let handle = $state('');
 	let loading = $state(false);
 
+	const clean_handle = (value: string) => {
+		return value.replace(/\s+/g, '').trim();
+	};
+
+	const handle_input = (e: Event) => {
+		const input = e.target as HTMLInputElement;
+		const cleaned = clean_handle(input.value);
+		handle = cleaned;
+		// Set cursor position to end of input
+		input.value = cleaned;
+		input.selectionStart = cleaned.length;
+		input.selectionEnd = cleaned.length;
+	};
+
 	const handle_search = async () => {
 		if (!handle) return;
 		loading = true;
@@ -47,7 +61,8 @@
 			<div class="join w-full">
 				<input
 					type="text"
-					bind:value={handle}
+					value={handle}
+					oninput={handle_input}
 					onkeydown={handle_keydown}
 					autocomplete="off"
 					autocorrect="off"
