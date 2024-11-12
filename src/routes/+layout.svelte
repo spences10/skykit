@@ -5,6 +5,7 @@
 		PUBLIC_FATHOM_ID,
 		PUBLIC_FATHOM_URL,
 	} from '$env/static/public';
+	import { Footer } from '$lib/components';
 	import * as Fathom from 'fathom-client';
 	import '../app.css';
 
@@ -24,6 +25,9 @@
 	});
 </script>
 
-<main>
-	{@render children?.()}
-</main>
+<div class="flex min-h-screen flex-col">
+	<main class="flex-1">
+		{@render children?.()}
+	</main>
+	<Footer />
+</div>
