@@ -18,7 +18,7 @@
 		"Let's take it easy for a moment! 🧘‍♂️",
 		'Too many requests - even ninjas need to rest! 🥷',
 		'Our hamsters need a breather! 🐹',
-		"Slow down buttercup, Rome wasn't analyzed in a day! 🏛️",
+		"Slow down buttercup, Rome wasn't analysed in a day! 🏛️",
 	];
 
 	const error_message = $page.error?.message;
