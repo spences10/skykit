@@ -30,16 +30,6 @@ function ensure_profile_fields(
 	};
 }
 
-type CachedFeedResponse = {
-	data: {
-		feed: AppBskyFeedDefs.FeedViewPost[];
-	};
-};
-
-type CachedProfileResponse = {
-	data: AppBskyActorDefs.ProfileViewDetailed;
-};
-
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
 
