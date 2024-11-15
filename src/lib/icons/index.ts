@@ -10,6 +10,7 @@ export { default as Heart } from './heart.svelte';
 export { default as Image } from './image.svelte';
 export { default as InformationCircle } from './information-circle.svelte';
 export { default as LightBulb } from './light-bulb.svelte';
+export { default as LinkOutgoing } from './link-outgoing.svelte';
 export { default as Link } from './link.svelte';
 export { default as MagnifyingGlass } from './magnifying-glass.svelte';
 export { default as People } from './people.svelte';
