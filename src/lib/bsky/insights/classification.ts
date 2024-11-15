@@ -4,7 +4,7 @@ import type {
 	EngagementMetrics,
 	NetworkAnalytics,
 	TemporalPatterns,
-} from '../types';
+} from '$lib/types';
 
 export function classify_account(data: {
 	engagement: EngagementMetrics;
@@ -16,23 +16,33 @@ export function classify_account(data: {
 	const classifications = [];
 
 	// Engagement-based classification
-	if (data.engagement.conversation_starter_ratio > 0.3) {
+	if (data.engagement.engagement_rate > 30) {
 		classifications.push('Conversation Starter');
 	}
-	if (data.engagement.viral_post_percentage > 10) {
+	if (data.engagement.trending_score > 10) {
 		classifications.push('Viral Creator');
 	}
 
 	// Content-based classification
-	if (data.content.post_types.original_posts > 70) {
+	const total_posts =
+		data.content.post_types.text_only +
+		data.content.post_types.with_media +
+		data.content.post_types.with_links;
+
+	if (
+		total_posts > 0 &&
+		data.content.post_types.text_only > total_posts * 0.7
+	) {
 		classifications.push('Original Content Creator');
 	}
-	if (data.content.post_types.replies > 50) {
+	if (data.content.post_types.replies > total_posts * 0.5) {
 		classifications.push('Community Engager');
 	}
 
 	// Network-based classification
-	if (data.profile.followersCount > data.profile.followsCount * 2) {
+	const followerCount = data.profile.followersCount || 0;
+	const followingCount = data.profile.followsCount || 0;
+	if (followingCount > 0 && followerCount > followingCount * 2) {
 		classifications.push('Influential');
 	}
 
@@ -53,9 +63,9 @@ export function generate_behavioural_insights(data: {
 	const insights = [];
 
 	// Engagement insights
-	if (data.engagement.viral_post_percentage > 5) {
+	if (data.engagement.trending_score > 5) {
 		insights.push(
-			`Creates viral content with ${data.engagement.viral_post_percentage.toFixed(1)}% of posts gaining significant traction`,
+			`Creates trending content with a score of ${data.engagement.trending_score.toFixed(1)}`,
 		);
 	}
 
@@ -67,12 +77,9 @@ export function generate_behavioural_insights(data: {
 	}
 
 	// Network insights
-	const topInteractions =
-		data.network.interaction_network.most_replied_to[0];
-	if (topInteractions) {
-		insights.push(
-			`Most frequently interacts with @${topInteractions[0]}`,
-		);
+	const top_reply = data.network.reply_network.outgoing[0];
+	if (top_reply) {
+		insights.push(`Most frequently interacts with @${top_reply[0]}`);
 	}
 
 	return insights;
@@ -101,7 +108,7 @@ export function generate_content_strategy_suggestions(data: {
 	}
 
 	// Temporal suggestions
-	if (data.temporal.consistency_score < 0.5) {
+	if (data.temporal.posting_frequency.active_days_percentage < 50) {
 		suggestions.push(
 			'More consistent posting schedule could help build a stronger following',
 		);

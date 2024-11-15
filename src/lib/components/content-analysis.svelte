@@ -23,6 +23,17 @@
 						class_names="h-5 w-5 text-base-content/60"
 					/>
 				</div>
+				{#if user_store.data.temporal?.posting_frequency.date_range}
+					<div
+						class="tooltip tooltip-right cursor-pointer"
+						data-tip={`Analysis from ${new Date(user_store.data.temporal.posting_frequency.date_range.from).toLocaleDateString()} to ${new Date(user_store.data.temporal.posting_frequency.date_range.to).toLocaleDateString()}`}
+					>
+						<span class="badge badge-sm">
+							{user_store.data.temporal.posting_frequency.date_range
+								.total_days} days
+						</span>
+					</div>
+				{/if}
 			</h2>
 
 			<!-- Post Types -->
@@ -41,7 +52,7 @@
 					</div>
 				</h3>
 				<dl
-					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+					class="stats stats-vertical w-full shadow md:stats-horizontal"
 				>
 					<div class="stat">
 						<dt class="stat-figure text-primary">
@@ -49,7 +60,7 @@
 						</dt>
 						<dd class="stat-title">Original Posts</dd>
 						<dd class="stat-value text-primary">
-							{user_store.data.content.post_types.original_posts}
+							{user_store.data.content.post_types.text_only}
 						</dd>
 						<dd class="stat-desc">Direct posts to your feed</dd>
 					</div>
@@ -128,62 +139,51 @@
 					Post Length Analysis
 					<div
 						class="tooltip cursor-pointer"
-						data-tip="Statistics about how long your posts typically are"
+						data-tip="Statistics about your average post length"
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"
 						/>
 					</div>
 				</h3>
-				<div class="grid gap-4 md:grid-cols-2">
-					<dl class="stats shadow">
+				<dl
+					class="stats stats-vertical w-full shadow sm:stats-horizontal"
+				>
+					<div class="stat">
+						<dt class="stat-title">Average Post Length</dt>
+						<dd class="stat-value">
+							{user_store.data.content.avg_post_length.toFixed(0)}
+						</dd>
+						<dd class="stat-desc">characters per post</dd>
+					</div>
+
+					{#if user_store.data.content.most_used_hashtags.length > 0}
 						<div class="stat">
-							<dt class="stat-title">Average Length</dt>
+							<dt class="stat-title">Top Hashtag</dt>
+							<dd class="stat-value text-sm text-secondary">
+								{user_store.data.content.most_used_hashtags[0][0]}
+							</dd>
+							<dd class="stat-desc">
+								Used {user_store.data.content
+									.most_used_hashtags[0][1]} times
+							</dd>
+						</div>
+					{/if}
+
+					{#if user_store.data.content.media_engagement.image_posts.count > 0}
+						<div class="stat">
+							<dt class="stat-title">Media Engagement</dt>
 							<dd class="stat-value">
-								{user_store.data.content.post_lengths.average.toFixed(
-									0,
+								{user_store.data.content.media_engagement.image_posts.avg_engagement.toFixed(
+									1,
 								)}
 							</dd>
-							<dd class="stat-desc">characters per post</dd>
-						</div>
-						<div class="stat">
-							<dt class="stat-title">Median Length</dt>
-							<dd class="stat-value">
-								{user_store.data.content.post_lengths.median}
+							<dd class="stat-desc">
+								average interactions per media post
 							</dd>
-							<dd class="stat-desc">typical post length</dd>
 						</div>
-					</dl>
-
-					<section class="card bg-base-200 shadow">
-						<div class="card-body">
-							<h4 class="card-title text-sm">Length Distribution</h4>
-							<dl class="space-y-2">
-								<div class="flex items-center justify-between">
-									<dt>Short (&#60;50 chars)</dt>
-									<dd class="badge badge-primary">
-										{user_store.data.content.post_lengths.distribution
-											.short}
-									</dd>
-								</div>
-								<div class="flex items-center justify-between">
-									<dt>Medium (50-200)</dt>
-									<dd class="badge badge-secondary">
-										{user_store.data.content.post_lengths.distribution
-											.medium}
-									</dd>
-								</div>
-								<div class="flex items-center justify-between">
-									<dt>Long (>200)</dt>
-									<dd class="badge badge-accent">
-										{user_store.data.content.post_lengths.distribution
-											.long}
-									</dd>
-								</div>
-							</dl>
-						</div>
-					</section>
-				</div>
+					{/if}
+				</dl>
 			</section>
 		</div>
 	</article>

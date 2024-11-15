@@ -9,7 +9,9 @@
 		user_store.data.profile?.postsCount ?? 0,
 	);
 	let analysed_posts = $derived(
-		user_store.data.content?.post_types?.original_posts ?? 0,
+		(user_store.data.content?.post_types?.text_only ?? 0) +
+			(user_store.data.content?.post_types?.with_media ?? 0) +
+			(user_store.data.content?.post_types?.with_links ?? 0),
 	);
 
 	const percentage = $derived(

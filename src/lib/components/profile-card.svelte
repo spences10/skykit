@@ -2,6 +2,18 @@
 	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
 	import { format_date, get_tooltip_props } from '$lib/utils';
+
+	// Create derived values with null checks
+	let followers_count = $derived(
+		user_store.data.profile?.followersCount ?? 0,
+	);
+	let follows_count = $derived(
+		user_store.data.profile?.followsCount ?? 0,
+	);
+	let posts_count = $derived(
+		user_store.data.profile?.postsCount ?? 0,
+	);
+	let indexed_at = $derived(user_store.data.profile?.indexedAt ?? '');
 </script>
 
 {#if user_store.data?.profile}
@@ -46,12 +58,8 @@
 				<div class="stat">
 					<div class="stat-title">Followers</div>
 					<div class="stat-value">
-						<span
-							{...get_tooltip_props(
-								user_store.data.profile.followersCount,
-							)}
-						>
-							{number_crunch(user_store.data.profile.followersCount)}
+						<span {...get_tooltip_props(followers_count)}>
+							{number_crunch(followers_count)}
 						</span>
 					</div>
 				</div>
@@ -59,12 +67,8 @@
 				<div class="stat">
 					<div class="stat-title">Following</div>
 					<div class="stat-value">
-						<span
-							{...get_tooltip_props(
-								user_store.data.profile.followsCount,
-							)}
-						>
-							{number_crunch(user_store.data.profile.followsCount)}
+						<span {...get_tooltip_props(follows_count)}>
+							{number_crunch(follows_count)}
 						</span>
 					</div>
 				</div>
@@ -72,12 +76,8 @@
 				<div class="stat">
 					<div class="stat-title">Posts</div>
 					<div class="stat-value">
-						<span
-							{...get_tooltip_props(
-								user_store.data.profile.postsCount,
-							)}
-						>
-							{number_crunch(user_store.data.profile.postsCount)}
+						<span {...get_tooltip_props(posts_count)}>
+							{number_crunch(posts_count)}
 						</span>
 					</div>
 				</div>
@@ -96,14 +96,14 @@
 			{/if}
 
 			<footer class="card-actions mt-4 justify-end">
-				<time
-					class="text-sm text-base-content/60"
-					datetime={user_store.data.profile.indexedAt}
-				>
-					Last updated: {format_date(
-						user_store.data.profile.indexedAt,
-					)}
-				</time>
+				{#if indexed_at}
+					<time
+						class="text-sm text-base-content/60"
+						datetime={indexed_at}
+					>
+						Last updated: {format_date(indexed_at)}
+					</time>
+				{/if}
 			</footer>
 		</div>
 	</article>

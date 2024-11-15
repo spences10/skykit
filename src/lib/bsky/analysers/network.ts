@@ -1,20 +1,62 @@
+import type { BskyPost, NetworkAnalytics } from '$lib/types';
 import type { AppBskyActorDefs } from '@atproto/api';
-import type { BskyPost, NetworkAnalytics } from '../types';
 
 export function analyse_network(posts: BskyPost[]): NetworkAnalytics {
-	const interaction_network = build_interaction_network(posts);
-	const community_detection = detect_communities(posts);
+	const interaction_data = build_interaction_network(posts);
+	const community_info = detect_communities(posts);
+
+	// Calculate interaction totals
+	const total_replies = interaction_data.most_replied_to.reduce(
+		(sum, [, count]) => sum + count,
+		0,
+	);
+	const total_likes = posts.reduce(
+		(sum, post) => sum + (post.post.likeCount || 0),
+		0,
+	);
+	const total_reposts = posts.reduce(
+		(sum, post) => sum + (post.post.repostCount || 0),
+		0,
+	);
 
 	return {
 		interaction_network: {
-			...interaction_network,
+			...interaction_data,
 			frequent_conversations: [],
 		},
 		community_detection: {
-			primary_communities:
-				community_detection.primary_communities.map((c) => c.name),
-			interaction_clusters: community_detection.primary_communities,
+			primary_communities: community_info.primary_communities.map(
+				(c) => c.name,
+			),
+			interaction_clusters: community_info.primary_communities,
 		},
+		follower_growth_rate: 0,
+		following_growth_rate: 0,
+		follower_following_ratio: 0,
+		mention_network: {
+			incoming: interaction_data.most_mentioned,
+			outgoing: [],
+		},
+		reply_network: {
+			incoming: [],
+			outgoing: interaction_data.most_replied_to,
+		},
+		interaction_patterns: {
+			likes_given: 0,
+			likes_received: total_likes,
+			reposts_given: 0,
+			reposts_received: total_reposts,
+			replies_given: total_replies,
+			replies_received: posts.reduce(
+				(sum, post) => sum + (post.post.replyCount || 0),
+				0,
+			),
+		},
+		network_centrality: calculate_network_centrality(
+			interaction_data,
+			community_info,
+		),
+		influential_followers: [],
 	};
 }
 
@@ -71,7 +113,6 @@ function detect_communities(posts: BskyPost[]) {
 	const interactions = new Map<string, Set<string>>();
 
 	posts.forEach((post) => {
-		// Get the author of the current post
 		const current_author = post.post.author.handle;
 
 		// Add interactions from replies
@@ -91,7 +132,6 @@ function detect_communities(posts: BskyPost[]) {
 		});
 	});
 
-	// Find groups with frequent interactions
 	const communities = find_communities(interactions);
 
 	return {
@@ -107,14 +147,44 @@ function detect_communities(posts: BskyPost[]) {
 			.sort((a, b) => b.interaction_count - a.interaction_count)
 			.slice(0, 5)
 			.map((c) => ({
-				name: `Community of ${c.members[0]}`, // Use most active member as community name
+				name: `Community of ${c.members[0]}`,
 				users: c.members,
 				interaction_count: c.interaction_count,
 			})),
 	};
 }
 
-// Helper functions
+function calculate_network_centrality(
+	interaction_data: ReturnType<typeof build_interaction_network>,
+	community_info: ReturnType<typeof detect_communities>,
+): number {
+	const total_interactions =
+		interaction_data.most_replied_to.reduce(
+			(sum, [, count]) => sum + count,
+			0,
+		) +
+		interaction_data.most_quoted.reduce(
+			(sum, [, count]) => sum + count,
+			0,
+		) +
+		interaction_data.most_mentioned.reduce(
+			(sum, [, count]) => sum + count,
+			0,
+		);
+
+	const community_factor = community_info.primary_communities.reduce(
+		(sum, community) => sum + community.interaction_count,
+		0,
+	);
+
+	// Normalize to 0-1 range considering both direct interactions and community involvement
+	return Math.min(
+		1,
+		total_interactions / 1000 + community_factor / 2000,
+	);
+}
+
+// Helper functions - unchanged
 function map_to_sorted_array(
 	map: Map<string, number>,
 ): Array<[string, number]> {

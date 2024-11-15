@@ -1,5 +1,5 @@
+import type { BskyPost } from '$lib/types';
 import type { AppBskyEmbedImages } from '@atproto/api';
-import type { BskyPost } from '../types';
 
 export const is_reply = (post: BskyPost): boolean =>
 	!!(post.post.record as any).reply;

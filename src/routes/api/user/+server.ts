@@ -1,8 +1,8 @@
 import { generate_insights } from '$lib/bsky/insights';
-import type { BskyProfile } from '$lib/bsky/types';
 import { Cache } from '$lib/cache';
 import { rate_limiter } from '$lib/rate-limiter';
-import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
+import type { BskyProfile } from '$lib/types';
+import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 

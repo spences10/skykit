@@ -1,62 +1,83 @@
-import type { BskyPost, ContentPatterns } from '../types';
-import { has_links, has_media, is_quote, is_reply } from './helpers';
+import type { BskyPost, ContentPatterns } from '$lib/types';
+import { has_links, has_media, is_reply } from './helpers';
 
 export function analyse_content(posts: BskyPost[]): ContentPatterns {
-	const post_types = calculate_post_types(posts);
-	const post_lengths = analyse_post_lengths(posts);
-	const hashtag_usage = extract_hashtag_usage(posts);
+	if (!posts.length) {
+		return {
+			post_types: {
+				text_only: 0,
+				with_media: 0,
+				with_links: 0,
+				replies: 0,
+				reposts: 0,
+			},
+			avg_post_length: 0,
+			most_used_hashtags: [],
+			popular_topics: [],
+			language_stats: {},
+			media_engagement: {
+				image_posts: {
+					count: 0,
+					avg_engagement: 0,
+				},
+				link_posts: {
+					count: 0,
+					avg_engagement: 0,
+				},
+			},
+		};
+	}
 
-	return {
-		post_types,
-		post_lengths,
-		hashtag_usage,
-	};
-}
-
-export function calculate_post_types(posts: BskyPost[]) {
-	// First identify reposts
+	// Calculate post types
+	const non_reposts = posts.filter((post) => !post.reason);
 	const reposts = posts.filter(
 		(post) =>
 			post.reason?.['$type'] === 'app.bsky.feed.defs#reasonRepost',
 	);
 
-	// Get posts that aren't reposts
-	const non_reposts = posts.filter((post) => !post.reason);
-
-	return {
-		original_posts: non_reposts.filter(
-			(p) => !is_reply(p) && !is_quote(p),
-		).length,
-		replies: non_reposts.filter((p) => is_reply(p)).length,
-		reposts: reposts.length,
-		quotes: non_reposts.filter((p) => is_quote(p)).length,
-		with_media: non_reposts.filter((p) => has_media(p)).length,
-		with_links: non_reposts.filter((p) => has_links(p)).length,
+	const post_types = {
 		text_only: non_reposts.filter(
 			(p) => !has_media(p) && !has_links(p),
 		).length,
+		with_media: non_reposts.filter((p) => has_media(p)).length,
+		with_links: non_reposts.filter((p) => has_links(p)).length,
+		replies: non_reposts.filter((p) => is_reply(p)).length,
+		reposts: reposts.length,
+	};
+
+	// Calculate average post length
+	const avg_post_length = calculate_avg_post_length(posts);
+
+	// Extract hashtags
+	const most_used_hashtags = extract_hashtags(posts);
+
+	// Extract topics (simplified)
+	const popular_topics = extract_topics(posts);
+
+	// Calculate language stats (simplified)
+	const language_stats = calculate_language_stats(posts);
+
+	// Calculate media engagement
+	const media_engagement = calculate_media_engagement(posts);
+
+	return {
+		post_types,
+		avg_post_length,
+		most_used_hashtags,
+		popular_topics,
+		language_stats,
+		media_engagement,
 	};
 }
 
-export function analyse_post_lengths(posts: BskyPost[]) {
+function calculate_avg_post_length(posts: BskyPost[]): number {
 	const lengths = posts.map(
 		(p) => (p.post.record as any).text?.length || 0,
 	);
-	const average = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-
-	const sorted = [...lengths].sort((a, b) => a - b);
-	const median = sorted[Math.floor(sorted.length / 2)];
-
-	const distribution = {
-		short: lengths.filter((l) => l < 50).length,
-		medium: lengths.filter((l) => l >= 50 && l < 200).length,
-		long: lengths.filter((l) => l >= 200).length,
-	};
-
-	return { average, median, distribution };
+	return lengths.reduce((a, b) => a + b, 0) / lengths.length;
 }
 
-export function extract_hashtag_usage(
+function extract_hashtags(
 	posts: BskyPost[],
 ): Array<[string, number]> {
 	const hashtags = new Map<string, number>();
@@ -74,4 +95,71 @@ export function extract_hashtag_usage(
 	return Array.from(hashtags.entries())
 		.sort(([, a], [, b]) => b - a)
 		.slice(0, 10);
+}
+
+function extract_topics(posts: BskyPost[]): Array<[string, number]> {
+	// Simplified topic extraction based on word frequency
+	const topics = new Map<string, number>();
+
+	posts.forEach((post) => {
+		const text = (post.post.record as any).text;
+		if (!text) return;
+		const words = text.toLowerCase().split(/\s+/);
+		words.forEach((word: string) => {
+			if (word.length > 4) {
+				// Simple filter for meaningful words
+				topics.set(word, (topics.get(word) || 0) + 1);
+			}
+		});
+	});
+
+	return Array.from(topics.entries())
+		.sort(([, a], [, b]) => b - a)
+		.slice(0, 10);
+}
+
+function calculate_language_stats(posts: BskyPost[]): {
+	[key: string]: number;
+} {
+	// Simplified language detection - just returning default for now
+	return {
+		en: 100, // Assuming English for now
+	};
+}
+
+function calculate_media_engagement(posts: BskyPost[]): {
+	image_posts: { count: number; avg_engagement: number };
+	link_posts: { count: number; avg_engagement: number };
+} {
+	const image_posts = posts.filter((p) => has_media(p));
+	const link_posts = posts.filter((p) => has_links(p));
+
+	function get_post_engagement(post: BskyPost): number {
+		return (
+			(post.post.likeCount || 0) +
+			(post.post.repostCount || 0) +
+			(post.post.replyCount || 0)
+		);
+	}
+
+	return {
+		image_posts: {
+			count: image_posts.length,
+			avg_engagement: image_posts.length
+				? image_posts.reduce(
+						(sum, post) => sum + get_post_engagement(post),
+						0,
+					) / image_posts.length
+				: 0,
+		},
+		link_posts: {
+			count: link_posts.length,
+			avg_engagement: link_posts.length
+				? link_posts.reduce(
+						(sum, post) => sum + get_post_engagement(post),
+						0,
+					) / link_posts.length
+				: 0,
+		},
+	};
 }

@@ -1,34 +1,35 @@
 import type {
-	ContentPatterns as ContentData,
-	EngagementMetrics as EngagementData,
-	NetworkAnalytics as NetworkData,
-	BskyProfile as Profile,
-	TemporalPatterns as TemporalData,
-} from './bsky/types';
+	BskyProfile,
+	ContentPatterns,
+	EngagementMetrics,
+	NetworkAnalytics,
+	TemporalPatterns,
+} from '$lib/types';
 
-export type { Profile };
+export type { BskyProfile };
 
+// Make all properties either the type or undefined, except profile which can be null
 export type UserData = {
-	profile: Profile | null;
-	engagement: EngagementData | null;
-	content: ContentData | null;
-	temporal: TemporalData | null;
-	network: NetworkData | null;
-	account_classification: string[] | null;
-	behavioural_insights: string[] | null;
-	content_strategy_suggestions: string[] | null;
+	profile: BskyProfile | null;
+	engagement?: EngagementMetrics;
+	content?: ContentPatterns;
+	temporal?: TemporalPatterns;
+	network?: NetworkAnalytics;
+	account_classification?: string[];
+	behavioural_insights?: string[];
+	content_strategy_suggestions?: string[];
 };
 
 function create_user_data() {
 	let data = $state<UserData>({
 		profile: null,
-		engagement: null,
-		content: null,
-		temporal: null,
-		network: null,
-		account_classification: null,
-		behavioural_insights: null,
-		content_strategy_suggestions: null,
+		engagement: undefined,
+		content: undefined,
+		temporal: undefined,
+		network: undefined,
+		account_classification: undefined,
+		behavioural_insights: undefined,
+		content_strategy_suggestions: undefined,
 	});
 
 	const update_data = (new_data: UserData) => {

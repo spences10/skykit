@@ -1,10 +1,10 @@
+import type { BskyPost, BskyProfile } from '$lib/types';
 import * as analysers from './analysers';
 import {
 	classify_account,
 	generate_behavioural_insights,
 	generate_content_strategy_suggestions,
 } from './insights/classification';
-import type { BskyPost, BskyProfile } from './types';
 
 export function generate_insights(
 	posts: BskyPost[],
