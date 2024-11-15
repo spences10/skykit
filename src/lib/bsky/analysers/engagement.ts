@@ -60,8 +60,14 @@ export function analyse_engagement(
 		return !!record.reply;
 	}).length;
 
-	const reply_rate = (posts_that_are_replies / total_posts) * 100;
-	const repost_rate = (total_reposts / total_posts) * 100;
+	const reply_rate = Math.min(
+		100,
+		(posts_that_are_replies / total_posts) * 100,
+	);
+	const repost_rate = Math.min(
+		100,
+		(total_reposts / total_posts) * 100,
+	);
 
 	// Calculate overall engagement rate
 	const total_engagement =

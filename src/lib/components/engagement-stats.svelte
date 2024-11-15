@@ -5,7 +5,9 @@
 		InformationCircle,
 		Refresh,
 	} from '$lib/icons';
+	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
+	import { get_tooltip_props } from '$lib/utils';
 </script>
 
 {#if user_store.data.engagement}
@@ -201,7 +203,7 @@
 					<div class="stat">
 						<dt class="stat-title">Reply Engagement</dt>
 						<dd class="stat-value">
-							{user_store.data.engagement.reply_rate.toFixed(1)}%
+							{user_store.data.engagement.reply_rate.toFixed(0)}%
 						</dd>
 						<dd class="stat-desc">Posts that received replies</dd>
 					</div>
@@ -209,9 +211,15 @@
 					<div class="stat">
 						<dt class="stat-title">Repost Rate</dt>
 						<dd class="stat-value">
-							{user_store.data.engagement.repost_rate.toFixed(1)}%
+							{user_store.data.engagement.repost_rate.toFixed(0)}%
 						</dd>
-						<dd class="stat-desc">Posts that were reposted</dd>
+						<dd class="stat-desc">
+							{#if user_store.data.engagement.repost_rate >= 100}
+								All your posts get reposted! 🔥
+							{:else}
+								Percentage of posts that get reposted
+							{/if}
+						</dd>
 					</div>
 				</dl>
 			</section>
@@ -242,18 +250,47 @@
 							<div class="flex items-center gap-6">
 								<button class="btn btn-ghost btn-sm gap-2">
 									<Heart class_names="h-4 w-4" />
-									{user_store.data.engagement.top_performing_posts[0]
-										.post.likeCount}
+									<span
+										{...get_tooltip_props(
+											user_store.data.engagement
+												.top_performing_posts[0].post.likeCount || 0,
+										)}
+									>
+										{number_crunch(
+											user_store.data.engagement
+												.top_performing_posts[0].post.likeCount || 0,
+										)}
+									</span>
 								</button>
 								<button class="btn btn-ghost btn-sm gap-2">
 									<Refresh class_names="h-4 w-4" />
-									{user_store.data.engagement.top_performing_posts[0]
-										.post.repostCount}
+									<span
+										{...get_tooltip_props(
+											user_store.data.engagement
+												.top_performing_posts[0].post.repostCount ||
+												0,
+										)}
+									>
+										{number_crunch(
+											user_store.data.engagement
+												.top_performing_posts[0].post.repostCount ||
+												0,
+										)}
+									</span>
 								</button>
 								<button class="btn btn-ghost btn-sm gap-2">
 									<Comment class_names="h-4 w-4" />
-									{user_store.data.engagement.top_performing_posts[0]
-										.post.replyCount}
+									<span
+										{...get_tooltip_props(
+											user_store.data.engagement
+												.top_performing_posts[0].post.replyCount || 0,
+										)}
+									>
+										{number_crunch(
+											user_store.data.engagement
+												.top_performing_posts[0].post.replyCount || 0,
+										)}
+									</span>
 								</button>
 							</div>
 						</div>
