@@ -2,6 +2,7 @@ export { default as ContentAnalysis } from './content-analysis.svelte';
 export { default as DataNotice } from './data-notice.svelte';
 export { default as EngagementStats } from './engagement-stats.svelte';
 export { default as Footer } from './footer.svelte';
+export { default as InactiveFollows } from './inactive-follows.svelte';
 export { default as Insights } from './insights.svelte';
 export { default as NetworkAnalysis } from './network-analysis.svelte';
 export { default as ProfileCard } from './profile-card.svelte';

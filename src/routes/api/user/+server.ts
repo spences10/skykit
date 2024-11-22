@@ -80,12 +80,8 @@ export const GET = async ({ url }) => {
 			profile,
 		);
 
-		// Cache the data
-		profile_cache.set(handle, profile);
-		feed_cache.set(handle, feed_response);
-		insights_cache.set(handle, insights);
-
-		return Response.json({
+		// Cache and return the data
+		const response_data = {
 			profile,
 			...insights,
 			cache_status: {
@@ -93,7 +89,13 @@ export const GET = async ({ url }) => {
 				feed: 'miss',
 				insights: 'miss',
 			},
-		});
+		};
+
+		profile_cache.set(handle, profile);
+		feed_cache.set(handle, feed_response);
+		insights_cache.set(handle, insights);
+
+		return Response.json(response_data);
 	} catch (err) {
 		console.error('Bluesky API error:', err);
 		const status =

@@ -131,3 +131,14 @@ export interface FeedResults {
 	success: boolean;
 	data: BskyPost[];
 }
+
+export interface InactiveFollow {
+	did: string;
+	handle: string;
+	displayName?: string;
+	lastPost: string;
+}
+
+export interface UserData {
+	inactive_follows?: InactiveFollow[];
+}
