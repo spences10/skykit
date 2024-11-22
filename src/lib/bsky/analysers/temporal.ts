@@ -1,92 +1,116 @@
 import type { BskyPost, TemporalPatterns } from '$lib/types';
+import {
+	differenceInDays,
+	differenceInMilliseconds,
+	format,
+	formatISO,
+	getDay,
+	getHours,
+	parseISO,
+	setDay,
+	subDays,
+} from 'date-fns';
+
+interface PostingMetrics {
+	total_days: number;
+	active_days: number;
+	posts_per_day: number;
+	longest_streak: number;
+}
 
 export function analyse_temporal_patterns(
 	posts: BskyPost[],
 ): TemporalPatterns {
 	const dates = posts.map((post) => new Date(post.post.indexedAt));
+	const [earliest, latest] = get_date_range(dates);
+	const metrics = calculate_posting_metrics(dates, earliest, latest);
 
-	// Sort dates to get the most recent 100 posts timeframe
-	const sorted_dates = dates.sort(
-		(a, b) => b.getTime() - a.getTime(),
+	return {
+		posting_frequency: {
+			posts_per_day: metrics.posts_per_day,
+			posts_per_week: metrics.posts_per_day * 7,
+			date_range: {
+				from: formatISO(earliest),
+				to: formatISO(latest),
+				total_days: metrics.total_days,
+			},
+			active_days_percentage:
+				(metrics.active_days / metrics.total_days) * 100,
+			longest_streak: metrics.longest_streak,
+			most_active_hours: get_most_active_hours(dates),
+			most_active_days: get_most_active_days(dates),
+		},
+		peak_activity_windows: calculate_peak_activity_windows(dates),
+	};
+}
+
+function get_date_range(dates: Date[]): [Date, Date] {
+	const sorted_dates = dates.sort((a, b) =>
+		differenceInMilliseconds(b, a),
 	);
-
-	// Use the most recent date as the end date
 	const latest = sorted_dates[0];
-	// Use either 30 days ago or the earliest post date, whichever is more recent
-	const thirty_days_ago = new Date(
-		latest.getTime() - 30 * 24 * 60 * 60 * 1000,
-	);
+	const thirty_days_ago = subDays(latest, 30);
 	const earliest = new Date(
 		Math.max(
 			thirty_days_ago.getTime(),
 			Math.min(...dates.map((d) => d.getTime())),
 		),
 	);
+	return [earliest, latest];
+}
 
-	// Calculate date range
-	const total_days = Math.ceil(
-		(latest.getTime() - earliest.getTime()) / (1000 * 60 * 60 * 24),
-	);
+function calculate_posting_metrics(
+	dates: Date[],
+	earliest: Date,
+	latest: Date,
+): PostingMetrics {
+	const total_days = differenceInDays(latest, earliest) + 1;
+	const posts_by_date = group_posts_by_date(dates);
 
-	// Group posts by date for active days calculation
+	return {
+		total_days,
+		active_days: posts_by_date.size,
+		posts_per_day: dates.length / total_days,
+		longest_streak: calculate_longest_streak(posts_by_date),
+	};
+}
+
+function group_posts_by_date(dates: Date[]): Map<string, number> {
 	const posts_by_date = new Map<string, number>();
 	dates.forEach((date) => {
-		const day = date.toISOString().split('T')[0];
+		const day = format(date, 'yyyy-MM-dd');
 		posts_by_date.set(day, (posts_by_date.get(day) || 0) + 1);
 	});
+	return posts_by_date;
+}
 
-	// Calculate active days percentage
-	const active_days = posts_by_date.size;
-	const active_days_percentage = (active_days / total_days) * 100;
-
-	// Calculate longest streak
-	const longest_streak = calculate_longest_streak(posts_by_date);
-
-	// Calculate posting frequency
-	const posts_per_day = posts.length / total_days;
-	const posts_per_week = posts_per_day * 7;
-
-	// Calculate most active hours
+function get_most_active_hours(
+	dates: Date[],
+): Array<[string, number]> {
 	const posting_hours = new Map<string, number>();
 	dates.forEach((date) => {
-		const hour = date.getHours();
-		const hour_str = `${hour.toString().padStart(2, '0')}:00`;
+		const hour_str = format(date, 'HH:00');
 		posting_hours.set(
 			hour_str,
 			(posting_hours.get(hour_str) || 0) + 1,
 		);
 	});
+	return Array.from(posting_hours.entries()).sort(
+		([, a], [, b]) => b - a,
+	);
+}
 
-	// Calculate most active days
+function get_most_active_days(
+	dates: Date[],
+): Array<[string, number]> {
 	const posting_days = new Map<string, number>();
 	dates.forEach((date) => {
-		const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+		const day = format(date, 'EEEE');
 		posting_days.set(day, (posting_days.get(day) || 0) + 1);
 	});
-
-	// Calculate peak activity windows
-	const peak_windows = calculate_peak_activity_windows(dates);
-
-	return {
-		posting_frequency: {
-			posts_per_day,
-			posts_per_week,
-			date_range: {
-				from: earliest.toISOString(),
-				to: latest.toISOString(),
-				total_days,
-			},
-			active_days_percentage,
-			longest_streak,
-			most_active_hours: Array.from(posting_hours.entries()).sort(
-				([, a], [, b]) => b - a,
-			),
-			most_active_days: Array.from(posting_days.entries()).sort(
-				([, a], [, b]) => b - a,
-			),
-		},
-		peak_activity_windows: peak_windows,
-	};
+	return Array.from(posting_days.entries()).sort(
+		([, a], [, b]) => b - a,
+	);
 }
 
 function calculate_longest_streak(
@@ -97,10 +121,9 @@ function calculate_longest_streak(
 	let max_streak = 1;
 
 	for (let i = 1; i < dates.length; i++) {
-		const current = new Date(dates[i]);
-		const prev = new Date(dates[i - 1]);
-		const diff =
-			(current.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+		const current = parseISO(dates[i]);
+		const prev = parseISO(dates[i - 1]);
+		const diff = differenceInDays(current, prev);
 
 		if (diff === 1) {
 			current_streak++;
@@ -114,13 +137,11 @@ function calculate_longest_streak(
 }
 
 function calculate_peak_activity_windows(dates: Date[]): string[] {
-	// Create a map of day -> hours with post counts
 	const day_hour_counts = new Map<number, Map<number, number>>();
 
-	// Group all posts by day and hour
 	dates.forEach((date) => {
-		const day = date.getDay();
-		const hour = date.getHours();
+		const day = getDay(date);
+		const hour = getHours(date);
 
 		if (!day_hour_counts.has(day)) {
 			day_hour_counts.set(day, new Map());
@@ -148,10 +169,7 @@ function calculate_peak_activity_windows(dates: Date[]): string[] {
 	const windows: string[] = [];
 	top_days.forEach(([day, _]) => {
 		const hour_counts = day_hour_counts.get(day)!;
-		const day_name = new Date(2024, 0, day).toLocaleDateString(
-			'en-GB',
-			{ weekday: 'long' },
-		);
+		const day_name = format(setDay(new Date(), day), 'EEEE');
 
 		// Get top hours for this day
 		const sorted_hours = Array.from(hour_counts.entries())

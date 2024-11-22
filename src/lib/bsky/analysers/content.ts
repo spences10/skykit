@@ -1,72 +1,66 @@
 import type { BskyPost, ContentPatterns } from '$lib/types';
+import { differenceInDays, parseISO, startOfDay } from 'date-fns';
 import { has_links, has_media, is_reply } from './helpers';
 
 export function analyse_content(posts: BskyPost[]): ContentPatterns {
 	if (!posts.length) {
-		return {
-			post_types: {
-				text_only: 0,
-				with_media: 0,
-				with_links: 0,
-				replies: 0,
-				reposts: 0,
-			},
-			avg_post_length: 0,
-			most_used_hashtags: [],
-			popular_topics: [],
-			language_stats: {},
-			media_engagement: {
-				image_posts: {
-					count: 0,
-					avg_engagement: 0,
-				},
-				link_posts: {
-					count: 0,
-					avg_engagement: 0,
-				},
-			},
-		};
+		return get_empty_content_patterns();
 	}
 
-	// Calculate post types
 	const non_reposts = posts.filter((post) => !post.reason);
-	const reposts = posts.filter(
-		(post) =>
-			post.reason?.['$type'] === 'app.bsky.feed.defs#reasonRepost',
-	);
+	const post_types = calculate_post_types(non_reposts, posts);
+	const avg_post_length = calculate_avg_post_length(posts);
+	const media_engagement = calculate_media_engagement(posts);
+	const post_age_distribution =
+		calculate_post_age_distribution(posts);
 
-	const post_types = {
+	return {
+		post_types,
+		avg_post_length,
+		most_used_hashtags: extract_hashtags(posts),
+		popular_topics: extract_topics(posts),
+		language_stats: { en: 100 },
+		media_engagement,
+		post_age_distribution,
+	};
+}
+
+function get_empty_content_patterns(): ContentPatterns {
+	return {
+		post_types: {
+			text_only: 0,
+			with_media: 0,
+			with_links: 0,
+			replies: 0,
+			reposts: 0,
+		},
+		avg_post_length: 0,
+		most_used_hashtags: [],
+		popular_topics: [],
+		language_stats: { en: 100 },
+		media_engagement: {
+			image_posts: { count: 0, avg_engagement: 0 },
+			link_posts: { count: 0, avg_engagement: 0 },
+		},
+		post_age_distribution: new Map(),
+	};
+}
+
+function calculate_post_types(
+	non_reposts: BskyPost[],
+	all_posts: BskyPost[],
+) {
+	return {
 		text_only: non_reposts.filter(
 			(p) => !has_media(p) && !has_links(p),
 		).length,
 		with_media: non_reposts.filter((p) => has_media(p)).length,
 		with_links: non_reposts.filter((p) => has_links(p)).length,
 		replies: non_reposts.filter((p) => is_reply(p)).length,
-		reposts: reposts.length,
-	};
-
-	// Calculate average post length
-	const avg_post_length = calculate_avg_post_length(posts);
-
-	// Extract hashtags
-	const most_used_hashtags = extract_hashtags(posts);
-
-	// Extract topics (simplified)
-	const popular_topics = extract_topics(posts);
-
-	// Calculate language stats (simplified)
-	const language_stats = calculate_language_stats(posts);
-
-	// Calculate media engagement
-	const media_engagement = calculate_media_engagement(posts);
-
-	return {
-		post_types,
-		avg_post_length,
-		most_used_hashtags,
-		popular_topics,
-		language_stats,
-		media_engagement,
+		reposts: all_posts.filter(
+			(p) =>
+				p.reason?.['$type'] === 'app.bsky.feed.defs#reasonRepost',
+		).length,
 	};
 }
 
@@ -118,15 +112,6 @@ function extract_topics(posts: BskyPost[]): Array<[string, number]> {
 		.slice(0, 10);
 }
 
-function calculate_language_stats(posts: BskyPost[]): {
-	[key: string]: number;
-} {
-	// Simplified language detection - just returning default for now
-	return {
-		en: 100, // Assuming English for now
-	};
-}
-
 function calculate_media_engagement(posts: BskyPost[]): {
 	image_posts: { count: number; avg_engagement: number };
 	link_posts: { count: number; avg_engagement: number };
@@ -162,4 +147,34 @@ function calculate_media_engagement(posts: BskyPost[]): {
 				: 0,
 		},
 	};
+}
+function calculate_post_age_distribution(
+	posts: BskyPost[],
+): Map<string, number> {
+	const age_distribution = new Map<string, number>();
+	const now = new Date();
+
+	posts.forEach((post) => {
+		const post_date = parseISO(post.post.indexedAt);
+		const age_in_days = differenceInDays(
+			startOfDay(now),
+			startOfDay(post_date),
+		);
+
+		const age_bucket =
+			age_in_days <= 7
+				? 'week'
+				: age_in_days <= 30
+					? 'month'
+					: age_in_days <= 90
+						? 'quarter'
+						: 'older';
+
+		age_distribution.set(
+			age_bucket,
+			(age_distribution.get(age_bucket) || 0) + 1,
+		);
+	});
+
+	return age_distribution;
 }

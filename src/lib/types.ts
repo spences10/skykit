@@ -45,6 +45,7 @@ export interface ContentPatterns {
 			avg_engagement: number;
 		};
 	};
+	post_age_distribution?: Map<string, number>;
 }
 
 export interface TemporalPatterns {

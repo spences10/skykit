@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { InformationCircle } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
+	import { format, isValid, parseISO } from 'date-fns';
 
-	const max_posts = 100; // We can only analyze 100 posts at a time
+	const max_posts = 100;
 
-	// Use derived values from the store
 	let total_posts = $derived(
 		user_store.data.profile?.postsCount ?? 0,
 	);
@@ -14,8 +14,33 @@
 			(user_store.data.content?.post_types?.with_links ?? 0),
 	);
 
-	const percentage = $derived(
+	let percentage = $derived(
 		Math.round((analysed_posts / total_posts) * 100),
+	);
+
+	const format_date_range = (from: string, to: string): string => {
+		try {
+			const from_date = parseISO(from);
+			const to_date = parseISO(to);
+
+			if (!isValid(from_date) || !isValid(to_date)) {
+				return 'Invalid date range';
+			}
+
+			return `${format(from_date, 'PP')} to ${format(to_date, 'PP')}`;
+		} catch (err) {
+			console.error('Error formatting date range:', err);
+			return 'Invalid date range';
+		}
+	};
+
+	let date_range = $derived(
+		user_store.data.temporal?.posting_frequency.date_range
+			? format_date_range(
+					user_store.data.temporal.posting_frequency.date_range.from,
+					user_store.data.temporal.posting_frequency.date_range.to,
+				)
+			: '',
 	);
 </script>
 

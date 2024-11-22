@@ -6,65 +6,84 @@
 		Spark,
 	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
+	import { format, isValid, parseISO } from 'date-fns';
 
-	// Add this helper function
-	const group_windows_by_day = (windows: string[]) => {
-		const groups = new Map<string, string[]>();
+	// Add type safety and validation for time windows
+	interface TimeWindow {
+		day: string;
+		time: string;
+		count: number;
+	}
 
-		windows.forEach((window) => {
-			const [day, time] = window.split(' at ');
-			const dayName = day.replace('s', '');
-			if (!groups.has(dayName)) {
-				groups.set(dayName, []);
-			}
-			groups.get(dayName)?.push(time);
-		});
+	interface GroupedTime {
+		timeRange: string;
+		count: number;
+	}
 
-		return Array.from(groups.entries());
-	};
-
-	const get_post_count_for_time = (
-		day: string,
-		time: string,
-		active_hours: Array<[string, number]>,
+	// Add error handling for date parsing
+	const safe_format_date = (
+		date_string: string,
+		format_string: string,
 	) => {
-		const hour = time.split(':')[0];
-		const matching_hour = active_hours.find(([h]) =>
-			h.startsWith(hour),
-		);
-		return matching_hour ? matching_hour[1] : 0;
+		try {
+			const date = parseISO(date_string);
+			if (!isValid(date)) return 'Invalid date';
+			return format(date, format_string);
+		} catch (err) {
+			console.error('Error formatting date:', err);
+			return 'Invalid date';
+		}
 	};
 
-	const add_hour = (time: string) => {
-		const hour = parseInt(time.split(':')[0]);
-		const next_hour = (hour + 1) % 24;
-		return `${next_hour.toString().padStart(2, '0')}:00`;
+	// Create derived value with error handling
+	let date_range_tooltip = $derived(() => {
+		const date_range =
+			user_store.data.temporal?.posting_frequency.date_range;
+		if (!date_range) return '';
+
+		const from_date = safe_format_date(date_range.from, 'PP');
+		const to_date = safe_format_date(date_range.to, 'PP');
+		return `Analysis from ${from_date} to ${to_date}`;
+	});
+
+	const format_time_window = (window: string): TimeWindow | null => {
+		try {
+			const [day, time_range, count] = window.split('|');
+			const [start_time, end_time] = time_range.split('-');
+
+			if (!day || !start_time || !end_time || !count) {
+				throw new Error('Invalid time window format');
+			}
+
+			return {
+				day,
+				time: `${format(parseISO(`2000-01-01T${start_time}`), 'h:mm a')} - ${format(parseISO(`2000-01-01T${end_time}`), 'h:mm a')}`,
+				count: parseInt(count),
+			};
+		} catch (err) {
+			console.error('Error parsing time window:', err);
+			return null;
+		}
 	};
 
-	const sort_times_chronologically = (times: string[]) => {
-		return times.sort((a, b) => {
-			const hour_a = parseInt(a.split(':')[0]);
-			const hour_b = parseInt(b.split(':')[0]);
-			return hour_a - hour_b;
-		});
-	};
-
-	const group_by_day = (windows: string[]) => {
-		const groups = new Map<
-			string,
-			Array<{ timeRange: string; count: number }>
-		>();
+	function group_by_day(
+		windows: string[],
+	): Array<[string, GroupedTime[]]> {
+		const groups = new Map<string, GroupedTime[]>();
 
 		windows.forEach((window) => {
 			const [day, timeRange, count] = window.split('|');
 			if (!groups.has(day)) {
 				groups.set(day, []);
 			}
-			groups.get(day)?.push({ timeRange, count: parseInt(count) });
+			groups.get(day)?.push({
+				timeRange,
+				count: parseInt(count),
+			});
 		});
 
 		return Array.from(groups.entries());
-	};
+	}
 </script>
 
 {#if user_store.data.temporal}
@@ -86,7 +105,7 @@
 				{#if user_store.data.temporal.posting_frequency.date_range.from && user_store.data.temporal.posting_frequency.date_range.to}
 					<div
 						class="tooltip tooltip-right cursor-pointer"
-						data-tip={`Analysis from ${new Date(user_store.data.temporal.posting_frequency.date_range.from).toLocaleDateString()} to ${new Date(user_store.data.temporal.posting_frequency.date_range.to).toLocaleDateString()}`}
+						data-tip={date_range_tooltip}
 					>
 						<span class="badge badge-sm">
 							{user_store.data.temporal.posting_frequency.date_range

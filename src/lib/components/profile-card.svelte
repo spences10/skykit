@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
-	import { format_date, get_tooltip_props } from '$lib/utils';
+	import { get_tooltip_props } from '$lib/utils';
+	import { formatDistance, isValid, parseISO } from 'date-fns';
 
 	// Create derived values with null checks
 	let followers_count = $derived(
@@ -14,6 +15,17 @@
 		user_store.data.profile?.postsCount ?? 0,
 	);
 	let indexed_at = $derived(user_store.data.profile?.indexedAt ?? '');
+
+	const format_indexed_time = (date_string: string): string => {
+		try {
+			const date = parseISO(date_string);
+			if (!isValid(date)) return 'Unknown';
+			return formatDistance(date, new Date(), { addSuffix: true });
+		} catch (err) {
+			console.error('Error formatting indexed time:', err);
+			return 'Unknown';
+		}
+	};
 </script>
 
 {#if user_store.data?.profile}
@@ -101,7 +113,7 @@
 						class="text-sm text-base-content/60"
 						datetime={indexed_at}
 					>
-						Last updated: {format_date(indexed_at)}
+						Last updated: {format_indexed_time(indexed_at)}
 					</time>
 				{/if}
 			</footer>

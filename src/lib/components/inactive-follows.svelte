@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { InactiveFollow } from '$lib/types';
-	import { formatDistanceToNow } from 'date-fns';
+	import { formatDistanceToNow, isValid, parseISO } from 'date-fns';
 
 	export let inactive_follows: InactiveFollow[] = [];
 	export let loading = false;
 
 	const format_relative_time = (date: string): string => {
-		const parsed_date = new Date(date);
-		if (parsed_date.getTime() === 0) return 'Never';
+		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
+		const parsed_date = parseISO(date);
+		if (!isValid(parsed_date)) return 'Invalid date';
 		return formatDistanceToNow(parsed_date, { addSuffix: true });
 	};
 </script>

@@ -1,19 +1,18 @@
+import { addSeconds, isFuture } from 'date-fns';
+
 export type RateLimitStatus = {
 	remaining_requests: number;
 	reset_time?: Date;
 	max_requests: number;
 	is_healthy: boolean;
-	retry_after?: number;
 	queue_length: number;
 	is_limited: boolean;
 };
 
 export class RateLimiter {
 	private queue: Array<() => Promise<any>> = [];
-	private processing = false;
-	private lastRequestTime = 0;
 	private remainingRequests = 300;
-	private resetTime = 0;
+	private resetTime?: Date;
 	private maxRequests = 300;
 	private statusUpdateCallback?: (status: RateLimitStatus) => void;
 
@@ -31,7 +30,6 @@ export class RateLimiter {
 		try {
 			const response = await request();
 			this.update_rate_limits(response);
-			this.lastRequestTime = Date.now();
 			return response;
 		} catch (error: any) {
 			if (error?.status === 429) {
@@ -55,7 +53,7 @@ export class RateLimiter {
 			this.remainingRequests = Number(remaining);
 		}
 		if (reset) {
-			this.resetTime = Number(reset) * 1000; // Convert to milliseconds
+			this.resetTime = addSeconds(new Date(), Number(reset));
 		}
 		if (limit) {
 			this.maxRequests = Number(limit);
@@ -65,49 +63,19 @@ export class RateLimiter {
 	}
 
 	get_status(): RateLimitStatus {
+		if (this.resetTime && isFuture(this.resetTime)) {
+			this.remainingRequests = this.maxRequests;
+			this.resetTime = undefined;
+		}
+
 		return {
 			remaining_requests: this.remainingRequests,
 			is_healthy: this.remainingRequests > 0,
 			is_limited: this.remainingRequests <= 0,
 			queue_length: this.queue.length,
-			reset_time: this.resetTime
-				? new Date(this.resetTime)
-				: undefined,
+			reset_time: this.resetTime,
 			max_requests: this.maxRequests,
 		};
-	}
-
-	// Track rate limits from response headers
-	async process_response(response: Response) {
-		const status: RateLimitStatus = {
-			remaining_requests: parseInt(
-				response.headers.get('x-ratelimit-remaining') ||
-					response.headers.get('ratelimit-remaining') ||
-					'300',
-			),
-			max_requests: parseInt(
-				response.headers.get('x-ratelimit-limit') ||
-					response.headers.get('ratelimit-limit') ||
-					'300',
-			),
-			is_healthy: response.ok && response.status !== 429,
-			retry_after: parseInt(
-				response.headers.get('retry-after') || '0',
-			),
-			reset_time: new Date(
-				response.headers.get('x-ratelimit-reset') ||
-					response.headers.get('ratelimit-reset') ||
-					Date.now() + 300000,
-			),
-			queue_length: this.queue.length,
-			is_limited: this.remainingRequests <= 0,
-		};
-
-		if (this.statusUpdateCallback) {
-			this.statusUpdateCallback(status);
-		}
-
-		return status;
 	}
 
 	async add_to_queue<T>(request: () => Promise<T>): Promise<T> {
