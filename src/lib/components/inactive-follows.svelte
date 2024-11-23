@@ -1,9 +1,31 @@
 <script lang="ts">
+	import type { Progress } from '$lib/inactive.svelte';
 	import type { InactiveFollow } from '$lib/types';
 	import { formatDistanceToNow, isValid, parseISO } from 'date-fns';
 
-	export let inactive_follows: InactiveFollow[] = [];
-	export let loading = false;
+	let {
+		inactive_follows = [],
+		loading = false,
+		progress,
+	} = $props<{
+		inactive_follows?: InactiveFollow[];
+		loading?: boolean;
+		progress: Progress;
+	}>();
+
+	let elapsed_time = $derived(
+		loading
+			? formatDistanceToNow(progress.start_time, {
+					includeSeconds: true,
+				})
+			: '',
+	);
+
+	let progress_percent = $derived(
+		progress.total
+			? Math.round((progress.processed / progress.total) * 100)
+			: 0,
+	);
 
 	const format_relative_time = (date: string): string => {
 		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
@@ -16,9 +38,27 @@
 <div class="space-y-4">
 	{#if loading}
 		<div class="card bg-base-200">
-			<div class="card-body text-center">
-				<span class="loading loading-spinner"></span>
-				<p>Loading inactive follows...</p>
+			<div class="card-body">
+				<div class="flex flex-col items-center gap-4">
+					<div class="w-full">
+						<progress
+							class="progress progress-primary w-full"
+							value={progress_percent}
+							max="100"
+						></progress>
+					</div>
+					<div class="text-center">
+						<p>
+							Processing follows: {progress.processed} / {progress.total}
+						</p>
+						<p class="text-sm text-base-content/60">
+							Currently checking: @{progress.current}
+						</p>
+						<p class="text-sm text-base-content/60">
+							Time elapsed: {elapsed_time}
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	{:else if inactive_follows.length === 0}

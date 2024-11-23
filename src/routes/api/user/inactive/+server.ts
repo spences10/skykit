@@ -1,6 +1,10 @@
 import { rate_limiter } from '$lib/rate-limiter';
 import type { InactiveFollow } from '$lib/types';
-import { AtpAgent } from '@atproto/api';
+import {
+	AtpAgent,
+	type AppBskyFeedGetAuthorFeed,
+	type AppBskyGraphGetFollows,
+} from '@atproto/api';
 import { error } from '@sveltejs/kit';
 import { differenceInDays, parseISO } from 'date-fns';
 
@@ -15,6 +19,8 @@ interface CachedFollows {
 const follows_cache = new Map<string, CachedFollows>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+type SortOption = 'last_post' | 'handle';
+
 async function get_profile(handle: string) {
 	return await rate_limiter.add_to_queue(() =>
 		agent.api.app.bsky.actor.getProfile({
@@ -23,40 +29,80 @@ async function get_profile(handle: string) {
 	);
 }
 
-async function get_all_follows(agent: AtpAgent, did: string) {
+async function get_all_follows(
+	agent: AtpAgent,
+	did: string,
+	total_follows: number,
+	controller?: ReadableStreamDefaultController,
+) {
 	try {
-		const follows = await rate_limiter.add_to_queue(() =>
-			agent.api.app.bsky.graph.getFollows({
-				actor: did,
-				limit: 100,
-			}),
-		);
-
-		if (!follows.data.follows) return [];
-
 		const follows_with_posts = [];
-		const now = new Date();
+		let cursor: string | undefined;
+		let processed = 0;
 
-		for (const follow of follows.data.follows) {
-			const latest_post = await rate_limiter.add_to_queue(() =>
-				agent.api.app.bsky.feed.getAuthorFeed({
-					actor: follow.did,
-					limit: 1,
-				}),
+		if (controller) {
+			const encoder = new TextEncoder();
+			controller.enqueue(
+				encoder.encode(
+					`data: ${JSON.stringify({
+						type: 'progress',
+						processed: 0,
+						total: total_follows,
+						current: 'Starting...',
+					})}\n\n`,
+				),
 			);
-
-			const last_post_date = latest_post.data.feed[0]
-				? parseISO(latest_post.data.feed[0].post.indexedAt)
-				: new Date(0);
-
-			follows_with_posts.push({
-				did: follow.did,
-				handle: follow.handle,
-				displayName: follow.displayName,
-				lastPost: last_post_date.toISOString(),
-				lastPostDate: last_post_date,
-			});
 		}
+
+		do {
+			const follows = (await rate_limiter.add_to_queue(() =>
+				agent.api.app.bsky.graph.getFollows({
+					actor: did,
+					limit: 100,
+					cursor,
+				}),
+			)) as AppBskyGraphGetFollows.Response;
+
+			if (!follows.data.follows) break;
+
+			for (const follow of follows.data.follows) {
+				const latest_post = (await rate_limiter.add_to_queue(() =>
+					agent.api.app.bsky.feed.getAuthorFeed({
+						actor: follow.did,
+						limit: 1,
+					}),
+				)) as AppBskyFeedGetAuthorFeed.Response;
+
+				processed++;
+
+				if (controller) {
+					const encoder = new TextEncoder();
+					const progress = encoder.encode(
+						`data: ${JSON.stringify({
+							type: 'progress',
+							processed,
+							total: total_follows,
+							current: follow.handle,
+						})}\n\n`,
+					);
+					controller.enqueue(progress);
+				}
+
+				const last_post_date = latest_post.data.feed[0]
+					? parseISO(latest_post.data.feed[0].post.indexedAt)
+					: new Date(0);
+
+				follows_with_posts.push({
+					did: follow.did,
+					handle: follow.handle,
+					displayName: follow.displayName,
+					lastPost: last_post_date.toISOString(),
+					lastPostDate: last_post_date,
+				});
+			}
+
+			cursor = follows.data.cursor;
+		} while (cursor);
 
 		return follows_with_posts;
 	} catch (err) {
@@ -111,6 +157,25 @@ function filter_inactive_follows(
 		.map(({ lastPostDate, ...follow }) => follow);
 }
 
+function sort_follows(
+	follows: InactiveFollow[],
+	sort: SortOption = 'last_post',
+): InactiveFollow[] {
+	return [...follows].sort((a, b) => {
+		switch (sort) {
+			case 'last_post':
+				return (
+					new Date(a.lastPost).getTime() -
+					new Date(b.lastPost).getTime()
+				);
+			case 'handle':
+				return a.handle.localeCompare(b.handle);
+			default:
+				return 0;
+		}
+	});
+}
+
 function handle_error(err: any) {
 	console.error('Error:', err);
 	throw error(500, 'Failed to fetch inactive follows');
@@ -119,16 +184,84 @@ function handle_error(err: any) {
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
 	const days = Number(url.searchParams.get('days')) || 30;
+	const sort =
+		(url.searchParams.get('sort') as SortOption) || 'last_post';
+	const stream = url.searchParams.get('stream') === 'true';
 
 	if (!handle) {
 		throw error(400, 'Handle is required');
+	}
+
+	if (stream) {
+		const { promise, resolve } = (() => {
+			let resolve: (
+				controller: ReadableStreamDefaultController,
+			) => void;
+			const promise = new Promise<ReadableStreamDefaultController>(
+				(r) => {
+					resolve = r;
+				},
+			);
+			return { promise, resolve: resolve! };
+		})();
+
+		const stream = new ReadableStream({
+			start(controller) {
+				resolve(controller);
+			},
+			cancel() {
+				console.log('Client disconnected');
+			},
+		});
+
+		(async () => {
+			try {
+				const controller = await promise;
+				const profile = await get_profile(handle);
+				const total_follows = profile.data.followsCount;
+
+				const all_follows = await get_all_follows(
+					agent,
+					profile.data.did,
+					total_follows,
+					controller,
+				);
+
+				const inactive_follows = filter_inactive_follows(
+					all_follows,
+					days,
+				);
+				const sorted_follows = sort_follows(inactive_follows, sort);
+
+				controller.enqueue(
+					encoder.encode(
+						`data: ${JSON.stringify({
+							type: 'complete',
+							inactive_follows: sorted_follows,
+						})}\n\n`,
+					),
+				);
+				controller.close();
+			} catch (err) {
+				const controller = await promise;
+				controller.error(err);
+			}
+		})();
+
+		return new Response(stream, {
+			headers: {
+				'Content-Type': 'text/event-stream',
+				'Cache-Control': 'no-cache',
+				Connection: 'keep-alive',
+			},
+		});
 	}
 
 	try {
 		const cached_data = get_cached_data(handle, days);
 		if (cached_data) {
 			return Response.json({
-				inactive_follows: cached_data,
+				inactive_follows: sort_follows(cached_data, sort),
 				cache: 'hit',
 			});
 		}
@@ -137,6 +270,7 @@ export const GET = async ({ url }) => {
 		const all_follows = await get_all_follows(
 			agent,
 			profile.data.did,
+			profile.data.followsCount,
 		);
 		cache_follows(handle, all_follows);
 
@@ -146,7 +280,7 @@ export const GET = async ({ url }) => {
 		);
 
 		return Response.json({
-			inactive_follows,
+			inactive_follows: sort_follows(inactive_follows, sort),
 			cache: 'miss',
 		});
 	} catch (err) {

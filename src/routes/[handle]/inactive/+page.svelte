@@ -1,26 +1,22 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { InactiveFollows } from '$lib/components';
-	import type { InactiveFollow } from '$lib/types';
+	import { inactive_state } from '$lib/inactive.svelte';
 	import type { PageData } from './$types';
 
 	let { data } = $props<{ data: PageData }>();
-	let loading = $state(false);
 	let days_threshold = $state(30);
-	let inactive_follows = $state<InactiveFollow[]>([]);
-	let error = $state<string | undefined>(undefined);
+	let sort_option = $state<'last_post' | 'handle'>('last_post');
 
-	const handle_form_submit = ({ result }: { result: any }) => {
-		loading = false;
-		if (result) {
-			if (result.data.success) {
-				inactive_follows = result.data.inactive_follows;
-				error = undefined;
-			} else {
-				error = result.data.error;
-				inactive_follows = [];
-			}
-		}
+	let loading = $derived(inactive_state.loading);
+	let inactive_follows = $derived(inactive_state.inactive_follows);
+	let error = $derived(inactive_state.error);
+
+	const handle_form_submit = async () => {
+		await inactive_state.fetch_inactive_follows(
+			data.profile.handle,
+			days_threshold,
+			sort_option
+		);
 	};
 </script>
 
@@ -50,10 +46,9 @@
 			<form
 				method="POST"
 				action="?/check_inactive"
-				use:enhance={() => {
-					loading = true;
-					error = undefined;
-					return async ({ result }) => handle_form_submit({ result });
+				onsubmit={(e) => {
+					e.preventDefault();
+					handle_form_submit();
 				}}
 			>
 				<div class="flex items-end gap-4">
@@ -70,6 +65,19 @@
 							max="365"
 							class="input input-bordered w-full"
 						/>
+					</div>
+					<div class="form-control">
+						<label class="label" for="sort">
+							<span class="label-text">Sort by</span>
+						</label>
+						<select 
+							bind:value={sort_option}
+							class="select select-bordered"
+							id="sort"
+						>
+							<option value="last_post">Last Post Date</option>
+							<option value="handle">Handle</option>
+						</select>
 					</div>
 					<button
 						type="submit"
@@ -108,5 +116,9 @@
 		</div>
 	{/if}
 
-	<InactiveFollows {inactive_follows} {loading} />
+	<InactiveFollows 
+		{inactive_follows}
+		{loading}
+		progress={inactive_state.progress} 
+	/>
 </main>
