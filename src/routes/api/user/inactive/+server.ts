@@ -218,7 +218,9 @@ export const GET = async ({ url }) => {
 			try {
 				const controller = await promise;
 				const profile = await get_profile(handle);
-				const total_follows = profile.data.followsCount;
+				const encoder = new TextEncoder();
+				
+				const total_follows = profile.data.followsCount ?? 0;
 
 				const all_follows = await get_all_follows(
 					agent,
@@ -267,11 +269,14 @@ export const GET = async ({ url }) => {
 		}
 
 		const profile = await get_profile(handle);
+		const total_follows = profile.data.followsCount ?? 0;
+
 		const all_follows = await get_all_follows(
 			agent,
 			profile.data.did,
-			profile.data.followsCount,
+			total_follows,
 		);
+		
 		cache_follows(handle, all_follows);
 
 		const inactive_follows = filter_inactive_follows(
