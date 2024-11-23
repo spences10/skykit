@@ -38,7 +38,7 @@
 <div class="space-y-4">
 	{#if loading}
 		<div class="card bg-base-200">
-			<div class="card-body">
+			<div class="card-body p-4 sm:p-6">
 				<div class="flex flex-col items-center gap-4">
 					<div class="w-full">
 						<progress
@@ -63,20 +63,20 @@
 		</div>
 	{:else if inactive_follows.length === 0}
 		<div class="card bg-base-200">
-			<div class="card-body text-center">
+			<div class="card-body text-center p-4 sm:p-6">
 				<p>No inactive follows found</p>
 			</div>
 		</div>
 	{:else}
 		{#each inactive_follows as follow (follow.did)}
 			<div class="card bg-base-200">
-				<div class="card-body">
-					<div class="flex items-center justify-between">
+				<div class="card-body p-4 sm:p-6">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 						<div>
-							<h3 class="font-bold">
+							<h3 class="font-bold break-all">
 								{follow.displayName || follow.handle}
 							</h3>
-							<p class="text-sm text-base-content/60">
+							<p class="text-sm text-base-content/60 break-all">
 								<a
 									href={`https://bsky.app/profile/${follow.handle}`}
 									target="_blank"
@@ -87,7 +87,7 @@
 								</a>
 							</p>
 						</div>
-						<div class="text-right">
+						<div class="text-left sm:text-right">
 							<p class="text-sm text-base-content/60">Last post:</p>
 							<p class="font-medium">
 								{format_relative_time(follow.lastPost)}

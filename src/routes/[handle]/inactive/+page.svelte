@@ -42,7 +42,7 @@
 	</h1>
 
 	<div class="card mb-6 bg-base-100 shadow-xl">
-		<div class="card-body">
+		<div class="card-body p-4 sm:p-6">
 			<form
 				method="POST"
 				action="?/check_inactive"
@@ -51,8 +51,8 @@
 					handle_form_submit();
 				}}
 			>
-				<div class="flex items-end gap-4">
-					<div class="form-control w-full max-w-xs">
+				<div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+					<div class="form-control w-full sm:max-w-xs">
 						<label class="label" for="days">
 							<span class="label-text">Days of inactivity</span>
 						</label>
@@ -66,13 +66,13 @@
 							class="input input-bordered w-full"
 						/>
 					</div>
-					<div class="form-control">
+					<div class="form-control w-full sm:w-auto">
 						<label class="label" for="sort">
 							<span class="label-text">Sort by</span>
 						</label>
 						<select 
 							bind:value={sort_option}
-							class="select select-bordered"
+							class="select select-bordered w-full"
 							id="sort"
 						>
 							<option value="last_post">Last Post Date</option>
@@ -81,7 +81,7 @@
 					</div>
 					<button
 						type="submit"
-						class="btn btn-primary"
+						class="btn btn-primary w-full sm:w-auto"
 						disabled={loading}
 					>
 						{#if loading}
@@ -94,7 +94,7 @@
 
 			{#if inactive_follows.length > 0}
 				<div class="mt-4">
-					<div class="stats shadow">
+					<div class="stats shadow w-full">
 						<div class="stat">
 							<div class="stat-title">Inactive Follows Found</div>
 							<div class="stat-value text-primary">
