@@ -5,6 +5,7 @@ export type Progress = {
     total: number;
     current: string;
     start_time: Date;
+    average_time_per_item?: number;
 };
 
 export function create_inactive_state() {
@@ -15,7 +16,8 @@ export function create_inactive_state() {
         processed: 0,
         total: 0,
         current: '',
-        start_time: new Date()
+        start_time: new Date(),
+        average_time_per_item: undefined
     });
 
     const reset_progress = () => {
@@ -23,7 +25,8 @@ export function create_inactive_state() {
             processed: 0,
             total: 0,
             current: '',
-            start_time: new Date()
+            start_time: new Date(),
+            average_time_per_item: undefined
         };
     };
 
@@ -43,11 +46,15 @@ export function create_inactive_state() {
                     const data = JSON.parse(event.data);
                     
                     if (data.type === 'progress') {
+                        const elapsed = (new Date().getTime() - progress.start_time.getTime()) / 1000;
+                        const avg_time = data.processed > 0 ? elapsed / data.processed : undefined;
+
                         progress = {
                             ...progress,
                             processed: data.processed,
                             total: data.total,
-                            current: data.current
+                            current: data.current,
+                            average_time_per_item: avg_time
                         };
                     } else if (data.type === 'complete') {
                         inactive_follows = data.inactive_follows;

@@ -27,6 +27,25 @@
 			: 0,
 	);
 
+	let time_remaining = $derived.by(() => {
+		if (!loading || !progress.average_time_per_item) return '';
+		const remaining_items = progress.total - progress.processed;
+		const estimated_seconds =
+			remaining_items * progress.average_time_per_item;
+
+		const hours = Math.floor(estimated_seconds / 3600);
+		const minutes = Math.floor((estimated_seconds % 3600) / 60);
+		const seconds = Math.floor(estimated_seconds % 60);
+
+		if (hours > 0) {
+			return `About ${hours}h ${minutes}m ${seconds}s`;
+		} else if (minutes > 0) {
+			return `About ${minutes}m ${seconds}s`;
+		} else {
+			return `About ${seconds}s`;
+		}
+	});
+
 	const format_relative_time = (date: string): string => {
 		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
 		const parsed_date = parseISO(date);
@@ -47,7 +66,7 @@
 							max="100"
 						></progress>
 					</div>
-					<div class="text-center">
+					<div class="space-y-2 text-center">
 						<p>
 							Processing follows: {progress.processed} / {progress.total}
 						</p>
@@ -57,13 +76,18 @@
 						<p class="text-sm text-base-content/60">
 							Time elapsed: {elapsed_time}
 						</p>
+						{#if time_remaining}
+							<p class="text-sm text-base-content/60">
+								Estimated time remaining: {time_remaining}
+							</p>
+						{/if}
 					</div>
 				</div>
 			</div>
 		</div>
 	{:else if inactive_follows.length === 0}
 		<div class="card bg-base-200">
-			<div class="card-body text-center p-4 sm:p-6">
+			<div class="card-body p-4 text-center sm:p-6">
 				<p>No inactive follows found</p>
 			</div>
 		</div>
@@ -71,12 +95,14 @@
 		{#each inactive_follows as follow (follow.did)}
 			<div class="card bg-base-200">
 				<div class="card-body p-4 sm:p-6">
-					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+					<div
+						class="flex flex-col justify-between gap-2 sm:flex-row sm:items-center"
+					>
 						<div>
-							<h3 class="font-bold break-all">
+							<h3 class="break-all font-bold">
 								{follow.displayName || follow.handle}
 							</h3>
-							<p class="text-sm text-base-content/60 break-all">
+							<p class="break-all text-sm text-base-content/60">
 								<a
 									href={`https://bsky.app/profile/${follow.handle}`}
 									target="_blank"

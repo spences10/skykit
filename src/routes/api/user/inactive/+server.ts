@@ -39,6 +39,7 @@ async function get_all_follows(
 		const follows_with_posts = [];
 		let cursor: string | undefined;
 		let processed = 0;
+		const start_time = Date.now();
 
 		if (controller) {
 			const encoder = new TextEncoder();
@@ -49,6 +50,7 @@ async function get_all_follows(
 						processed: 0,
 						total: total_follows,
 						current: 'Starting...',
+						average_time_per_item: 0
 					})}\n\n`,
 				),
 			);
@@ -56,12 +58,12 @@ async function get_all_follows(
 
 		do {
 			const follows = (await rate_limiter.add_to_queue(() =>
-				agent.api.app.bsky.graph.getFollows({
-					actor: did,
-					limit: 100,
-					cursor,
-				}),
-			)) as AppBskyGraphGetFollows.Response;
+					agent.api.app.bsky.graph.getFollows({
+						actor: did,
+						limit: 100,
+						cursor,
+					}),
+				)) as AppBskyGraphGetFollows.Response;
 
 			if (!follows.data.follows) break;
 
@@ -77,12 +79,16 @@ async function get_all_follows(
 
 				if (controller) {
 					const encoder = new TextEncoder();
+					const elapsed = (Date.now() - start_time) / 1000;
+					const avg_time = elapsed / processed;
+
 					const progress = encoder.encode(
 						`data: ${JSON.stringify({
 							type: 'progress',
 							processed,
-							total: total_follows,
-							current: follow.handle,
+								total: total_follows,
+								current: follow.handle,
+								average_time_per_item: avg_time
 						})}\n\n`,
 					);
 					controller.enqueue(progress);
