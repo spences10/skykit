@@ -116,38 +116,41 @@ function calculate_media_engagement(posts: BskyPost[]): {
 	image_posts: { count: number; avg_engagement: number };
 	link_posts: { count: number; avg_engagement: number };
 } {
-	const image_posts = posts.filter((p) => has_media(p));
-	const link_posts = posts.filter((p) => has_links(p));
+	// Filter out reposts first
+	const original_posts = posts.filter((p) => !p.reason);
+
+	const image_posts = original_posts.filter((p) => has_media(p));
+	const link_posts = original_posts.filter((p) => has_links(p));
 
 	function get_post_engagement(post: BskyPost): number {
-		return (
-			(post.post.likeCount || 0) +
-			(post.post.repostCount || 0) +
-			(post.post.replyCount || 0)
-		);
+		// Ensure we're using numbers by converting undefined/null to 0
+		const likes = Number(post.post.likeCount) || 0;
+		const reposts = Number(post.post.repostCount) || 0;
+		const replies = Number(post.post.replyCount) || 0;
+		return likes + reposts + replies;
 	}
+
+	const calculate_avg = (posts: BskyPost[]) => {
+		if (!posts.length) return 0;
+		const total = posts.reduce(
+			(sum, post) => sum + get_post_engagement(post),
+			0,
+		);
+		return Number((total / posts.length).toFixed(1)); // Round to 1 decimal place
+	};
 
 	return {
 		image_posts: {
 			count: image_posts.length,
-			avg_engagement: image_posts.length
-				? image_posts.reduce(
-						(sum, post) => sum + get_post_engagement(post),
-						0,
-					) / image_posts.length
-				: 0,
+			avg_engagement: calculate_avg(image_posts),
 		},
 		link_posts: {
 			count: link_posts.length,
-			avg_engagement: link_posts.length
-				? link_posts.reduce(
-						(sum, post) => sum + get_post_engagement(post),
-						0,
-					) / link_posts.length
-				: 0,
+			avg_engagement: calculate_avg(link_posts),
 		},
 	};
 }
+
 function calculate_post_age_distribution(
 	posts: BskyPost[],
 ): Map<string, number> {
