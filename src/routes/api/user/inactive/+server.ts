@@ -1,3 +1,7 @@
+import {
+	cache_account_activity,
+	get_cached_accounts_by_handles,
+} from '$lib/db';
 import { rate_limiter } from '$lib/rate-limiter';
 import type { InactiveFollow } from '$lib/types';
 import {
@@ -6,18 +10,16 @@ import {
 	type AppBskyGraphGetFollows,
 } from '@atproto/api';
 import { error } from '@sveltejs/kit';
-import { differenceInDays, parseISO } from 'date-fns';
+import {
+	differenceInDays,
+	differenceInHours,
+	parseISO,
+} from 'date-fns';
 
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
 
-interface CachedFollows {
-	follows: Array<InactiveFollow & { lastPostDate: Date }>;
-	timestamp: number;
-}
-
-const follows_cache = new Map<string, CachedFollows>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_HOURS = 6; // Cache data for 6 hours
 
 type SortOption = 'last_post' | 'handle';
 
@@ -40,6 +42,7 @@ async function get_all_follows(
 		let cursor: string | undefined;
 		let processed = 0;
 		const start_time = Date.now();
+		const handles_to_check: string[] = [];
 
 		if (controller) {
 			const encoder = new TextEncoder();
@@ -67,15 +70,59 @@ async function get_all_follows(
 
 			if (!follows.data.follows) break;
 
-			for (const follow of follows.data.follows) {
-				const latest_post = (await rate_limiter.add_to_queue(() =>
-					agent.api.app.bsky.feed.getAuthorFeed({
-						actor: follow.did,
-						limit: 1,
-					}),
-				)) as AppBskyFeedGetAuthorFeed.Response;
+			// Collect all handles first
+			const current_handles = follows.data.follows.map(
+				(f) => f.handle,
+			);
+			handles_to_check.push(...current_handles);
 
-				processed++;
+			// Get cached data for this batch
+			const cached_accounts =
+				await get_cached_accounts_by_handles(current_handles);
+			const cached_map = new Map(
+				cached_accounts.map((a) => [a.handle, a]),
+			);
+
+			for (const follow of follows.data.follows) {
+				const cached = cached_map.get(follow.handle);
+				let last_post_date: Date;
+				let post_count: number | null = null;
+
+				if (
+					cached &&
+					differenceInHours(new Date(), cached.last_checked) <
+						CACHE_TTL_HOURS
+				) {
+					// Use cached data
+					last_post_date = cached.last_post_date || new Date(0);
+					post_count = cached.post_count;
+					processed++;
+				} else {
+					// Fetch fresh data
+					const latest_post = (await rate_limiter.add_to_queue(() =>
+						agent.api.app.bsky.feed.getAuthorFeed({
+							actor: follow.did,
+							limit: 1,
+						}),
+					)) as AppBskyFeedGetAuthorFeed.Response;
+
+					processed++;
+
+					last_post_date = latest_post.data.feed[0]
+						? parseISO(latest_post.data.feed[0].post.indexedAt)
+						: new Date(0);
+
+					post_count = latest_post.data.feed.length;
+
+					// Cache the result
+					await cache_account_activity(
+						follow.did,
+						follow.handle,
+						last_post_date.toISOString(),
+						post_count,
+						follow.followerCount,
+					);
+				}
 
 				if (controller) {
 					const encoder = new TextEncoder();
@@ -89,21 +136,21 @@ async function get_all_follows(
 							total: total_follows,
 							current: follow.handle,
 							average_time_per_item: avg_time,
+							cached: !!cached,
 						})}\n\n`,
 					);
 					controller.enqueue(progress);
 				}
 
-				const last_post_date = latest_post.data.feed[0]
-					? parseISO(latest_post.data.feed[0].post.indexedAt)
-					: new Date(0);
+				const days_since_last_post = differenceInDays(
+					new Date(),
+					last_post_date,
+				);
 
 				follows_with_posts.push({
-					did: follow.did,
-					handle: follow.handle,
-					displayName: follow.displayName,
-					lastPost: last_post_date.toISOString(),
+					...follow,
 					lastPostDate: last_post_date,
+					daysSinceLastPost: days_since_last_post,
 				});
 			}
 
@@ -111,43 +158,9 @@ async function get_all_follows(
 		} while (cursor);
 
 		return follows_with_posts;
-	} catch (err) {
-		console.error('Error fetching follows:', err);
-		return [];
-	}
-}
-
-function get_cached_data(handle: string, days: number) {
-	const cached = follows_cache.get(handle);
-	const now = new Date();
-
-	if (cached && now.getTime() - cached.timestamp < CACHE_TTL) {
-		return cached.follows
-			.filter(
-				(follow) =>
-					differenceInDays(now, follow.lastPostDate) >= days,
-			)
-			.map(({ lastPostDate, ...follow }) => follow);
-	}
-
-	return null;
-}
-
-function cache_follows(
-	handle: string,
-	follows: Array<InactiveFollow & { lastPostDate: Date }>,
-) {
-	const now = new Date();
-	follows_cache.set(handle, {
-		follows,
-		timestamp: now.getTime(),
-	});
-
-	// Clean up old cache entries
-	for (const [key, value] of follows_cache) {
-		if (now.getTime() - value.timestamp > CACHE_TTL) {
-			follows_cache.delete(key);
-		}
+	} catch (e) {
+		console.error('Error in get_all_follows:', e);
+		throw e;
 	}
 }
 
