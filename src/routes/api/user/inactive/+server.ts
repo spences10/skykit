@@ -50,7 +50,7 @@ async function get_all_follows(
 						processed: 0,
 						total: total_follows,
 						current: 'Starting...',
-						average_time_per_item: 0
+						average_time_per_item: 0,
 					})}\n\n`,
 				),
 			);
@@ -58,12 +58,12 @@ async function get_all_follows(
 
 		do {
 			const follows = (await rate_limiter.add_to_queue(() =>
-					agent.api.app.bsky.graph.getFollows({
-						actor: did,
-						limit: 100,
-						cursor,
-					}),
-				)) as AppBskyGraphGetFollows.Response;
+				agent.api.app.bsky.graph.getFollows({
+					actor: did,
+					limit: 100,
+					cursor,
+				}),
+			)) as AppBskyGraphGetFollows.Response;
 
 			if (!follows.data.follows) break;
 
@@ -86,9 +86,9 @@ async function get_all_follows(
 						`data: ${JSON.stringify({
 							type: 'progress',
 							processed,
-								total: total_follows,
-								current: follow.handle,
-								average_time_per_item: avg_time
+							total: total_follows,
+							current: follow.handle,
+							average_time_per_item: avg_time,
 						})}\n\n`,
 					);
 					controller.enqueue(progress);
@@ -187,7 +187,7 @@ function handle_error(err: any) {
 	throw error(500, 'Failed to fetch inactive follows');
 }
 
-export const GET = async ({ url }) => {
+export const GET = async ({ url }: { url: URL }) => {
 	const handle = url.searchParams.get('handle');
 	const days = Number(url.searchParams.get('days')) || 30;
 	const sort =
@@ -225,7 +225,7 @@ export const GET = async ({ url }) => {
 				const controller = await promise;
 				const profile = await get_profile(handle);
 				const encoder = new TextEncoder();
-				
+
 				const total_follows = profile.data.followsCount ?? 0;
 
 				const all_follows = await get_all_follows(
@@ -282,7 +282,7 @@ export const GET = async ({ url }) => {
 			profile.data.did,
 			total_follows,
 		);
-		
+
 		cache_follows(handle, all_follows);
 
 		const inactive_follows = filter_inactive_follows(
