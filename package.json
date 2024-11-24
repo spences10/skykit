@@ -17,7 +17,6 @@
 	},
 	"devDependencies": {
 		"@atproto/api": "^0.13.18",
-		"@libsql/client": "^0.14.0",
 		"@playwright/test": "^1.49.0",
 		"@sveltejs/adapter-node": "^5.2.9",
 		"@sveltejs/kit": "^2.8.2",
@@ -42,5 +41,8 @@
 		"typescript-eslint": "^8.15.0",
 		"vite": "^5.4.11",
 		"vitest": "^2.1.5"
+	},
+	"dependencies": {
+		"@libsql/client": "^0.14.0"
 	}
 }
