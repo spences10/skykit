@@ -97,22 +97,39 @@ export const get_cached_accounts_by_handles = async (
 	if (handles.length === 0) return [];
 
 	const client = get_db();
-	const placeholders = handles.map(() => '?').join(',');
-	const result = await client.execute({
-		sql: `SELECT * FROM account_activity WHERE handle IN (${placeholders})`,
-		args: handles,
-	});
+	const CHUNK_SIZE = 1000;
+	const all_results: CachedAccount[] = [];
 
-	return result.rows.map((row) => ({
-		did: row.did as string,
-		handle: row.handle as string,
-		last_post_date: row.last_post_date
-			? new Date(row.last_post_date as string)
-			: null,
-		last_checked: new Date(row.last_checked as string),
-		post_count: row.post_count as number | null,
-		followers_count: row.followers_count as number | null,
-	}));
+	try {
+		const tx = await client.transaction();
+
+		for (const chunk of chunk_array(handles, CHUNK_SIZE)) {
+			const placeholders = chunk.map(() => '?').join(',');
+			const result = await tx.execute({
+				sql: `SELECT * FROM account_activity WHERE handle IN (${placeholders})`,
+				args: chunk,
+			});
+
+			all_results.push(
+				...result.rows.map((row) => ({
+					did: row.did as string,
+					handle: row.handle as string,
+					last_post_date: row.last_post_date
+						? new Date(row.last_post_date as string)
+						: null,
+					last_checked: new Date(row.last_checked as string),
+					post_count: row.post_count as number | null,
+					followers_count: row.followers_count as number | null,
+				}))
+			);
+		}
+
+		await tx.commit();
+		return all_results;
+	} catch (e) {
+		console.error('Error fetching cached accounts:', e);
+		throw e;
+	}
 };
 
 export const store_stat = async (type: string, value: unknown) => {
@@ -124,3 +141,10 @@ export const store_stat = async (type: string, value: unknown) => {
 };
 
 export { get_db };
+
+function chunk_array<T>(array: T[], size: number): T[][] {
+	return Array.from(
+		{ length: Math.ceil(array.length / size) },
+		(_, i) => array.slice(i * size, i * size + size),
+	);
+}
