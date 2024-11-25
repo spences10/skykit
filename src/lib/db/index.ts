@@ -6,10 +6,6 @@ const db_path =
 		? 'file:/app/data/db/skykit.db'
 		: 'file:local.db';
 
-console.log('=====================');
-console.log(`db_path: ${db_path}, NODE_ENV: ${NODE_ENV}`);
-console.log('=====================');
-
 // Only create the client at runtime, not during build
 let db: ReturnType<typeof createClient>;
 
@@ -67,7 +63,7 @@ export const cache_account_activity = async (
 	handle: string,
 	last_post_date: string | null,
 	post_count?: number,
-	followers_count?: number,
+	followers_count?: unknown,
 ) => {
 	const client = get_db();
 	await client.execute({
@@ -81,7 +77,7 @@ export const cache_account_activity = async (
 			handle,
 			last_post_date,
 			post_count || null,
-			followers_count || null,
+			typeof followers_count === 'number' ? followers_count : null,
 		],
 	});
 };

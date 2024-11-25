@@ -1,6 +1,7 @@
 import {
 	cache_account_activity,
 	get_cached_accounts_by_handles,
+	store_stat,
 } from '$lib/db';
 import { rate_limiter } from '$lib/rate-limiter';
 import type { InactiveFollow } from '$lib/types';
@@ -10,16 +11,10 @@ import {
 	type AppBskyGraphGetFollows,
 } from '@atproto/api';
 import { error } from '@sveltejs/kit';
-import {
-	differenceInDays,
-	differenceInHours,
-	parseISO,
-} from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
-
-const CACHE_TTL_HOURS = 6; // Cache data for 6 hours
 
 type SortOption = 'last_post' | 'handle';
 
@@ -38,11 +33,13 @@ async function get_all_follows(
 	controller?: ReadableStreamDefaultController,
 ) {
 	try {
-		const follows_with_posts = [];
+		const follows_with_posts: Array<
+			InactiveFollow & { lastPostDate: Date }
+		> = [];
 		let cursor: string | undefined;
 		let processed = 0;
+		let cache_hits = 0;
 		const start_time = Date.now();
-		const handles_to_check: string[] = [];
 
 		if (controller) {
 			const encoder = new TextEncoder();
@@ -70,13 +67,10 @@ async function get_all_follows(
 
 			if (!follows.data.follows) break;
 
-			// Collect all handles first
+			// Get cached data for this batch
 			const current_handles = follows.data.follows.map(
 				(f) => f.handle,
 			);
-			handles_to_check.push(...current_handles);
-
-			// Get cached data for this batch
 			const cached_accounts =
 				await get_cached_accounts_by_handles(current_handles);
 			const cached_map = new Map(
@@ -90,15 +84,22 @@ async function get_all_follows(
 
 				if (
 					cached &&
-					differenceInHours(new Date(), cached.last_checked) <
-						CACHE_TTL_HOURS
+					differenceInDays(new Date(), cached.last_checked) < 1
 				) {
 					// Use cached data
 					last_post_date = cached.last_post_date || new Date(0);
 					post_count = cached.post_count;
 					processed++;
+					cache_hits++;
 				} else {
-					// Fetch fresh data
+					// Get profile first for accurate post count
+					const profile = await rate_limiter.add_to_queue(() =>
+						agent.api.app.bsky.actor.getProfile({
+							actor: follow.did,
+						}),
+					);
+
+					// Then get latest post
 					const latest_post = (await rate_limiter.add_to_queue(() =>
 						agent.api.app.bsky.feed.getAuthorFeed({
 							actor: follow.did,
@@ -112,15 +113,15 @@ async function get_all_follows(
 						? parseISO(latest_post.data.feed[0].post.indexedAt)
 						: new Date(0);
 
-					post_count = latest_post.data.feed.length;
+					post_count = profile.data.postsCount || 0;
 
-					// Cache the result
+					// Cache the result with follower count
 					await cache_account_activity(
 						follow.did,
 						follow.handle,
 						last_post_date.toISOString(),
 						post_count,
-						follow.followerCount,
+						profile.data.followersCount || null,
 					);
 				}
 
@@ -142,20 +143,30 @@ async function get_all_follows(
 					controller.enqueue(progress);
 				}
 
-				const days_since_last_post = differenceInDays(
-					new Date(),
-					last_post_date,
-				);
-
 				follows_with_posts.push({
-					...follow,
+					did: follow.did,
+					handle: follow.handle,
+					displayName: follow.displayName,
+					lastPost: last_post_date.toISOString(),
 					lastPostDate: last_post_date,
-					daysSinceLastPost: days_since_last_post,
 				});
 			}
 
 			cursor = follows.data.cursor;
 		} while (cursor);
+
+		// Store stats
+		const end_time = Date.now();
+		const total_time = (end_time - start_time) / 1000;
+
+		await store_stat('query_performance', {
+			total_processed: processed,
+			cache_hits,
+			cache_misses: processed - cache_hits,
+			total_time_seconds: total_time,
+			average_time_per_item: total_time / processed,
+			timestamp: new Date().toISOString(),
+		});
 
 		return follows_with_posts;
 	} catch (e) {
@@ -176,39 +187,27 @@ function filter_inactive_follows(
 		.map(({ lastPostDate, ...follow }) => follow);
 }
 
-function sort_follows(
-	follows: InactiveFollow[],
-	sort: SortOption = 'last_post',
-): InactiveFollow[] {
+function sort_follows(follows: InactiveFollow[], sort: SortOption) {
 	return [...follows].sort((a, b) => {
-		switch (sort) {
-			case 'last_post':
-				return (
-					new Date(a.lastPost).getTime() -
-					new Date(b.lastPost).getTime()
-				);
-			case 'handle':
-				return a.handle.localeCompare(b.handle);
-			default:
-				return 0;
+		if (sort === 'last_post') {
+			return (
+				new Date(b.lastPost).getTime() -
+				new Date(a.lastPost).getTime()
+			);
 		}
+		return a.handle.localeCompare(b.handle);
 	});
 }
 
-function handle_error(err: any) {
-	console.error('Error:', err);
-	throw error(500, 'Failed to fetch inactive follows');
-}
-
-export const GET = async ({ url }: { url: URL }) => {
+export async function GET({ url }) {
 	const handle = url.searchParams.get('handle');
-	const days = Number(url.searchParams.get('days')) || 30;
+	const days = parseInt(url.searchParams.get('days') || '30', 10);
 	const sort =
 		(url.searchParams.get('sort') as SortOption) || 'last_post';
 	const stream = url.searchParams.get('stream') === 'true';
 
 	if (!handle) {
-		throw error(400, 'Handle is required');
+		throw error(400, 'Missing handle parameter');
 	}
 
 	if (stream) {
@@ -239,7 +238,7 @@ export const GET = async ({ url }: { url: URL }) => {
 				const profile = await get_profile(handle);
 				const encoder = new TextEncoder();
 
-				const total_follows = profile.data.followsCount ?? 0;
+				const total_follows = profile.data.followsCount || 0;
 
 				const all_follows = await get_all_follows(
 					agent,
@@ -279,16 +278,8 @@ export const GET = async ({ url }: { url: URL }) => {
 	}
 
 	try {
-		const cached_data = get_cached_data(handle, days);
-		if (cached_data) {
-			return Response.json({
-				inactive_follows: sort_follows(cached_data, sort),
-				cache: 'hit',
-			});
-		}
-
 		const profile = await get_profile(handle);
-		const total_follows = profile.data.followsCount ?? 0;
+		const total_follows = profile.data.followsCount || 0;
 
 		const all_follows = await get_all_follows(
 			agent,
@@ -296,18 +287,18 @@ export const GET = async ({ url }: { url: URL }) => {
 			total_follows,
 		);
 
-		cache_follows(handle, all_follows);
-
 		const inactive_follows = filter_inactive_follows(
 			all_follows,
 			days,
 		);
+		const sorted_follows = sort_follows(inactive_follows, sort);
 
 		return Response.json({
-			inactive_follows: sort_follows(inactive_follows, sort),
-			cache: 'miss',
+			inactive_follows: sorted_follows,
+			total_follows,
 		});
 	} catch (err) {
-		handle_error(err);
+		console.error('Error:', err);
+		throw error(500, 'Failed to fetch inactive follows');
 	}
-};
+}
