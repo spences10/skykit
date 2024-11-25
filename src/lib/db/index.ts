@@ -58,6 +58,15 @@ export const init_db = async () => {
 	}
 };
 
+export interface CachedAccount {
+	did: string;
+	handle: string;
+	last_post_date: Date | null;
+	last_checked: Date;
+	post_count: number | null;
+	followers_count: number | null;
+}
+
 export const cache_account_activity = async (
 	did: string,
 	handle: string,
@@ -82,32 +91,9 @@ export const cache_account_activity = async (
 	});
 };
 
-// Update other functions to use get_db()
-export const get_cached_account_activity = async (did: string) => {
-	const client = get_db();
-	const result = await client.execute({
-		sql: 'SELECT * FROM account_activity WHERE did = ?',
-		args: [did],
-	});
-
-	if (result.rows.length === 0) return null;
-
-	const row = result.rows[0];
-	return {
-		did: row.did as string,
-		handle: row.handle as string,
-		last_post_date: row.last_post_date
-			? new Date(row.last_post_date as string)
-			: null,
-		last_checked: new Date(row.last_checked as string),
-		post_count: row.post_count as number | null,
-		followers_count: row.followers_count as number | null,
-	};
-};
-
 export const get_cached_accounts_by_handles = async (
 	handles: string[],
-) => {
+): Promise<CachedAccount[]> => {
 	if (handles.length === 0) return [];
 
 	const client = get_db();
@@ -129,29 +115,7 @@ export const get_cached_accounts_by_handles = async (
 	}));
 };
 
-export const get_stale_accounts = async (max_age_hours: number) => {
-	const client = get_db();
-	const result = await client.execute({
-		sql: `
-			SELECT * FROM account_activity 
-			WHERE datetime(last_checked) < datetime('now', '-' || ? || ' hours')
-		`,
-		args: [max_age_hours],
-	});
-
-	return result.rows.map((row) => ({
-		did: row.did as string,
-		handle: row.handle as string,
-		last_post_date: row.last_post_date
-			? new Date(row.last_post_date as string)
-			: null,
-		last_checked: new Date(row.last_checked as string),
-		post_count: row.post_count as number | null,
-		followers_count: row.followers_count as number | null,
-	}));
-};
-
-export const store_stat = async (type: string, value: any) => {
+export const store_stat = async (type: string, value: unknown) => {
 	const client = get_db();
 	await client.execute({
 		sql: 'INSERT INTO stats (type, value) VALUES (?, ?)',
@@ -159,15 +123,4 @@ export const store_stat = async (type: string, value: any) => {
 	});
 };
 
-export const get_stats = async (type: string, limit = 100) => {
-	const client = get_db();
-	const result = await client.execute({
-		sql: 'SELECT value, timestamp FROM stats WHERE type = ? ORDER BY timestamp DESC LIMIT ?',
-		args: [type, limit],
-	});
-
-	return result.rows.map((row) => ({
-		value: JSON.parse(row.value as string),
-		timestamp: new Date(row.timestamp as string),
-	}));
-};
+export { get_db };
