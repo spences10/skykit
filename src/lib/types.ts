@@ -138,8 +138,25 @@ export interface InactiveFollow {
 	handle: string;
 	displayName?: string;
 	lastPost: string;
+	lastPostDate: Date;
 }
 
 export interface UserData {
 	inactive_follows?: InactiveFollow[];
+}
+
+export interface ProcessingStats {
+	stage: 'follows' | 'profiles' | 'feeds' | 'complete';
+	processed: number;
+	total: number;
+	current: string;
+	cache_hits: number;
+	cache_misses: number;
+	average_time_per_item?: number;
+	start_time: Date;
+	cached?: boolean;
+	batch_progress?: {
+		current: number;
+		total: number;
+	};
 }
