@@ -146,6 +146,7 @@ export interface InactiveFollow {
 	displayName?: string;
 	lastPost: string;
 	lastPostDate: Date;
+	createdAt: string;
 	source?: 'cache' | 'api';
 }
 
@@ -154,7 +155,12 @@ export interface UserData {
 	cache_stats?: CacheStats;
 }
 
-export type ProcessingStage = 'cache' | 'follows' | 'profiles' | 'feeds' | 'complete';
+export type ProcessingStage =
+	| 'cache'
+	| 'follows'
+	| 'profiles'
+	| 'feeds'
+	| 'complete';
 
 export interface ProcessingStats {
 	stage: ProcessingStage;

@@ -3,9 +3,9 @@ import { rate_limiter } from '$lib/rate-limiter';
 import { execute_batch_update } from '$lib/server/inactive-process';
 import type {
 	CachedAccount,
+	CacheStats,
 	InactiveFollow,
 	ProcessingStats,
-	CacheStats
 } from '$lib/types';
 import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
@@ -15,8 +15,7 @@ import { differenceInDays, parseISO } from 'date-fns';
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
 const CACHE_FRESHNESS_DAYS = 7;
-
-type SortOption = 'last_post' | 'handle';
+const MAX_ACTORS_PER_REQUEST = 25;
 
 function chunk_array<T>(array: T[], size: number): T[][] {
 	return Array.from(
@@ -105,6 +104,48 @@ async function get_all_follows_for_user(
 	return all_follows;
 }
 
+async function get_profiles_in_chunks(
+	dids: string[],
+	controller?: ReadableStreamDefaultController,
+): Promise<Map<string, AppBskyActorDefs.ProfileViewDetailed>> {
+	const chunks = chunk_array(dids, MAX_ACTORS_PER_REQUEST);
+	const profile_map = new Map<string, AppBskyActorDefs.ProfileViewDetailed>();
+	let processed = 0;
+
+	for (const chunk of chunks) {
+		const profiles = await retry_with_backoff(() =>
+			rate_limiter.add_to_queue(() =>
+				agent.api.app.bsky.actor.getProfiles({
+					actors: chunk,
+				}),
+			),
+		);
+
+		for (const profile of profiles.data.profiles) {
+			profile_map.set(profile.did, profile);
+		}
+
+		processed += chunk.length;
+		if (controller) {
+			report_progress(controller, {
+				stage: 'profiles',
+				processed,
+				total: dids.length,
+				current: 'Fetching profile data...',
+				data_source: 'api',
+				current_batch_source: 'Fetching profiles from Bluesky API',
+			});
+		}
+
+		// Add a small delay between chunks
+		if (chunks.length > 1) {
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+	}
+
+	return profile_map;
+}
+
 async function process_accounts_in_chunks(
 	accounts: AppBskyActorDefs.ProfileView[],
 	controller?: ReadableStreamDefaultController,
@@ -160,6 +201,7 @@ async function process_accounts_in_chunks(
 				displayName: follow.displayName,
 				lastPost: last_post_date.toISOString(),
 				lastPostDate: last_post_date,
+				createdAt: profile.indexedAt || new Date(0).toISOString(),
 				source: 'api',
 			});
 
@@ -214,18 +256,6 @@ function filter_inactive_follows(
 	);
 }
 
-function sort_follows(follows: InactiveFollow[], sort: SortOption) {
-	return [...follows].sort((a, b) => {
-		if (sort === 'last_post') {
-			return (
-				new Date(b.lastPost).getTime() -
-				new Date(a.lastPost).getTime()
-			);
-		}
-		return a.handle.localeCompare(b.handle);
-	});
-}
-
 async function get_cached_accounts_by_did(
 	dids: string[],
 ): Promise<CachedAccount[]> {
@@ -272,7 +302,7 @@ async function get_all_follows(
 	did: string,
 	total_follows: number,
 	controller?: ReadableStreamDefaultController,
-): Promise<{ results: InactiveFollow[], cache_stats: CacheStats }> {
+): Promise<{ results: InactiveFollow[]; cache_stats: CacheStats }> {
 	try {
 		// Report initial state
 		if (controller) {
@@ -305,6 +335,12 @@ async function get_all_follows(
 			cached_accounts.map((a) => [a.did, a]),
 		);
 
+		// Get profiles for all follows to get creation dates (in chunks)
+		const profile_map = await get_profiles_in_chunks(
+			all_follows.map((f) => f.did),
+			controller,
+		);
+
 		// Process cached results
 		const results: InactiveFollow[] = [];
 		let cache_hits = 0;
@@ -313,10 +349,12 @@ async function get_all_follows(
 
 		for (const follow of all_follows) {
 			const cached = cached_map.get(follow.did);
+			const profile = profile_map.get(follow.did);
 			const is_fresh_cache =
 				cached &&
 				cached.last_checked &&
-				differenceInDays(new Date(), cached.last_checked) < CACHE_FRESHNESS_DAYS;
+				differenceInDays(new Date(), cached.last_checked) <
+					CACHE_FRESHNESS_DAYS;
 
 			processed++;
 			if (controller) {
@@ -340,6 +378,7 @@ async function get_all_follows(
 					displayName: follow.displayName,
 					lastPost: cached.last_post_date.toISOString(),
 					lastPostDate: cached.last_post_date,
+					createdAt: profile?.indexedAt || new Date(0).toISOString(),
 					source: 'cache',
 				});
 			} else {
@@ -351,7 +390,7 @@ async function get_all_follows(
 			total_processed: processed,
 			cache_hits,
 			cache_misses,
-			hit_rate: Number(((cache_hits / processed) * 100).toFixed(2))
+			hit_rate: Number(((cache_hits / processed) * 100).toFixed(2)),
 		};
 
 		// Only process accounts that need updating
@@ -395,8 +434,6 @@ async function get_all_follows(
 export async function GET({ url }) {
 	const handle = url.searchParams.get('handle');
 	const days = parseInt(url.searchParams.get('days') || '30', 10);
-	const sort =
-		(url.searchParams.get('sort') as SortOption) || 'last_post';
 	const stream = url.searchParams.get('stream') === 'true';
 
 	if (!handle) {
@@ -431,26 +468,26 @@ export async function GET({ url }) {
 				const profile = await get_profile(handle);
 				const total_follows = profile.data.followsCount || 0;
 
-				const { results: all_follows, cache_stats } = await get_all_follows(
-					agent,
-					profile.data.did,
-					total_follows,
-					controller,
-				);
+				const { results: all_follows, cache_stats } =
+					await get_all_follows(
+						agent,
+						profile.data.did,
+						total_follows,
+						controller,
+					);
 
 				const inactive_follows = filter_inactive_follows(
 					all_follows,
 					days,
 				);
-				const sorted_follows = sort_follows(inactive_follows, sort);
 
 				const encoder = new TextEncoder();
 				controller.enqueue(
 					encoder.encode(
 						`data: ${JSON.stringify({
 							type: 'complete',
-							inactive_follows: sorted_follows,
-							cache_stats
+							inactive_follows,
+							cache_stats,
 						})}\n\n`,
 					),
 				);
@@ -476,22 +513,18 @@ export async function GET({ url }) {
 		const profile = await get_profile(handle);
 		const total_follows = profile.data.followsCount || 0;
 
-		const { results: all_follows, cache_stats } = await get_all_follows(
-			agent,
-			profile.data.did,
-			total_follows,
-		);
+		const { results: all_follows, cache_stats } =
+			await get_all_follows(agent, profile.data.did, total_follows);
 
 		const inactive_follows = filter_inactive_follows(
 			all_follows,
 			days,
 		);
-		const sorted_follows = sort_follows(inactive_follows, sort);
 
 		return Response.json({
-			inactive_follows: sorted_follows,
+			inactive_follows,
 			total_follows,
-			cache_stats
+			cache_stats,
 		});
 	} catch (err) {
 		console.error('Error:', err);

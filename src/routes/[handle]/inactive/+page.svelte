@@ -5,18 +5,48 @@
 
 	let { data } = $props<{ data: PageData }>();
 	let days_threshold = $state(30);
-	let sort_option = $state<'last_post' | 'handle'>('last_post');
+	let show_never_posted = $state(false);
+	let sort_direction = $state<'asc' | 'desc'>('desc');
 
 	let loading = $derived(inactive_state.loading);
 	let inactive_follows = $derived(inactive_state.inactive_follows);
 	let error = $derived(inactive_state.error);
 
+	// Apply sorting and filtering
+	const filtered_and_sorted_follows = $derived.by(() => {
+		let result = [...inactive_follows];
+
+		// Apply never posted filter if enabled
+		if (show_never_posted) {
+			result = result.filter(
+				(follow) => follow.lastPost === '1970-01-01T00:00:00.000Z',
+			);
+		}
+
+		// Apply sorting
+		result.sort((a, b) => {
+			const dateA = new Date(a.lastPost).getTime();
+			const dateB = new Date(b.lastPost).getTime();
+			return sort_direction === 'asc' ? dateA - dateB : dateB - dateA;
+		});
+
+		return result;
+	});
+
 	const handle_form_submit = async () => {
 		await inactive_state.fetch_inactive_follows(
 			data.profile.handle,
 			days_threshold,
-			sort_option
 		);
+	};
+
+	const open_all_profiles = () => {
+		filtered_and_sorted_follows.forEach((follow) => {
+			window.open(
+				`https://bsky.app/profile/${follow.handle}`,
+				'_blank',
+			);
+		});
 	};
 </script>
 
@@ -46,15 +76,16 @@
 			<form
 				method="POST"
 				action="?/check_inactive"
+				class="space-y-4"
 				onsubmit={(e) => {
 					e.preventDefault();
 					handle_form_submit();
 				}}
 			>
-				<div class="flex flex-col gap-4 sm:flex-row sm:items-end">
-					<div class="form-control w-full sm:max-w-xs">
+				<div class="flex flex-wrap items-end gap-4">
+					<div class="form-control w-24">
 						<label class="label" for="days">
-							<span class="label-text">Days of inactivity</span>
+							<span class="label-text">Days</span>
 						</label>
 						<input
 							type="number"
@@ -66,22 +97,9 @@
 							class="input input-bordered w-full"
 						/>
 					</div>
-					<div class="form-control w-full sm:w-auto">
-						<label class="label" for="sort">
-							<span class="label-text">Sort by</span>
-						</label>
-						<select 
-							bind:value={sort_option}
-							class="select select-bordered w-full"
-							id="sort"
-						>
-							<option value="last_post">Last Post Date</option>
-							<option value="handle">Handle</option>
-						</select>
-					</div>
 					<button
 						type="submit"
-						class="btn btn-primary w-full sm:w-auto"
+						class="btn btn-primary ml-auto"
 						disabled={loading}
 					>
 						{#if loading}
@@ -93,8 +111,9 @@
 			</form>
 
 			{#if inactive_follows.length > 0}
-				<div class="mt-4">
-					<div class="stats shadow w-full">
+				<div class="divider"></div>
+				<div class="flex items-center justify-between">
+					<div class="stats shadow">
 						<div class="stat">
 							<div class="stat-title">Inactive Follows Found</div>
 							<div class="stat-value text-primary">
@@ -105,6 +124,51 @@
 							</div>
 						</div>
 					</div>
+
+					<!-- Sort and Filter Controls -->
+					<div class="flex flex-col items-end gap-2">
+						<div class="flex items-center gap-2">
+							<span class="text-sm font-medium">
+								Sort by Last Post:
+							</span>
+							<div class="join">
+								<button
+									class="btn join-item btn-sm {sort_direction ===
+									'desc'
+										? 'btn-primary'
+										: 'btn-ghost'}"
+									onclick={() => (sort_direction = 'desc')}
+								>
+									Newest
+								</button>
+								<button
+									class="btn join-item btn-sm {sort_direction ===
+									'asc'
+										? 'btn-primary'
+										: 'btn-ghost'}"
+									onclick={() => (sort_direction = 'asc')}
+								>
+									Oldest
+								</button>
+							</div>
+						</div>
+
+						<label class="label cursor-pointer gap-2">
+							<span class="label-text">Never Posted Only</span>
+							<input
+								type="checkbox"
+								class="checkbox"
+								bind:checked={show_never_posted}
+							/>
+						</label>
+					</div>
+				</div>
+
+				<!-- Open All Profiles Button -->
+				<div class="mt-4 flex justify-end">
+					<button class="btn btn-primary" onclick={open_all_profiles}>
+						Open All Profiles ({filtered_and_sorted_follows.length})
+					</button>
 				</div>
 			{/if}
 		</div>
@@ -116,9 +180,9 @@
 		</div>
 	{/if}
 
-	<InactiveFollows 
-		{inactive_follows}
+	<InactiveFollows
+		inactive_follows={filtered_and_sorted_follows}
 		{loading}
-		progress={inactive_state.progress} 
+		progress={inactive_state.progress}
 	/>
 </main>

@@ -2,7 +2,12 @@
 	import type { Progress } from '$lib/inactive.svelte';
 	import { inactive_state } from '$lib/inactive.svelte';
 	import type { InactiveFollow, ProcessingStage } from '$lib/types';
-	import { formatDistanceToNow, isValid, parseISO } from 'date-fns';
+	import {
+		formatDate,
+		formatDistanceToNow,
+		isValid,
+		parseISO,
+	} from 'date-fns';
 
 	let {
 		inactive_follows = [],
@@ -19,9 +24,11 @@
 
 	let elapsed_time = $derived(
 		loading
-			? formatDistanceToNow(progress.start_time, {
-					includeSeconds: true,
-				})
+			? progress.average_time_per_item
+				? `About ${formatDistanceToNow(progress.start_time)}`
+				: formatDistanceToNow(progress.start_time, {
+						includeSeconds: true,
+					})
 			: '',
 	);
 
@@ -88,14 +95,6 @@
 				return 'Processing...';
 		}
 	}
-
-	function calculate_cache_percentage(
-		hits: number = 0,
-		misses: number = 0,
-	): number {
-		if (hits === 0 && misses === 0) return 0;
-		return Math.round((hits / (hits + misses)) * 100);
-	}
 </script>
 
 <div class="space-y-6">
@@ -106,10 +105,14 @@
 					<!-- Progress Bar -->
 					<div class="w-full">
 						<div class="mb-2 flex justify-between text-sm">
-							<span class="text-base-content/70">Progress</span>
-							<span class="font-medium text-primary"
-								>{progress_percent}%</span
-							>
+							<span class="text-base-content/70">
+								{number_format.format(progress.processed)} of {number_format.format(
+									progress.total,
+								)}
+							</span>
+							<span class="font-medium text-primary">
+								{progress_percent}%
+							</span>
 						</div>
 						<progress
 							class="progress progress-primary w-full"
@@ -132,88 +135,6 @@
 							</p>
 						</div>
 					</div>
-
-					<!-- Stats Grid -->
-					<div
-						class="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3"
-					>
-						<!-- Progress Stats -->
-						<div class="stats bg-base-100 shadow">
-							<div class="stat">
-								<div class="stat-title">Overall Progress</div>
-								<div class="stat-value text-3xl text-primary">
-									{progress_percent}%
-								</div>
-								{#if progress.current}
-									<div class="stat-desc text-base-content/70">
-										{number_format.format(progress.processed)} of {number_format.format(
-											progress.total,
-										)}
-									</div>
-								{/if}
-							</div>
-						</div>
-
-						<!-- Current Batch -->
-						{#if progress.batch_progress}
-							<div class="stats bg-base-100 shadow">
-								<div class="stat">
-									<div class="stat-title">Current Batch</div>
-									<div class="stat-value text-3xl text-secondary">
-										{Math.round(
-											(progress.batch_progress.current /
-												progress.batch_progress.total) *
-												100,
-										)}%
-									</div>
-									<div class="stat-desc text-base-content/70">
-										{number_format.format(
-											progress.batch_progress.current,
-										)} of {number_format.format(
-											progress.batch_progress.total,
-										)}
-									</div>
-								</div>
-							</div>
-						{/if}
-
-						<!-- Stage Info -->
-						<div class="stats bg-base-100 shadow">
-							<div class="stat">
-								<div class="stat-title">Current Stage</div>
-								<div
-									class="stat-value text-3xl capitalize text-accent"
-								>
-									{progress.stage}
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Cache Stats -->
-					{#if progress.cache_hits !== undefined || progress.cache_misses !== undefined}
-						<div class="stats w-full bg-base-100 shadow">
-							<div class="stat">
-								<div class="stat-title">Data Sources</div>
-								<div class="stat-value text-2xl">
-									{calculate_cache_percentage(
-										progress.cache_hits,
-										progress.cache_misses,
-									)}% from cache
-								</div>
-								<div class="stat-desc mt-2 flex justify-center gap-2">
-									<div class="badge badge-success">
-										{number_format.format(progress.cache_hits || 0)} from
-										DB
-									</div>
-									<div class="badge badge-warning">
-										{number_format.format(progress.cache_misses || 0)}
-										from API
-									</div>
-								</div>
-							</div>
-						</div>
-					{/if}
 
 					<!-- Timing Stats -->
 					<div class="stats w-full bg-base-100 shadow">
@@ -269,19 +190,15 @@
 							<div class="stat-desc mt-3">
 								<div class="flex flex-wrap justify-center gap-2">
 									<div class="badge badge-success badge-lg gap-2">
-										<span class="font-medium"
-											>{number_format.format(
-												cache_stats.cache_hits,
-											)}</span
-										>
+										<span class="font-medium">
+											{number_format.format(cache_stats.cache_hits)}
+										</span>
 										<span class="opacity-80">from database</span>
 									</div>
 									<div class="badge badge-warning badge-lg gap-2">
-										<span class="font-medium"
-											>{number_format.format(
-												cache_stats.cache_misses,
-											)}</span
-										>
+										<span class="font-medium">
+											{number_format.format(cache_stats.cache_misses)}
+										</span>
 										<span class="opacity-80">from API</span>
 									</div>
 								</div>
@@ -319,15 +236,18 @@
 									@{follow.handle}
 								</a>
 							</p>
+							<p class="mt-1 text-sm text-base-content/70">
+								Joined {formatDate(follow.createdAt, 'MMM d, yyyy')}
+								({format_relative_time(follow.createdAt)})
+							</p>
 						</div>
 						<div class="flex flex-col items-start gap-1 sm:items-end">
-							<p class="text-sm font-medium text-base-content/70">
-								Last post:
+							<p class="font-medium text-base-content/70">
+								Last post: <span class="font-bold">
+									{format_relative_time(follow.lastPost)}
+								</span>
 							</p>
 							<div class="flex items-center gap-2">
-								<p class="font-medium text-base-content">
-									{format_relative_time(follow.lastPost)}
-								</p>
 								{#if follow.source}
 									<div
 										class="badge badge-sm {follow.source === 'cache'
@@ -335,8 +255,8 @@
 											: 'badge-warning'}"
 									>
 										{follow.source === 'cache'
-											? 'From DB'
-											: 'From API'}
+											? 'Source - DB'
+											: 'Source - API'}
 									</div>
 								{/if}
 							</div>

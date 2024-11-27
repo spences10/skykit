@@ -50,7 +50,6 @@ export function create_inactive_state() {
 	const fetch_inactive_follows = async (
 		handle: string,
 		days: number,
-		sort: 'last_post' | 'handle',
 	) => {
 		loading = true;
 		error = undefined;
@@ -60,7 +59,7 @@ export function create_inactive_state() {
 
 		try {
 			const eventSource = new EventSource(
-				`/api/user/inactive?handle=${encodeURIComponent(handle)}&days=${days}&sort=${sort}&stream=true`,
+				`/api/user/inactive?handle=${encodeURIComponent(handle)}&days=${days}&stream=true`,
 			);
 
 			eventSource.onmessage = (event) => {
