@@ -1,6 +1,12 @@
-import { get_cached_accounts_by_handles, get_db } from '$lib/db';
+import { get_db } from '$lib/db';
 import { rate_limiter } from '$lib/rate-limiter';
-import type { InactiveFollow, ProcessingStats } from '$lib/types';
+import { execute_batch_update } from '$lib/server/inactive-process';
+import type {
+	CachedAccount,
+	InactiveFollow,
+	ProcessingStats,
+	CacheStats
+} from '$lib/types';
 import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
@@ -8,61 +14,15 @@ import { differenceInDays, parseISO } from 'date-fns';
 
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
+const CACHE_FRESHNESS_DAYS = 7;
 
 type SortOption = 'last_post' | 'handle';
-type DbTransaction = Awaited<
-	ReturnType<typeof get_db>
->['transaction'];
 
 function chunk_array<T>(array: T[], size: number): T[][] {
 	return Array.from(
 		{ length: Math.ceil(array.length / size) },
 		(_, i) => array.slice(i * size, i * size + size),
 	);
-}
-
-async function execute_batch_update(
-	updates: Array<{
-		did: string;
-		handle: string;
-		last_post_date: string;
-		post_count: number | null;
-		followers_count: number | null;
-	}>,
-) {
-	const db = get_db();
-	const tx = await db.transaction();
-	try {
-		const placeholders = updates
-			.map(() => '(?, ?, ?, CURRENT_TIMESTAMP, ?, ?)')
-			.join(',');
-
-		const args = updates.flatMap((u) => [
-			u.did,
-			u.handle,
-			u.last_post_date,
-			u.post_count,
-			u.followers_count,
-		]);
-
-		await tx.execute({
-			sql: `
-				INSERT INTO account_activity 
-				(did, handle, last_post_date, last_checked, post_count, followers_count)
-				VALUES ${placeholders}
-				ON CONFLICT(did) DO UPDATE SET
-					last_post_date = EXCLUDED.last_post_date,
-					last_checked = CURRENT_TIMESTAMP,
-					post_count = EXCLUDED.post_count,
-					followers_count = EXCLUDED.followers_count
-			`,
-			args,
-		});
-		await tx.commit();
-	} catch (e) {
-		await tx.rollback();
-		throw e;
-	}
 }
 
 async function get_profile(handle: string) {
@@ -134,6 +94,10 @@ async function get_all_follows_for_user(
 				processed: all_follows.length,
 				total: total_follows,
 				current: `Fetching follows: ${all_follows.length}/${total_follows}`,
+				data_source: 'api',
+				current_batch_source: 'Fetching follows from Bluesky API',
+				cache_hits: 0,
+				cache_misses: 0,
 			});
 		}
 	} while (cursor);
@@ -144,8 +108,8 @@ async function get_all_follows_for_user(
 async function process_accounts_in_chunks(
 	accounts: AppBskyActorDefs.ProfileView[],
 	controller?: ReadableStreamDefaultController,
+	cache_stats?: { hits: number; misses: number },
 ): Promise<InactiveFollow[]> {
-	const BATCH_SIZE = 500;
 	const PROFILE_CHUNK_SIZE = 25;
 	const FEED_CHUNK_SIZE = 15;
 	const DELAY_BETWEEN_BATCHES = 500;
@@ -196,6 +160,7 @@ async function process_accounts_in_chunks(
 				displayName: follow.displayName,
 				lastPost: last_post_date.toISOString(),
 				lastPostDate: last_post_date,
+				source: 'api',
 			});
 
 			processed++;
@@ -209,11 +174,16 @@ async function process_accounts_in_chunks(
 						current: processed,
 						total: accounts.length,
 					},
+					data_source: 'api',
+					current_batch_source:
+						'Fetching fresh data from Bluesky API',
+					cache_hits: cache_stats?.hits || 0,
+					cache_misses: cache_stats?.misses || 0,
 				});
 			}
 		});
 
-		// Update cache
+		// Update cache using consolidated batch update
 		await execute_batch_update(
 			chunk.map((follow, index) => ({
 				did: follow.did,
@@ -256,23 +226,66 @@ function sort_follows(follows: InactiveFollow[], sort: SortOption) {
 	});
 }
 
+async function get_cached_accounts_by_did(
+	dids: string[],
+): Promise<CachedAccount[]> {
+	if (dids.length === 0) return [];
+
+	const client = get_db();
+	const CHUNK_SIZE = 1000;
+	const all_results: CachedAccount[] = [];
+
+	try {
+		const tx = await client.transaction();
+
+		for (const chunk of chunk_array(dids, CHUNK_SIZE)) {
+			const placeholders = chunk.map(() => '?').join(',');
+			const result = await tx.execute({
+				sql: `SELECT * FROM account_activity WHERE did IN (${placeholders})`,
+				args: chunk,
+			});
+
+			const chunk_results = result.rows.map((row) => ({
+				did: row.did as string,
+				handle: row.handle as string,
+				last_post_date: row.last_post_date
+					? new Date(row.last_post_date as string)
+					: null,
+				last_checked: new Date(row.last_checked as string),
+				post_count: row.post_count as number | null,
+				followers_count: row.followers_count as number | null,
+			}));
+
+			all_results.push(...chunk_results);
+		}
+
+		await tx.commit();
+		return all_results;
+	} catch (e) {
+		console.error('Error fetching cached accounts:', e);
+		throw e;
+	}
+}
+
 async function get_all_follows(
 	agent: AtpAgent,
 	did: string,
 	total_follows: number,
 	controller?: ReadableStreamDefaultController,
-) {
+): Promise<{ results: InactiveFollow[], cache_stats: CacheStats }> {
 	try {
 		// Report initial state
 		if (controller) {
 			report_progress(controller, {
-				stage: 'follows',
+				stage: 'cache',
 				processed: 0,
 				total: total_follows,
 				current: 'Checking cached data...',
 				start_time: new Date(),
 				cache_hits: 0,
 				cache_misses: 0,
+				data_source: 'cache',
+				current_batch_source: 'Reading from database...',
 			});
 		}
 
@@ -283,41 +296,63 @@ async function get_all_follows(
 			total_follows,
 			controller,
 		);
-		const all_handles = all_follows.map((f) => f.handle);
 
-		// Check cache first
-		const cached_accounts =
-			await get_cached_accounts_by_handles(all_handles);
+		// Get cached accounts by DID (primary key)
+		const cached_accounts = await get_cached_accounts_by_did(
+			all_follows.map((f) => f.did),
+		);
 		const cached_map = new Map(
-			cached_accounts.map((a) => [a.handle, a]),
+			cached_accounts.map((a) => [a.did, a]),
 		);
 
 		// Process cached results
 		const results: InactiveFollow[] = [];
 		let cache_hits = 0;
 		let cache_misses = 0;
+		let processed = 0;
 
-		all_follows.forEach((follow) => {
-			const cached = cached_map.get(follow.handle);
+		for (const follow of all_follows) {
+			const cached = cached_map.get(follow.did);
 			const is_fresh_cache =
 				cached &&
-				differenceInDays(new Date(), cached.last_checked) < 1;
+				cached.last_checked &&
+				differenceInDays(new Date(), cached.last_checked) < CACHE_FRESHNESS_DAYS;
 
-			if (is_fresh_cache) {
+			processed++;
+			if (controller) {
+				report_progress(controller, {
+					stage: 'cache',
+					processed,
+					total: total_follows,
+					current: follow.handle,
+					cache_hits,
+					cache_misses,
+					data_source: 'cache',
+					current_batch_source: 'Reading from database...',
+				});
+			}
+
+			if (is_fresh_cache && cached && cached.last_post_date) {
 				cache_hits++;
 				results.push({
 					did: follow.did,
 					handle: follow.handle,
 					displayName: follow.displayName,
-					lastPost:
-						cached.last_post_date?.toISOString() ||
-						new Date(0).toISOString(),
-					lastPostDate: cached.last_post_date || new Date(0),
+					lastPost: cached.last_post_date.toISOString(),
+					lastPostDate: cached.last_post_date,
+					source: 'cache',
 				});
 			} else {
 				cache_misses++;
 			}
-		});
+		}
+
+		const cache_stats: CacheStats = {
+			total_processed: processed,
+			cache_hits,
+			cache_misses,
+			hit_rate: Number(((cache_hits / processed) * 100).toFixed(2))
+		};
 
 		// Only process accounts that need updating
 		const accounts_to_update = all_follows.filter(
@@ -333,6 +368,9 @@ async function get_all_follows(
 					current: 'Fetching fresh data...',
 					cache_hits,
 					cache_misses,
+					data_source: 'api',
+					current_batch_source:
+						'Fetching fresh data from Bluesky API',
 				});
 			}
 
@@ -340,13 +378,14 @@ async function get_all_follows(
 			const fresh_data = await process_accounts_in_chunks(
 				accounts_to_update,
 				controller,
+				{ hits: cache_hits, misses: cache_misses },
 			);
 
 			// Add fresh data to results
 			results.push(...fresh_data);
 		}
 
-		return results;
+		return { results, cache_stats };
 	} catch (e) {
 		console.error('Error in get_all_follows:', e);
 		throw e;
@@ -392,7 +431,7 @@ export async function GET({ url }) {
 				const profile = await get_profile(handle);
 				const total_follows = profile.data.followsCount || 0;
 
-				const all_follows = await get_all_follows(
+				const { results: all_follows, cache_stats } = await get_all_follows(
 					agent,
 					profile.data.did,
 					total_follows,
@@ -411,6 +450,7 @@ export async function GET({ url }) {
 						`data: ${JSON.stringify({
 							type: 'complete',
 							inactive_follows: sorted_follows,
+							cache_stats
 						})}\n\n`,
 					),
 				);
@@ -436,7 +476,7 @@ export async function GET({ url }) {
 		const profile = await get_profile(handle);
 		const total_follows = profile.data.followsCount || 0;
 
-		const all_follows = await get_all_follows(
+		const { results: all_follows, cache_stats } = await get_all_follows(
 			agent,
 			profile.data.did,
 			total_follows,
@@ -451,6 +491,7 @@ export async function GET({ url }) {
 		return Response.json({
 			inactive_follows: sorted_follows,
 			total_follows,
+			cache_stats
 		});
 	} catch (err) {
 		console.error('Error:', err);

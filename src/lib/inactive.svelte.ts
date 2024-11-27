@@ -1,33 +1,49 @@
-import type { InactiveFollow } from '$lib/types';
+import type { InactiveFollow, ProcessingStage, CacheStats } from '$lib/types';
 
 export type Progress = {
+	stage: ProcessingStage;
 	processed: number;
 	total: number;
 	current: string;
 	start_time: Date;
 	average_time_per_item?: number;
 	cached?: boolean;
+	batch_progress?: {
+		current: number;
+		total: number;
+	};
+	data_source?: 'cache' | 'api';
+	current_batch_source?: string;
+	cache_hits: number;
+	cache_misses: number;
 };
 
 export function create_inactive_state() {
 	let loading = $state(false);
 	let inactive_follows = $state<InactiveFollow[]>([]);
 	let error = $state<string | undefined>(undefined);
+	let cache_stats = $state<CacheStats | undefined>(undefined);
 	let progress = $state<Progress>({
+		stage: 'cache',
 		processed: 0,
 		total: 0,
 		current: '',
 		start_time: new Date(),
 		average_time_per_item: undefined,
+		cache_hits: 0,
+		cache_misses: 0
 	});
 
 	const reset_progress = () => {
 		progress = {
+			stage: 'cache',
 			processed: 0,
 			total: 0,
 			current: '',
 			start_time: new Date(),
 			average_time_per_item: undefined,
+			cache_hits: 0,
+			cache_misses: 0
 		};
 	};
 
@@ -40,6 +56,7 @@ export function create_inactive_state() {
 		error = undefined;
 		reset_progress();
 		inactive_follows = [];
+		cache_stats = undefined;
 
 		try {
 			const eventSource = new EventSource(
@@ -61,13 +78,13 @@ export function create_inactive_state() {
 
 						progress = {
 							...progress,
-							processed: data.processed,
-							total: data.total,
-							current: data.current,
+							...data,
 							average_time_per_item: avg_time,
+							start_time: progress.start_time // Preserve the original start time
 						};
 					} else if (data.type === 'complete') {
 						inactive_follows = data.inactive_follows;
+						cache_stats = data.cache_stats;
 						eventSource.close();
 						loading = false;
 					}
@@ -100,6 +117,9 @@ export function create_inactive_state() {
 		},
 		get progress() {
 			return progress;
+		},
+		get cache_stats() {
+			return cache_stats;
 		},
 		fetch_inactive_follows,
 	};

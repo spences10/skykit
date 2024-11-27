@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Progress } from '$lib/inactive.svelte';
-	import type { InactiveFollow } from '$lib/types';
+	import { inactive_state } from '$lib/inactive.svelte';
+	import type { InactiveFollow, ProcessingStage } from '$lib/types';
 	import { formatDistanceToNow, isValid, parseISO } from 'date-fns';
 
 	let {
@@ -12,6 +13,9 @@
 		loading?: boolean;
 		progress: Progress;
 	}>();
+
+	// Get cache stats from the state
+	const cache_stats = $derived(inactive_state.cache_stats);
 
 	let elapsed_time = $derived(
 		loading
@@ -57,130 +61,183 @@
 	const number_format = new Intl.NumberFormat(undefined, {
 		maximumFractionDigits: 0,
 	});
+
+	function get_stage_description(
+		stage: ProcessingStage,
+		current_batch_source?: string,
+	): string {
+		// If there's a specific batch source message, use that
+		if (current_batch_source) {
+			return current_batch_source;
+		}
+
+		// Otherwise use the stage-specific description
+		switch (stage) {
+			case 'cache':
+				return 'Checking database for cached data...';
+			case 'follows':
+				return 'Fetching follows from Bluesky API...';
+			case 'profiles':
+				return 'Processing profiles...';
+			case 'feeds':
+				return 'Fetching recent activity...';
+			case 'complete':
+				return 'Processing complete';
+			default:
+				const _exhaustiveCheck: never = stage;
+				return 'Processing...';
+		}
+	}
+
+	function calculate_cache_percentage(
+		hits: number = 0,
+		misses: number = 0,
+	): number {
+		if (hits === 0 && misses === 0) return 0;
+		return Math.round((hits / (hits + misses)) * 100);
+	}
 </script>
 
-<div class="space-y-4">
+<div class="space-y-6">
 	{#if loading}
-		<div class="card bg-base-200">
+		<div class="card bg-base-200 shadow-lg">
 			<div class="card-body p-4 sm:p-6">
-				<div class="flex flex-col items-center gap-4">
+				<div class="flex flex-col items-center gap-6">
+					<!-- Progress Bar -->
 					<div class="w-full">
+						<div class="mb-2 flex justify-between text-sm">
+							<span class="text-base-content/70">Progress</span>
+							<span class="font-medium text-primary"
+								>{progress_percent}%</span
+							>
+						</div>
 						<progress
 							class="progress progress-primary w-full"
 							value={progress_percent}
 							max="100"
 						></progress>
 					</div>
-					<div class="space-y-2 text-center">
-						<div class="flex items-center justify-center gap-2">
-							<span class="loading loading-spinner loading-sm"></span>
-							<p class="font-medium">
-								{#if progress.stage === 'follows'}
-									Fetching follows...
-								{:else if progress.stage === 'profiles'}
-									Processing profiles...
-								{:else if progress.stage === 'feeds'}
-									Fetching recent activity...
-								{:else}
-									Processing...
-								{/if}
+
+					<!-- Current Operation -->
+					<div class="text-center">
+						<div class="mb-3 flex items-center justify-center gap-3">
+							<span
+								class="loading loading-spinner loading-md text-primary"
+							></span>
+							<p class="text-lg font-medium text-base-content">
+								{get_stage_description(
+									progress.stage,
+									progress.current_batch_source,
+								)}
 							</p>
 						</div>
+					</div>
 
-						<!-- Overall Progress -->
-						<div class="stats stats-vertical shadow sm:stats-horizontal">
+					<!-- Stats Grid -->
+					<div
+						class="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3"
+					>
+						<!-- Progress Stats -->
+						<div class="stats bg-base-100 shadow">
 							<div class="stat">
 								<div class="stat-title">Overall Progress</div>
-								<div class="stat-value text-4xl text-primary">
+								<div class="stat-value text-3xl text-primary">
 									{progress_percent}%
 								</div>
-							</div>
-
-							<!-- Current Batch -->
-							{#if progress.batch_progress}
-								<div class="stat">
-									<div class="stat-title">Current Batch</div>
-									<div class="stat-value text-2xl text-secondary">
-										{Math.round((progress.batch_progress.current / progress.batch_progress.total) * 100)}%
-									</div>
-									<div class="stat-desc">
-										Processing: {number_format.format(progress.batch_progress.current)} of {number_format.format(progress.batch_progress.total)}
-									</div>
-								</div>
-							{/if}
-
-							<!-- Stage Info -->
-							<div class="stat">
-								<div class="stat-title">Current Stage</div>
-								<div class="stat-value text-2xl text-accent capitalize">
-									{progress.stage}
-								</div>
 								{#if progress.current}
-									<div class="stat-value text-xl mt-2">
-										{number_format.format(progress.processed)} of {number_format.format(progress.total)}
+									<div class="stat-desc text-base-content/70">
+										{number_format.format(progress.processed)} of {number_format.format(
+											progress.total,
+										)}
 									</div>
 								{/if}
 							</div>
 						</div>
 
-						<!-- Timing Stats -->
-						<div
-							class="stats stats-vertical shadow sm:stats-horizontal"
-						>
-							<!-- Existing timing stats -->
-							<div class="stat">
-								<div class="stat-title">Time Elapsed</div>
-								<div class="stat-value text-lg text-primary">
-									{elapsed_time}
-								</div>
-							</div>
-							{#if time_remaining}
+						<!-- Current Batch -->
+						{#if progress.batch_progress}
+							<div class="stats bg-base-100 shadow">
 								<div class="stat">
-									<div class="stat-title">Estimated Time</div>
-									<div class="stat-value text-lg text-secondary">
-										{time_remaining}
-									</div>
-								</div>
-							{/if}
-							{#if progress.average_time_per_item && !progress.cached}
-								<div class="stat">
-									<div class="stat-title">Processing Speed</div>
-									<div class="stat-value text-lg text-accent">
-										{(1 / progress.average_time_per_item).toFixed(1)}
-									</div>
-									<div class="stat-desc">follows per second</div>
-								</div>
-							{/if}
-						</div>
-
-						<!-- Cache Stats -->
-						{#if progress.cache_hits !== undefined}
-							<div class="stats shadow">
-								<div class="stat">
-									<div class="stat-title">Cache Performance</div>
-									<div class="stat-value text-lg">
+									<div class="stat-title">Current Batch</div>
+									<div class="stat-value text-3xl text-secondary">
 										{Math.round(
-											(progress.cache_hits / progress.total) * 100,
+											(progress.batch_progress.current /
+												progress.batch_progress.total) *
+												100,
 										)}%
 									</div>
-									<div
-										class="stat-desc flex items-center justify-center gap-2"
-									>
-										<span class="badge badge-success"
-											>{number_format.format(progress.cache_hits)} cached</span
-										>
-										<span class="badge badge-warning"
-											>{number_format.format(progress.cache_misses)} fresh</span
-										>
+									<div class="stat-desc text-base-content/70">
+										{number_format.format(
+											progress.batch_progress.current,
+										)} of {number_format.format(
+											progress.batch_progress.total,
+										)}
 									</div>
 								</div>
 							</div>
 						{/if}
 
-						{#if progress.cached}
-							<div class="badge badge-success gap-2">
-								<span class="loading loading-ring loading-xs"></span>
-								Using cached data
+						<!-- Stage Info -->
+						<div class="stats bg-base-100 shadow">
+							<div class="stat">
+								<div class="stat-title">Current Stage</div>
+								<div
+									class="stat-value text-3xl capitalize text-accent"
+								>
+									{progress.stage}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Cache Stats -->
+					{#if progress.cache_hits !== undefined || progress.cache_misses !== undefined}
+						<div class="stats w-full bg-base-100 shadow">
+							<div class="stat">
+								<div class="stat-title">Data Sources</div>
+								<div class="stat-value text-2xl">
+									{calculate_cache_percentage(
+										progress.cache_hits,
+										progress.cache_misses,
+									)}% from cache
+								</div>
+								<div class="stat-desc mt-2 flex justify-center gap-2">
+									<div class="badge badge-success">
+										{number_format.format(progress.cache_hits || 0)} from
+										DB
+									</div>
+									<div class="badge badge-warning">
+										{number_format.format(progress.cache_misses || 0)}
+										from API
+									</div>
+								</div>
+							</div>
+						</div>
+					{/if}
+
+					<!-- Timing Stats -->
+					<div class="stats w-full bg-base-100 shadow">
+						<div class="stat">
+							<div class="stat-title">Time Elapsed</div>
+							<div class="stat-value text-xl text-primary">
+								{elapsed_time}
+							</div>
+						</div>
+						{#if time_remaining}
+							<div class="stat">
+								<div class="stat-title">Estimated Time</div>
+								<div class="stat-value text-xl text-secondary">
+									{time_remaining}
+								</div>
+							</div>
+						{/if}
+						{#if progress.average_time_per_item && !progress.cached}
+							<div class="stat">
+								<div class="stat-title">Processing Speed</div>
+								<div class="stat-value text-xl text-accent">
+									{(1 / progress.average_time_per_item).toFixed(1)}
+								</div>
+								<div class="stat-desc">follows per second</div>
 							</div>
 						{/if}
 					</div>
@@ -188,38 +245,101 @@
 			</div>
 		</div>
 	{:else if inactive_follows.length === 0}
-		<div class="card bg-base-200">
-			<div class="card-body p-4 text-center sm:p-6">
-				<p>No inactive follows found</p>
+		<div class="card bg-base-200 shadow-lg">
+			<div class="card-body p-6 text-center">
+				<div class="flex flex-col items-center gap-4">
+					<div class="text-5xl">🦋</div>
+					<p class="text-lg font-medium text-base-content/80">
+						No inactive follows found
+					</p>
+				</div>
 			</div>
 		</div>
 	{:else}
+		<!-- Cache Statistics Summary -->
+		{#if cache_stats}
+			<div class="card bg-base-200 shadow-lg">
+				<div class="card-body p-6">
+					<div class="stats w-full bg-base-100 shadow">
+						<div class="stat">
+							<div class="stat-title">Cache Performance</div>
+							<div class="stat-value text-2xl">
+								{cache_stats.hit_rate || 0}% from cache
+							</div>
+							<div class="stat-desc mt-3">
+								<div class="flex flex-wrap justify-center gap-2">
+									<div class="badge badge-success badge-lg gap-2">
+										<span class="font-medium"
+											>{number_format.format(
+												cache_stats.cache_hits,
+											)}</span
+										>
+										<span class="opacity-80">from database</span>
+									</div>
+									<div class="badge badge-warning badge-lg gap-2">
+										<span class="font-medium"
+											>{number_format.format(
+												cache_stats.cache_misses,
+											)}</span
+										>
+										<span class="opacity-80">from API</span>
+									</div>
+								</div>
+								<div class="mt-2 text-base-content/70">
+									Total Processed: {number_format.format(
+										cache_stats.total_processed,
+									)}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		{#each inactive_follows as follow (follow.did)}
-			<div class="card bg-base-200">
-				<div class="card-body p-4 sm:p-6">
+			<div
+				class="card bg-base-200 shadow-lg transition-shadow duration-200 hover:shadow-xl"
+			>
+				<div class="card-body p-6">
 					<div
-						class="flex flex-col justify-between gap-2 sm:flex-row sm:items-center"
+						class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
 					>
-						<div>
-							<h3 class="break-all font-bold">
+						<div class="flex-1">
+							<h3 class="text-lg font-bold text-base-content">
 								{follow.displayName || follow.handle}
 							</h3>
-							<p class="break-all text-sm text-base-content/60">
+							<p class="text-base-content/70">
 								<a
 									href={`https://bsky.app/profile/${follow.handle}`}
 									target="_blank"
-									class="link"
+									class="link link-primary"
 									rel="noopener noreferrer"
 								>
 									@{follow.handle}
 								</a>
 							</p>
 						</div>
-						<div class="text-left sm:text-right">
-							<p class="text-sm text-base-content/60">Last post:</p>
-							<p class="font-medium">
-								{format_relative_time(follow.lastPost)}
+						<div class="flex flex-col items-start gap-1 sm:items-end">
+							<p class="text-sm font-medium text-base-content/70">
+								Last post:
 							</p>
+							<div class="flex items-center gap-2">
+								<p class="font-medium text-base-content">
+									{format_relative_time(follow.lastPost)}
+								</p>
+								{#if follow.source}
+									<div
+										class="badge badge-sm {follow.source === 'cache'
+											? 'badge-success'
+											: 'badge-warning'}"
+									>
+										{follow.source === 'cache'
+											? 'From DB'
+											: 'From API'}
+									</div>
+								{/if}
+							</div>
 						</div>
 					</div>
 				</div>

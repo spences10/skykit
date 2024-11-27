@@ -133,20 +133,31 @@ export interface FeedResults {
 	data: BskyPost[];
 }
 
+export interface CacheStats {
+	total_processed: number;
+	cache_hits: number;
+	cache_misses: number;
+	hit_rate: number;
+}
+
 export interface InactiveFollow {
 	did: string;
 	handle: string;
 	displayName?: string;
 	lastPost: string;
 	lastPostDate: Date;
+	source?: 'cache' | 'api';
 }
 
 export interface UserData {
 	inactive_follows?: InactiveFollow[];
+	cache_stats?: CacheStats;
 }
 
+export type ProcessingStage = 'cache' | 'follows' | 'profiles' | 'feeds' | 'complete';
+
 export interface ProcessingStats {
-	stage: 'follows' | 'profiles' | 'feeds' | 'complete';
+	stage: ProcessingStage;
 	processed: number;
 	total: number;
 	current: string;
@@ -159,4 +170,27 @@ export interface ProcessingStats {
 		current: number;
 		total: number;
 	};
+	data_source?: 'cache' | 'api';
+	current_batch_source?: string;
+}
+
+export interface CachedAccount {
+	did: string;
+	handle: string;
+	last_post_date: Date | null;
+	last_checked: Date;
+	post_count: number | null;
+	followers_count: number | null;
+}
+
+export interface DbClient {
+	execute(params: { sql: string; args: any[] }): Promise<void>;
+	all<T = any>(params: { sql: string; args: any[] }): Promise<T[]>;
+	transaction(): Promise<DbTransaction>;
+}
+
+export interface DbTransaction {
+	execute(params: { sql: string; args: any[] }): Promise<void>;
+	commit(): Promise<void>;
+	rollback(): Promise<void>;
 }
