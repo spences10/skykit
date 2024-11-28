@@ -41,12 +41,17 @@
 	};
 
 	const open_all_profiles = () => {
-		filtered_and_sorted_follows.forEach((follow) => {
-			window.open(
-				`https://bsky.app/profile/${follow.handle}`,
-				'_blank',
-			);
-		});
+		const tabs = filtered_and_sorted_follows.length;
+		const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
+
+		if (window.confirm(message)) {
+			filtered_and_sorted_follows.forEach((follow) => {
+				window.open(
+					`https://bsky.app/profile/${follow.handle}`,
+					'_blank',
+				);
+			});
+		}
 	};
 </script>
 
