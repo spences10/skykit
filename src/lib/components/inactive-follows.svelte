@@ -9,9 +9,10 @@
 	} from 'date-fns';
 
 	let loading = $derived(inactive_state.loading);
-	let inactive_follows = $derived(inactive_state.inactive_follows);
 	let progress = $derived(inactive_state.progress);
 	let cache_stats = $derived(inactive_state.cache_stats);
+	let has_checked = $derived(inactive_state.has_checked);
+	let follows = $derived(inactive_state.filtered_and_sorted_follows);
 
 	let elapsed_time = $derived(
 		loading
@@ -60,13 +61,13 @@
 		maximumFractionDigits: 0,
 	});
 
-	const STAGE_DESCRIPTIONS: Record<ProcessingStage, string> = {
+	const STAGE_DESCRIPTIONS = {
 		cache: 'Checking database for cached data...',
 		follows: 'Fetching follows from Bluesky API...',
 		profiles: 'Processing profiles...',
 		feeds: 'Fetching recent activity...',
 		complete: 'Processing complete',
-	} as const;
+	} satisfies Record<ProcessingStage, string>;
 
 	const get_stage_description = (
 		stage: ProcessingStage,
@@ -147,7 +148,18 @@
 				</div>
 			</div>
 		</div>
-	{:else if inactive_follows.length === 0}
+	{:else if !has_checked}
+		<div class="card bg-base-200 shadow-lg">
+			<div class="card-body p-6 text-center">
+				<div class="flex flex-col items-center gap-4">
+					<div class="text-5xl">🦋</div>
+					<p class="text-lg font-medium text-base-content/80">
+						Click "Check Inactive Follows" to start
+					</p>
+				</div>
+			</div>
+		</div>
+	{:else if follows.length === 0}
 		<div class="card bg-base-200 shadow-lg">
 			<div class="card-body p-6 text-center">
 				<div class="flex flex-col items-center gap-4">
@@ -198,7 +210,7 @@
 			</div>
 		{/if}
 
-		{#each inactive_follows as follow (follow.did)}
+		{#each follows as follow (follow.did)}
 			<div
 				class="card bg-base-200 shadow-lg transition-shadow duration-200 hover:shadow-xl"
 			>

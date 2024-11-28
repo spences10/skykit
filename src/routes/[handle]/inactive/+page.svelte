@@ -4,34 +4,15 @@
 	import type { PageData } from './$types';
 
 	let { data } = $props<{ data: PageData }>();
-	let days_threshold = $state(30);
-	let show_never_posted = $state(false);
-	let sort_direction = $state<'asc' | 'desc'>('desc');
 
 	let loading = $derived(inactive_state.loading);
-	let inactive_follows = $derived(inactive_state.inactive_follows);
+	let inactive_follows = $derived(
+		inactive_state.filtered_and_sorted_follows,
+	);
 	let error = $derived(inactive_state.error);
-
-	// Apply sorting and filtering
-	const filtered_and_sorted_follows = $derived.by(() => {
-		let result = [...inactive_follows];
-
-		// Apply never posted filter if enabled
-		if (show_never_posted) {
-			result = result.filter(
-				(follow) => follow.lastPost === '1970-01-01T00:00:00.000Z',
-			);
-		}
-
-		// Apply sorting
-		result.sort((a, b) => {
-			const dateA = new Date(a.lastPost).getTime();
-			const dateB = new Date(b.lastPost).getTime();
-			return sort_direction === 'asc' ? dateA - dateB : dateB - dateA;
-		});
-
-		return result;
-	});
+	let days_threshold = $derived(inactive_state.days_threshold);
+	let show_never_posted = $derived(inactive_state.show_never_posted);
+	let sort_direction = $derived(inactive_state.sort_direction);
 
 	const handle_form_submit = async () => {
 		await inactive_state.fetch_inactive_follows(
@@ -41,11 +22,11 @@
 	};
 
 	const open_all_profiles = () => {
-		const tabs = filtered_and_sorted_follows.length;
+		const tabs = inactive_follows.length;
 		const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
 
 		if (window.confirm(message)) {
-			filtered_and_sorted_follows.forEach((follow) => {
+			inactive_follows.forEach((follow) => {
 				window.open(
 					`https://bsky.app/profile/${follow.handle}`,
 					'_blank',
@@ -106,7 +87,7 @@
 							type="number"
 							name="days"
 							id="days"
-							bind:value={days_threshold}
+							bind:value={inactive_state.days_threshold}
 							min="1"
 							max="365"
 							class="input input-bordered w-full"
@@ -166,7 +147,8 @@
 									'desc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
-									onclick={() => (sort_direction = 'desc')}
+									onclick={() =>
+										(inactive_state.sort_direction = 'desc')}
 									aria-pressed={sort_direction === 'desc'}
 								>
 									Newest
@@ -176,7 +158,8 @@
 									'asc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
-									onclick={() => (sort_direction = 'asc')}
+									onclick={() =>
+										(inactive_state.sort_direction = 'asc')}
 									aria-pressed={sort_direction === 'asc'}
 								>
 									Oldest
@@ -189,7 +172,7 @@
 							<input
 								type="checkbox"
 								class="checkbox"
-								bind:checked={show_never_posted}
+								bind:checked={inactive_state.show_never_posted}
 								aria-label="Show only users who never posted"
 							/>
 						</label>
@@ -201,9 +184,9 @@
 					<button
 						class="btn btn-primary"
 						onclick={open_all_profiles}
-						aria-label={`Open all ${filtered_and_sorted_follows.length} profiles in new tabs`}
+						aria-label={`Open all ${inactive_follows.length} profiles in new tabs`}
 					>
-						Open All Profiles ({filtered_and_sorted_follows.length})
+						Open All Profiles ({inactive_follows.length})
 					</button>
 				</div>
 			{/if}
@@ -215,5 +198,6 @@
 			<p>{error}</p>
 		</div>
 	{/if}
+
 	<InactiveFollows />
 </main>
