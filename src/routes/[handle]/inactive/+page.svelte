@@ -61,17 +61,26 @@
 </svelte:head>
 
 <main class="container mx-auto max-w-4xl p-4">
-	<nav class="mb-4">
-		<a href="/{data.profile.handle}" class="btn btn-ghost">
+	<nav class="mb-4" aria-label="Back navigation">
+		<a
+			href="/{data.profile.handle}"
+			class="btn btn-ghost"
+			aria-label="Back to profile"
+		>
 			← Back to Profile
 		</a>
 	</nav>
 
-	<h1 class="mb-6 text-2xl font-bold">
-		Inactive Follows for @{data.profile.handle}
-	</h1>
+	<header class="mb-6">
+		<h1 class="text-2xl font-bold">
+			Inactive Follows for @{data.profile.handle}
+		</h1>
+	</header>
 
-	<div class="card mb-6 bg-base-100 shadow-xl">
+	<section
+		class="card mb-6 bg-base-100 shadow-xl"
+		aria-label="Inactive follows controls"
+	>
 		<div class="card-body p-4 sm:p-6">
 			<form
 				method="POST"
@@ -81,6 +90,7 @@
 					e.preventDefault();
 					handle_form_submit();
 				}}
+				aria-label="Inactive follows search form"
 			>
 				<div class="flex flex-wrap items-end gap-4">
 					<div class="form-control w-24">
@@ -95,15 +105,18 @@
 							min="1"
 							max="365"
 							class="input input-bordered w-full"
+							aria-label="Days threshold"
 						/>
 					</div>
 					<button
 						type="submit"
 						class="btn btn-primary ml-auto"
 						disabled={loading}
+						aria-busy={loading}
 					>
 						{#if loading}
-							<span class="loading loading-spinner"></span>
+							<span class="loading loading-spinner" aria-hidden="true"
+							></span>
 						{/if}
 						Check Inactive Follows
 					</button>
@@ -112,10 +125,17 @@
 
 			{#if inactive_follows.length > 0}
 				<div class="divider"></div>
-				<div class="flex items-center justify-between">
-					<div class="stats shadow">
+				<section
+					class="flex items-center justify-between"
+					aria-label="Statistics and controls"
+				>
+					<div
+						class="stats shadow"
+						role="region"
+						aria-label="Inactive follows statistics"
+					>
 						<div class="stat">
-							<div class="stat-title">Inactive Follows Found</div>
+							<h2 class="stat-title">Inactive Follows Found</h2>
 							<div class="stat-value text-primary">
 								{inactive_follows.length}
 							</div>
@@ -127,7 +147,11 @@
 
 					<!-- Sort and Filter Controls -->
 					<div class="flex flex-col items-end gap-2">
-						<div class="flex items-center gap-2">
+						<div
+							class="flex items-center gap-2"
+							role="group"
+							aria-label="Sort controls"
+						>
 							<span class="text-sm font-medium">
 								Sort by Last Post:
 							</span>
@@ -138,6 +162,7 @@
 										? 'btn-primary'
 										: 'btn-ghost'}"
 									onclick={() => (sort_direction = 'desc')}
+									aria-pressed={sort_direction === 'desc'}
 								>
 									Newest
 								</button>
@@ -147,6 +172,7 @@
 										? 'btn-primary'
 										: 'btn-ghost'}"
 									onclick={() => (sort_direction = 'asc')}
+									aria-pressed={sort_direction === 'asc'}
 								>
 									Oldest
 								</button>
@@ -159,30 +185,30 @@
 								type="checkbox"
 								class="checkbox"
 								bind:checked={show_never_posted}
+								aria-label="Show only users who never posted"
 							/>
 						</label>
 					</div>
-				</div>
+				</section>
 
 				<!-- Open All Profiles Button -->
 				<div class="mt-4 flex justify-end">
-					<button class="btn btn-primary" onclick={open_all_profiles}>
+					<button
+						class="btn btn-primary"
+						onclick={open_all_profiles}
+						aria-label={`Open all ${filtered_and_sorted_follows.length} profiles in new tabs`}
+					>
 						Open All Profiles ({filtered_and_sorted_follows.length})
 					</button>
 				</div>
 			{/if}
 		</div>
-	</div>
+	</section>
 
 	{#if error}
-		<div class="alert alert-error mb-4">
+		<div class="alert alert-error mb-4" role="alert">
 			<p>{error}</p>
 		</div>
 	{/if}
-
-	<InactiveFollows
-		inactive_follows={filtered_and_sorted_follows}
-		{loading}
-		progress={inactive_state.progress}
-	/>
+	<InactiveFollows />
 </main>

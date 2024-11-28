@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { Progress } from '$lib/inactive.svelte';
 	import { inactive_state } from '$lib/inactive.svelte';
-	import type { InactiveFollow, ProcessingStage } from '$lib/types';
+	import type { ProcessingStage } from '$lib/types';
 	import {
 		formatDate,
 		formatDistanceToNow,
@@ -9,18 +8,10 @@
 		parseISO,
 	} from 'date-fns';
 
-	let {
-		inactive_follows = [],
-		loading = false,
-		progress,
-	} = $props<{
-		inactive_follows?: InactiveFollow[];
-		loading?: boolean;
-		progress: Progress;
-	}>();
-
-	// Get cache stats from the state
-	const cache_stats = $derived(inactive_state.cache_stats);
+	let loading = $derived(inactive_state.loading);
+	let inactive_follows = $derived(inactive_state.inactive_follows);
+	let progress = $derived(inactive_state.progress);
+	let cache_stats = $derived(inactive_state.cache_stats);
 
 	let elapsed_time = $derived(
 		loading
@@ -69,32 +60,21 @@
 		maximumFractionDigits: 0,
 	});
 
-	function get_stage_description(
+	const STAGE_DESCRIPTIONS: Record<ProcessingStage, string> = {
+		cache: 'Checking database for cached data...',
+		follows: 'Fetching follows from Bluesky API...',
+		profiles: 'Processing profiles...',
+		feeds: 'Fetching recent activity...',
+		complete: 'Processing complete',
+	} as const;
+
+	const get_stage_description = (
 		stage: ProcessingStage,
 		current_batch_source?: string,
-	): string {
-		// If there's a specific batch source message, use that
-		if (current_batch_source) {
-			return current_batch_source;
-		}
-
-		// Otherwise use the stage-specific description
-		switch (stage) {
-			case 'cache':
-				return 'Checking database for cached data...';
-			case 'follows':
-				return 'Fetching follows from Bluesky API...';
-			case 'profiles':
-				return 'Processing profiles...';
-			case 'feeds':
-				return 'Fetching recent activity...';
-			case 'complete':
-				return 'Processing complete';
-			default:
-				const _exhaustiveCheck: never = stage;
-				return 'Processing...';
-		}
-	}
+	): string =>
+		current_batch_source ||
+		STAGE_DESCRIPTIONS[stage] ||
+		'Processing...';
 </script>
 
 <div class="space-y-6">
@@ -136,16 +116,18 @@
 						</div>
 					</div>
 
-					<!-- Timing Stats -->
-					<div class="stats w-full bg-base-100 shadow">
-						<div class="stat">
+					<!-- Timing Stats - Made responsive -->
+					<div
+						class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
+					>
+						<div class="stat bg-base-100 shadow sm:shadow-none">
 							<div class="stat-title">Time Elapsed</div>
 							<div class="stat-value text-xl text-primary">
 								{elapsed_time}
 							</div>
 						</div>
 						{#if time_remaining}
-							<div class="stat">
+							<div class="stat bg-base-100 shadow sm:shadow-none">
 								<div class="stat-title">Estimated Time</div>
 								<div class="stat-value text-xl text-secondary">
 									{time_remaining}
@@ -153,7 +135,7 @@
 							</div>
 						{/if}
 						{#if progress.average_time_per_item && !progress.cached}
-							<div class="stat">
+							<div class="stat bg-base-100 shadow sm:shadow-none">
 								<div class="stat-title">Processing Speed</div>
 								<div class="stat-value text-xl text-accent">
 									{(1 / progress.average_time_per_item).toFixed(1)}
@@ -177,12 +159,14 @@
 			</div>
 		</div>
 	{:else}
-		<!-- Cache Statistics Summary -->
+		<!-- Cache Statistics Summary - Made responsive -->
 		{#if cache_stats}
 			<div class="card bg-base-200 shadow-lg">
-				<div class="card-body p-6">
-					<div class="stats w-full bg-base-100 shadow">
-						<div class="stat">
+				<div class="card-body p-4 sm:p-6">
+					<div
+						class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
+					>
+						<div class="stat bg-base-100 shadow sm:shadow-none">
 							<div class="stat-title">Cache Performance</div>
 							<div class="stat-value text-2xl">
 								{cache_stats.hit_rate || 0}% from cache
@@ -218,9 +202,9 @@
 			<div
 				class="card bg-base-200 shadow-lg transition-shadow duration-200 hover:shadow-xl"
 			>
-				<div class="card-body p-6">
+				<div class="card-body p-4 sm:p-6">
 					<div
-						class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+						class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
 					>
 						<div class="flex-1">
 							<h3 class="text-lg font-bold text-base-content">
@@ -241,7 +225,7 @@
 								({format_relative_time(follow.createdAt)})
 							</p>
 						</div>
-						<div class="flex flex-col items-start gap-1 sm:items-end">
+						<div class="flex flex-col gap-1">
 							<p class="font-medium text-base-content/70">
 								Last post: <span class="font-bold">
 									{format_relative_time(follow.lastPost)}
