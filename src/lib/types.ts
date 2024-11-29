@@ -148,6 +148,7 @@ export interface InactiveFollow {
 	lastPostDate: Date;
 	createdAt: string;
 	source?: 'cache' | 'api';
+	follows_back: boolean;
 }
 
 export interface UserData {
@@ -187,6 +188,7 @@ export interface CachedAccount {
 	last_checked: Date;
 	post_count: number | null;
 	followers_count: number | null;
+	follows_back: boolean;
 }
 
 export interface DbClient {

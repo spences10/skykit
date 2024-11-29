@@ -258,6 +258,11 @@
 											: 'Source - API'}
 									</div>
 								{/if}
+								{#if follow.follows_back}
+									<div class="badge badge-sm badge-info">
+										Follows Back
+									</div>
+								{/if}
 							</div>
 						</div>
 					</div>

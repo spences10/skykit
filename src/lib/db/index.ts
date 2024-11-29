@@ -34,7 +34,8 @@ export const init_db = async () => {
 				last_post_date TEXT,
 				last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 				post_count INTEGER,
-				followers_count INTEGER
+				followers_count INTEGER,
+				follows_back BOOLEAN DEFAULT FALSE
 			)
 		`);
 
@@ -51,6 +52,15 @@ export const init_db = async () => {
 			CREATE INDEX IF NOT EXISTS idx_handle ON account_activity(handle)
 		`);
 
+		// Add follows_back column if it doesn't exist (for existing databases)
+		try {
+			await client.execute(`
+				ALTER TABLE account_activity ADD COLUMN follows_back BOOLEAN DEFAULT FALSE;
+			`);
+		} catch (e) {
+			// Column might already exist, ignore the error
+		}
+
 		console.log('Database initialized successfully');
 	} catch (error) {
 		console.error('Failed to initialize database:', error);
@@ -65,6 +75,7 @@ export interface CachedAccount {
 	last_checked: Date;
 	post_count: number | null;
 	followers_count: number | null;
+	follows_back: boolean;
 }
 
 export const cache_account_activity = async (
@@ -73,13 +84,14 @@ export const cache_account_activity = async (
 	last_post_date: string | null,
 	post_count?: number,
 	followers_count?: unknown,
+	follows_back: boolean = false,
 ) => {
 	const client = get_db();
 	await client.execute({
 		sql: `
 			INSERT OR REPLACE INTO account_activity 
-			(did, handle, last_post_date, last_checked, post_count, followers_count) 
-			VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
+			(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back) 
+			VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
 		`,
 		args: [
 			did,
@@ -87,6 +99,7 @@ export const cache_account_activity = async (
 			last_post_date,
 			post_count || null,
 			typeof followers_count === 'number' ? followers_count : null,
+			follows_back,
 		],
 	});
 };
@@ -120,6 +133,7 @@ export const get_cached_accounts_by_handles = async (
 					last_checked: new Date(row.last_checked as string),
 					post_count: row.post_count as number | null,
 					followers_count: row.followers_count as number | null,
+					follows_back: Boolean(row.follows_back),
 				}))
 			);
 		}

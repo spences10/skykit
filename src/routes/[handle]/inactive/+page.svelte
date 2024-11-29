@@ -166,15 +166,26 @@
 							</div>
 						</div>
 
-						<label class="label cursor-pointer gap-2">
-							<span class="label-text">Never Posted Only</span>
-							<input
-								type="checkbox"
-								class="checkbox"
-								bind:checked={inactive_state.show_never_posted}
-								aria-label="Show only users who never posted"
-							/>
-						</label>
+						<div class="flex flex-col gap-2">
+							<label class="label cursor-pointer gap-2">
+								<span class="label-text">Never Posted Only</span>
+								<input
+									type="checkbox"
+									class="checkbox"
+									bind:checked={inactive_state.show_never_posted}
+									aria-label="Show only users who never posted"
+								/>
+							</label>
+							<label class="label cursor-pointer gap-2">
+								<span class="label-text">Hide Follows Back</span>
+								<input
+									type="checkbox"
+									class="checkbox"
+									bind:checked={inactive_state.hide_follows_back}
+									aria-label="Hide users who follow you back"
+								/>
+							</label>
+						</div>
 					</div>
 				</section>
 

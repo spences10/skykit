@@ -30,6 +30,7 @@ export function create_inactive_state() {
 	let cache_stats = $state<CacheStats | undefined>(undefined);
 	let days_threshold = $state(30);
 	let show_never_posted = $state(false);
+	let hide_follows_back = $state(false);
 	let sort_direction = $state<'asc' | 'desc'>('desc');
 	let progress = $state<Progress>({
 		stage: 'cache',
@@ -50,6 +51,11 @@ export function create_inactive_state() {
 			result = result.filter(
 				(follow) => follow.lastPost === '1970-01-01T00:00:00.000Z',
 			);
+		}
+
+		// Filter out accounts that follow back if enabled
+		if (hide_follows_back) {
+			result = result.filter((follow) => !follow.follows_back);
 		}
 
 		// Apply sorting
@@ -167,6 +173,12 @@ export function create_inactive_state() {
 		},
 		set show_never_posted(value: boolean) {
 			show_never_posted = value;
+		},
+		get hide_follows_back() {
+			return hide_follows_back;
+		},
+		set hide_follows_back(value: boolean) {
+			hide_follows_back = value;
 		},
 		get sort_direction() {
 			return sort_direction;

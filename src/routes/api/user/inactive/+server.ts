@@ -1,301 +1,21 @@
-import { get_db } from '$lib/db';
-import { rate_limiter } from '$lib/rate-limiter';
-import { execute_batch_update } from '$lib/server/inactive-process';
-import type {
-	CachedAccount,
-	CacheStats,
-	InactiveFollow,
-	ProcessingStats,
-} from '$lib/types';
-import type { AppBskyActorDefs } from '@atproto/api';
-import { AtpAgent } from '@atproto/api';
+import {
+	agent,
+	get_all_follows_for_user,
+	get_profile,
+	get_profiles_in_chunks,
+} from '$lib/server/api';
+import {
+	filter_inactive_follows,
+	get_cached_accounts_by_did,
+	process_accounts_in_chunks,
+} from '$lib/server/data-processor';
+import { report_progress } from '$lib/server/utils';
+import type { CacheStats, InactiveFollow } from '$lib/types';
+import type { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 
-const PUBLIC_API = 'https://public.api.bsky.app';
-const agent = new AtpAgent({ service: PUBLIC_API });
 const CACHE_FRESHNESS_DAYS = 7;
-const MAX_ACTORS_PER_REQUEST = 25;
-
-function chunk_array<T>(array: T[], size: number): T[][] {
-	return Array.from(
-		{ length: Math.ceil(array.length / size) },
-		(_, i) => array.slice(i * size, i * size + size),
-	);
-}
-
-async function get_profile(handle: string) {
-	return await rate_limiter.add_to_queue(() =>
-		agent.api.app.bsky.actor.getProfile({
-			actor: handle,
-		}),
-	);
-}
-
-async function retry_with_backoff<T>(
-	operation: () => Promise<T>,
-	retries = 3,
-	delay = 1000,
-): Promise<T> {
-	try {
-		return await operation();
-	} catch (error) {
-		if (retries === 0) throw error;
-		await new Promise((resolve) => setTimeout(resolve, delay));
-		return retry_with_backoff(operation, retries - 1, delay * 2);
-	}
-}
-
-const report_progress = (
-	controller: ReadableStreamDefaultController,
-	stats: Partial<ProcessingStats>,
-) => {
-	const encoder = new TextEncoder();
-	controller.enqueue(
-		encoder.encode(
-			`data: ${JSON.stringify({
-				type: 'progress',
-				...stats,
-			})}\n\n`,
-		),
-	);
-};
-
-async function get_all_follows_for_user(
-	agent: AtpAgent,
-	did: string,
-	total_follows: number,
-	controller?: ReadableStreamDefaultController,
-): Promise<AppBskyActorDefs.ProfileView[]> {
-	const all_follows: AppBskyActorDefs.ProfileView[] = [];
-	let cursor: string | undefined;
-
-	do {
-		const follows = await rate_limiter.add_to_queue(() =>
-			agent.api.app.bsky.graph.getFollows({
-				actor: did,
-				limit: 100,
-				cursor,
-			}),
-		);
-
-		if (!follows.data.follows) break;
-		all_follows.push(...follows.data.follows);
-		cursor = follows.data.cursor;
-
-		if (cursor) {
-			await new Promise((resolve) => setTimeout(resolve, 500));
-		}
-
-		if (controller) {
-			report_progress(controller, {
-				stage: 'follows',
-				processed: all_follows.length,
-				total: total_follows,
-				current: `Fetching follows: ${all_follows.length}/${total_follows}`,
-				data_source: 'api',
-				current_batch_source: 'Fetching follows from Bluesky API',
-				cache_hits: 0,
-				cache_misses: 0,
-			});
-		}
-	} while (cursor);
-
-	return all_follows;
-}
-
-async function get_profiles_in_chunks(
-	dids: string[],
-	controller?: ReadableStreamDefaultController,
-): Promise<Map<string, AppBskyActorDefs.ProfileViewDetailed>> {
-	const chunks = chunk_array(dids, MAX_ACTORS_PER_REQUEST);
-	const profile_map = new Map<string, AppBskyActorDefs.ProfileViewDetailed>();
-	let processed = 0;
-
-	for (const chunk of chunks) {
-		const profiles = await retry_with_backoff(() =>
-			rate_limiter.add_to_queue(() =>
-				agent.api.app.bsky.actor.getProfiles({
-					actors: chunk,
-				}),
-			),
-		);
-
-		for (const profile of profiles.data.profiles) {
-			profile_map.set(profile.did, profile);
-		}
-
-		processed += chunk.length;
-		if (controller) {
-			report_progress(controller, {
-				stage: 'profiles',
-				processed,
-				total: dids.length,
-				current: 'Fetching profile data...',
-				data_source: 'api',
-				current_batch_source: 'Fetching profiles from Bluesky API',
-			});
-		}
-
-		// Add a small delay between chunks
-		if (chunks.length > 1) {
-			await new Promise((resolve) => setTimeout(resolve, 500));
-		}
-	}
-
-	return profile_map;
-}
-
-async function process_accounts_in_chunks(
-	accounts: AppBskyActorDefs.ProfileView[],
-	controller?: ReadableStreamDefaultController,
-	cache_stats?: { hits: number; misses: number },
-): Promise<InactiveFollow[]> {
-	const PROFILE_CHUNK_SIZE = 25;
-	const FEED_CHUNK_SIZE = 15;
-	const DELAY_BETWEEN_BATCHES = 500;
-
-	const chunks = chunk_array(accounts, PROFILE_CHUNK_SIZE);
-	const results: InactiveFollow[] = [];
-	let processed = 0;
-
-	for (const chunk of chunks) {
-		const profiles = await retry_with_backoff(() =>
-			rate_limiter.add_to_queue(() =>
-				agent.api.app.bsky.actor.getProfiles({
-					actors: chunk.map((f) => f.did),
-				}),
-			),
-		);
-
-		const feeds = await Promise.all(
-			chunk_array(chunk, FEED_CHUNK_SIZE).map((feed_chunk) =>
-				retry_with_backoff(() =>
-					Promise.all(
-						feed_chunk.map((follow) =>
-							rate_limiter.add_to_queue(() =>
-								agent.api.app.bsky.feed.getAuthorFeed({
-									actor: follow.did,
-									limit: 1,
-								}),
-							),
-						),
-					),
-				),
-			),
-		);
-
-		const flat_feeds = feeds.flat();
-
-		// Process results
-		chunk.forEach((follow, index) => {
-			const profile = profiles.data.profiles[index];
-			const feed = flat_feeds[index];
-			const last_post_date = feed.data.feed[0]
-				? parseISO(feed.data.feed[0].post.indexedAt)
-				: new Date(0);
-
-			results.push({
-				did: follow.did,
-				handle: follow.handle,
-				displayName: follow.displayName,
-				lastPost: last_post_date.toISOString(),
-				lastPostDate: last_post_date,
-				createdAt: profile.indexedAt || new Date(0).toISOString(),
-				source: 'api',
-			});
-
-			processed++;
-			if (controller) {
-				report_progress(controller, {
-					stage: 'profiles',
-					processed,
-					total: accounts.length,
-					current: follow.handle,
-					batch_progress: {
-						current: processed,
-						total: accounts.length,
-					},
-					data_source: 'api',
-					current_batch_source:
-						'Fetching fresh data from Bluesky API',
-					cache_hits: cache_stats?.hits || 0,
-					cache_misses: cache_stats?.misses || 0,
-				});
-			}
-		});
-
-		// Update cache using consolidated batch update
-		await execute_batch_update(
-			chunk.map((follow, index) => ({
-				did: follow.did,
-				handle: follow.handle,
-				last_post_date:
-					results[results.length - chunk.length + index].lastPost,
-				post_count: profiles.data.profiles[index].postsCount || 0,
-				followers_count:
-					profiles.data.profiles[index].followersCount || null,
-			})),
-		);
-
-		await new Promise((resolve) =>
-			setTimeout(resolve, DELAY_BETWEEN_BATCHES),
-		);
-	}
-
-	return results;
-}
-
-function filter_inactive_follows(
-	follows: InactiveFollow[],
-	days: number,
-): InactiveFollow[] {
-	const now = new Date();
-	return follows.filter(
-		(follow) => differenceInDays(now, follow.lastPostDate) >= days,
-	);
-}
-
-async function get_cached_accounts_by_did(
-	dids: string[],
-): Promise<CachedAccount[]> {
-	if (dids.length === 0) return [];
-
-	const client = get_db();
-	const CHUNK_SIZE = 1000;
-	const all_results: CachedAccount[] = [];
-
-	try {
-		const tx = await client.transaction();
-
-		for (const chunk of chunk_array(dids, CHUNK_SIZE)) {
-			const placeholders = chunk.map(() => '?').join(',');
-			const result = await tx.execute({
-				sql: `SELECT * FROM account_activity WHERE did IN (${placeholders})`,
-				args: chunk,
-			});
-
-			const chunk_results = result.rows.map((row) => ({
-				did: row.did as string,
-				handle: row.handle as string,
-				last_post_date: row.last_post_date
-					? new Date(row.last_post_date as string)
-					: null,
-				last_checked: new Date(row.last_checked as string),
-				post_count: row.post_count as number | null,
-				followers_count: row.followers_count as number | null,
-			}));
-
-			all_results.push(...chunk_results);
-		}
-
-		await tx.commit();
-		return all_results;
-	} catch (e) {
-		console.error('Error fetching cached accounts:', e);
-		throw e;
-	}
-}
 
 async function get_all_follows(
 	agent: AtpAgent,
@@ -380,6 +100,7 @@ async function get_all_follows(
 					lastPostDate: cached.last_post_date,
 					createdAt: profile?.indexedAt || new Date(0).toISOString(),
 					source: 'cache',
+					follows_back: cached.follows_back,
 				});
 			} else {
 				cache_misses++;
@@ -415,7 +136,9 @@ async function get_all_follows(
 
 			// Process accounts needing updates in chunks
 			const fresh_data = await process_accounts_in_chunks(
+				did,
 				accounts_to_update,
+				agent,
 				controller,
 				{ hits: cache_hits, misses: cache_misses },
 			);

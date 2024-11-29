@@ -10,11 +10,20 @@ export type RateLimitStatus = {
 };
 
 export class RateLimiter {
-	private queue: Array<() => Promise<any>> = [];
+	private queue: Array<{
+		request: () => Promise<any>;
+		resolve: (value: any) => void;
+		reject: (error: any) => void;
+	}> = [];
 	private remainingRequests = 300;
 	private resetTime?: Date;
 	private maxRequests = 300;
 	private statusUpdateCallback?: (status: RateLimitStatus) => void;
+	private isProcessing = false;
+	private readonly maxConcurrent = 5;
+	private activeRequests = 0;
+	private readonly minRequestInterval = 100; // Minimum time between requests in ms
+	private readonly backoffThreshold = 0.2; // Start backing off when 20% of rate limit remains
 
 	set_status_callback(callback: (status: RateLimitStatus) => void) {
 		this.statusUpdateCallback = callback;
@@ -26,7 +35,45 @@ export class RateLimiter {
 		}
 	}
 
-	async execute_request<T>(request: () => Promise<T>): Promise<T> {
+	private async processQueue() {
+		if (this.isProcessing) return;
+		this.isProcessing = true;
+
+		while (this.queue.length > 0) {
+			if (this.activeRequests >= this.maxConcurrent) {
+				await new Promise(resolve => setTimeout(resolve, 100));
+				continue;
+			}
+
+			// Calculate dynamic delay based on remaining rate limit
+			const remainingRatio = this.remainingRequests / this.maxRequests;
+			let delay = this.minRequestInterval;
+			if (remainingRatio < this.backoffThreshold) {
+				// Exponentially increase delay as we approach rate limit
+				delay = this.minRequestInterval * Math.pow(2, (this.backoffThreshold - remainingRatio) * 10);
+			}
+
+			const nextRequest = this.queue.shift();
+			if (nextRequest) {
+				this.activeRequests++;
+				this.executeRequest(nextRequest.request)
+					.then(result => {
+						nextRequest.resolve(result);
+						this.activeRequests--;
+					})
+					.catch(error => {
+						nextRequest.reject(error);
+						this.activeRequests--;
+					});
+
+				await new Promise(resolve => setTimeout(resolve, delay));
+			}
+		}
+
+		this.isProcessing = false;
+	}
+
+	private async executeRequest<T>(request: () => Promise<T>): Promise<T> {
 		try {
 			const response = await request();
 			this.update_rate_limits(response);
@@ -36,6 +83,10 @@ export class RateLimiter {
 				const headers = error?.headers;
 				if (headers) {
 					this.update_rate_limits({ headers });
+					// If rate limited, add request back to queue
+					return new Promise((resolve, reject) => {
+						this.queue.unshift({ request, resolve, reject });
+					});
 				}
 			}
 			throw error;
@@ -79,7 +130,12 @@ export class RateLimiter {
 	}
 
 	async add_to_queue<T>(request: () => Promise<T>): Promise<T> {
-		return this.execute_request(request);
+		return new Promise((resolve, reject) => {
+			this.queue.push({ request, resolve, reject });
+			if (!this.isProcessing) {
+				this.processQueue();
+			}
+		});
 	}
 }
 
