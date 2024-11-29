@@ -1,4 +1,5 @@
 import { get_db } from '$lib/db';
+import type { Value } from '@libsql/client';
 
 interface InactiveUserData {
 	did: string;
@@ -6,7 +7,7 @@ interface InactiveUserData {
 	last_post_date: string;
 	post_count: number | null;
 	followers_count: number | null;
-	follows_back: boolean;  // Added follows_back field
+	follows_back: boolean;
 }
 
 export async function execute_batch_update(
@@ -16,17 +17,20 @@ export async function execute_batch_update(
 	const tx = await db.transaction();
 	try {
 		const placeholders = updates
-			.map(() => '(?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)')  // Added placeholder for follows_back
+			.map(() => '(?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)')
 			.join(',');
 
-		const args = updates.flatMap((u) => [
-			u.did,
-			u.handle,
-			u.last_post_date,
-			u.post_count,
-			u.followers_count,
-			u.follows_back,  // Added follows_back to args
-		]);
+		const args = updates.flatMap(
+			(u) =>
+				[
+					u.did,
+					u.handle,
+					u.last_post_date,
+					u.post_count,
+					u.followers_count,
+					u.follows_back,
+				] as Value[],
+		);
 
 		await tx.execute({
 			sql: `
@@ -43,7 +47,7 @@ export async function execute_batch_update(
 			args,
 		});
 		await tx.commit();
-	} catch (e) {
+	} catch (e: unknown) {
 		await tx.rollback();
 		throw e;
 	}

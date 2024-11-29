@@ -191,14 +191,8 @@ export interface CachedAccount {
 	follows_back: boolean;
 }
 
-export interface DbClient {
-	execute(params: { sql: string; args: any[] }): Promise<void>;
-	all<T = any>(params: { sql: string; args: any[] }): Promise<T[]>;
-	transaction(): Promise<DbTransaction>;
-}
-
-export interface DbTransaction {
-	execute(params: { sql: string; args: any[] }): Promise<void>;
-	commit(): Promise<void>;
-	rollback(): Promise<void>;
-}
+// Use libsql types directly instead of custom interfaces
+export type {
+	Client as DbClient,
+	Transaction as DbTransaction,
+} from '@libsql/client';

@@ -1,15 +1,7 @@
+import { chunk_array } from '$lib/db/utils';
+import type { CachedAccount } from '$lib/types';
+import type { Value } from '@libsql/client';
 import { get_db } from './connection';
-import { chunk_array } from './utils';
-
-export interface CachedAccount {
-	did: string;
-	handle: string;
-	last_post_date: Date | null;
-	last_checked: Date;
-	post_count: number | null;
-	followers_count: number | null;
-	follows_back: boolean;
-}
 
 export const cache_account_activity = async (
 	did: string,
@@ -33,7 +25,7 @@ export const cache_account_activity = async (
 			post_count || null,
 			typeof followers_count === 'number' ? followers_count : null,
 			follows_back,
-		],
+		] as Value[],
 	});
 };
 
@@ -53,7 +45,7 @@ export const get_cached_accounts_by_handles = async (
 			const placeholders = chunk.map(() => '?').join(',');
 			const result = await tx.execute({
 				sql: `SELECT * FROM account_activity WHERE handle IN (${placeholders})`,
-				args: chunk,
+				args: chunk as Value[],
 			});
 
 			all_results.push(

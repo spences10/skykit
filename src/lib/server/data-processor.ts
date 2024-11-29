@@ -3,6 +3,7 @@ import { rate_limiter } from '$lib/rate-limiter';
 import { execute_batch_update } from '$lib/server/inactive-process';
 import type { CachedAccount, InactiveFollow } from '$lib/types';
 import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
+import type { ResultSet, Value } from '@libsql/client';
 import { differenceInDays, parseISO } from 'date-fns';
 import { batch_check_follows_back } from './api';
 import {
@@ -260,9 +261,9 @@ export async function get_cached_accounts_by_did(
 
 		for (const chunk of chunk_array(dids, CHUNK_SIZE)) {
 			const placeholders = chunk.map(() => '?').join(',');
-			const result = await tx.execute({
+			const result: ResultSet = await tx.execute({
 				sql: `SELECT * FROM account_activity WHERE did IN (${placeholders})`,
-				args: chunk,
+				args: chunk as Value[],
 			});
 
 			const chunk_results = result.rows.map((row) => ({

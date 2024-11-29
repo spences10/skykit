@@ -1,4 +1,5 @@
 import { NODE_ENV } from '$env/static/private';
+import type { Client } from '@libsql/client';
 import { createClient } from '@libsql/client';
 
 const db_path =
@@ -7,7 +8,7 @@ const db_path =
 		: 'file:local.db';
 
 // Only create the client at runtime, not during build
-let db: ReturnType<typeof createClient>;
+let db: Client;
 
 export const get_db = () => {
 	if (!db) {
@@ -15,7 +16,7 @@ export const get_db = () => {
 			db = createClient({
 				url: db_path,
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Failed to create database client:', error);
 			throw error;
 		}
@@ -57,12 +58,12 @@ export const init_db = async () => {
 			await client.execute(`
 				ALTER TABLE account_activity ADD COLUMN follows_back BOOLEAN DEFAULT FALSE;
 			`);
-		} catch (e) {
+		} catch (e: unknown) {
 			// Column might already exist, ignore the error
 		}
 
 		console.log('Database initialized successfully');
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error('Failed to initialize database:', error);
 		throw error;
 	}
