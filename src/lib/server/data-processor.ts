@@ -13,9 +13,9 @@ import {
 } from './utils';
 
 const PROFILE_CHUNK_SIZE = 25;
-const FEED_CHUNK_SIZE = 25;
-const DELAY_BETWEEN_BATCHES = 500;
-const MAX_RETRIES = 3;
+const FEED_CHUNK_SIZE = 100;
+const DELAY_BETWEEN_BATCHES = 100;
+const RECENT_ACTIVITY_THRESHOLD = 30;
 
 interface FeedOptions {
 	filter:
@@ -29,6 +29,9 @@ interface ApiError extends Error {
 	status?: number;
 	headers?: {
 		'retry-after'?: string;
+	};
+	cause?: {
+		code?: string;
 	};
 }
 
@@ -51,75 +54,40 @@ async function handle_rate_limit_error(
 async function get_latest_activity(
 	agent: AtpAgent,
 	did: string,
+	profile_indexed_at: string | undefined,
 	options: FeedOptions,
 ): Promise<Date> {
 	try {
-		// First check profile.indexedAt as it's more efficient
-		const profile = await retry_with_backoff(() =>
+		if (profile_indexed_at) {
+			const indexed_date = parseISO(profile_indexed_at);
+			if (
+				differenceInDays(new Date(), indexed_date) <
+				RECENT_ACTIVITY_THRESHOLD
+			) {
+				return indexed_date;
+			}
+		}
+
+		const posts = await retry_with_backoff(() =>
 			rate_limiter.add_to_queue(() =>
-				agent.api.app.bsky.actor.getProfile({
-					actor: did || '', // Ensure we always pass a string
+				agent.api.app.bsky.feed.getAuthorFeed({
+					actor: did,
+					limit: options.limit,
+					filter: options.filter,
 				}),
 			),
 		);
 
-		if (!profile?.data?.indexedAt) {
-			return new Date(0);
-		}
-
-		const profile_indexed_at = parseISO(profile.data.indexedAt);
-
-		// If profile was indexed recently, we can use that timestamp
-		if (differenceInDays(new Date(), profile_indexed_at) < 30) {
-			return profile_indexed_at;
-		}
-
-		// Otherwise, check actual posts with pagination
-		let cursor: string | undefined;
 		let most_recent_date = new Date(0);
-		let attempts = 0;
 
-		do {
-			try {
-				const posts = await rate_limiter.add_to_queue(() =>
-					agent.api.app.bsky.feed.getAuthorFeed({
-						actor: did,
-						limit: options.limit,
-						filter: options.filter,
-						cursor,
-					}),
-				);
-
-				if (posts.data.feed.length > 0) {
-					for (const item of posts.data.feed) {
-						const post_date = parseISO(item.post.indexedAt);
-						if (post_date > most_recent_date) {
-							most_recent_date = post_date;
-						}
-					}
-
-					// If we found a recent post, we can stop paginating
-					if (differenceInDays(new Date(), most_recent_date) < 30) {
-						break;
-					}
+		if (posts.data.feed.length > 0) {
+			for (const item of posts.data.feed) {
+				const post_date = parseISO(item.post.indexedAt);
+				if (post_date > most_recent_date) {
+					most_recent_date = post_date;
 				}
-
-				cursor = posts.data.cursor;
-				attempts++;
-
-				// Add delay between paginated requests
-				if (cursor) {
-					await new Promise((resolve) => setTimeout(resolve, 500));
-				}
-			} catch (error) {
-				const api_error = error as ApiError;
-				if (api_error.status === 429) {
-					await handle_rate_limit_error(api_error);
-					continue;
-				}
-				throw error;
 			}
-		} while (cursor && attempts < MAX_RETRIES);
+		}
 
 		return most_recent_date;
 	} catch (error) {
@@ -141,40 +109,43 @@ export async function process_accounts_in_chunks(
 
 	const feed_options: FeedOptions = {
 		filter: 'posts_with_replies',
-		limit: 10,
+		limit: FEED_CHUNK_SIZE,
 	};
 
 	for (const chunk of chunks) {
 		try {
-			// Get profiles for the chunk
-			const profiles = await retry_with_backoff(() =>
-				rate_limiter.add_to_queue(() =>
-					agent.api.app.bsky.actor.getProfiles({
-						actors: chunk.map((f) => f.did),
-					}),
+			const [profiles, follows_back_map] = await Promise.all([
+				retry_with_backoff(() =>
+					rate_limiter.add_to_queue(() =>
+						agent.api.app.bsky.actor.getProfiles({
+							actors: chunk.map((f) => f.did),
+						}),
+					),
 				),
-			);
+				retry_with_backoff(() =>
+					batch_check_follows_back(
+						viewer_did,
+						chunk.map((f) => f.did),
+					),
+				),
+			]);
 
-			// Batch check follows_back for the entire chunk
-			const follows_back_map = await batch_check_follows_back(
-				viewer_did,
-				chunk.map((f) => f.did),
-			);
-
-			// Process each profile in the chunk
-			const activity_promises = chunk.map((follow) =>
-				get_latest_activity(agent, follow.did, feed_options),
+			const activity_promises = chunk.map((follow, index) =>
+				get_latest_activity(
+					agent,
+					follow.did,
+					profiles.data.profiles[index].indexedAt,
+					feed_options,
+				),
 			);
 
 			const activity_dates = await Promise.all(activity_promises);
 
-			// Process results
-			for (let i = 0; i < chunk.length; i++) {
-				const follow = chunk[i];
+			const batch_results = chunk.map((follow, i) => {
 				const profile = profiles.data.profiles[i];
 				const last_activity = activity_dates[i];
 
-				results.push({
+				return {
 					did: follow.did,
 					handle: follow.handle,
 					displayName: follow.displayName,
@@ -183,53 +154,67 @@ export async function process_accounts_in_chunks(
 					createdAt: profile.indexedAt || new Date(0).toISOString(),
 					source: 'api',
 					follows_back: follows_back_map.get(follow.did) || false,
-				});
+				};
+			});
 
-				processed++;
-				if (controller) {
-					report_progress(controller, {
-						stage: 'profiles',
-						processed,
+			results.push(...batch_results);
+			processed += chunk.length;
+
+			if (controller) {
+				report_progress(controller, {
+					stage: 'profiles',
+					processed,
+					total: accounts.length,
+					current: chunk[chunk.length - 1].handle,
+					batch_progress: {
+						current: processed,
 						total: accounts.length,
-						current: follow.handle,
-						batch_progress: {
-							current: processed,
-							total: accounts.length,
-						},
-						data_source: 'api',
-						current_batch_source:
-							'Fetching fresh data from Bluesky API',
-						cache_hits: cache_stats?.hits || 0,
-						cache_misses: cache_stats?.misses || 0,
-					});
-				}
+					},
+					data_source: 'api',
+					current_batch_source:
+						'Fetching fresh data from Bluesky API',
+					cache_hits: cache_stats?.hits || 0,
+					cache_misses: cache_stats?.misses || 0,
+				});
 			}
 
-			// Update cache using consolidated batch update
-			await execute_batch_update(
-				chunk.map((follow, index) => ({
-					did: follow.did,
-					handle: follow.handle,
-					last_post_date:
-						results[results.length - chunk.length + index].lastPost,
-					post_count: profiles.data.profiles[index].postsCount || 0,
-					followers_count:
-						profiles.data.profiles[index].followersCount || null,
-					follows_back: follows_back_map.get(follow.did) || false,
-				})),
+			await retry_with_backoff(() =>
+				execute_batch_update(
+					batch_results.map((result, index) => ({
+						did: result.did,
+						handle: result.handle,
+						last_post_date: result.lastPost,
+						post_count: profiles.data.profiles[index].postsCount || 0,
+						followers_count:
+							profiles.data.profiles[index].followersCount || null,
+						follows_back: follows_back_map.get(result.did) || false,
+					})),
+				),
 			);
 
-			await new Promise((resolve) =>
-				setTimeout(resolve, DELAY_BETWEEN_BATCHES),
-			);
-		} catch (error) {
+			if (chunks.length > 1) {
+				await new Promise((resolve) =>
+					setTimeout(resolve, DELAY_BETWEEN_BATCHES),
+				);
+			}
+		} catch (error: any) {
 			const api_error = error as ApiError;
 			if (api_error.status === 429) {
 				await handle_rate_limit_error(api_error);
-				// Retry this chunk
 				chunks.unshift(chunk);
 				continue;
 			}
+
+			if (
+				api_error?.cause?.code === 'ETIMEDOUT' ||
+				api_error?.status === 1
+			) {
+				console.log(`Network timeout processing chunk, retrying...`);
+				chunks.unshift(chunk);
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				continue;
+			}
+
 			throw error;
 		}
 	}

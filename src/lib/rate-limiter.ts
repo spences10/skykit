@@ -20,10 +20,10 @@ export class RateLimiter {
 	private maxRequests = 300;
 	private statusUpdateCallback?: (status: RateLimitStatus) => void;
 	private isProcessing = false;
-	private readonly maxConcurrent = 5;
+	private readonly maxConcurrent = 10; // Increased from 5 to 10
 	private activeRequests = 0;
-	private readonly minRequestInterval = 100; // Minimum time between requests in ms
-	private readonly backoffThreshold = 0.2; // Start backing off when 20% of rate limit remains
+	private readonly minRequestInterval = 50; // Decreased from 100ms to 50ms
+	private readonly backoffThreshold = 0.15; // Decreased from 0.2 to 0.15
 
 	set_status_callback(callback: (status: RateLimitStatus) => void) {
 		this.statusUpdateCallback = callback;
@@ -41,7 +41,7 @@ export class RateLimiter {
 
 		while (this.queue.length > 0) {
 			if (this.activeRequests >= this.maxConcurrent) {
-				await new Promise(resolve => setTimeout(resolve, 100));
+				await new Promise(resolve => setTimeout(resolve, 50)); // Decreased from 100ms to 50ms
 				continue;
 			}
 
@@ -49,8 +49,8 @@ export class RateLimiter {
 			const remainingRatio = this.remainingRequests / this.maxRequests;
 			let delay = this.minRequestInterval;
 			if (remainingRatio < this.backoffThreshold) {
-				// Exponentially increase delay as we approach rate limit
-				delay = this.minRequestInterval * Math.pow(2, (this.backoffThreshold - remainingRatio) * 10);
+				// Less aggressive backoff
+				delay = this.minRequestInterval * Math.pow(1.5, (this.backoffThreshold - remainingRatio) * 10);
 			}
 
 			const nextRequest = this.queue.shift();
@@ -83,7 +83,7 @@ export class RateLimiter {
 				const headers = error?.headers;
 				if (headers) {
 					this.update_rate_limits({ headers });
-					// If rate limited, add request back to queue
+					// If rate limited, add request back to queue with higher priority
 					return new Promise((resolve, reject) => {
 						this.queue.unshift({ request, resolve, reject });
 					});
