@@ -11,7 +11,6 @@
 	);
 	let error = $derived(inactive_state.error);
 	let days_threshold = $derived(inactive_state.days_threshold);
-	let show_never_posted = $derived(inactive_state.show_never_posted);
 	let sort_direction = $derived(inactive_state.sort_direction);
 
 	const handle_form_submit = async () => {

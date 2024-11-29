@@ -2,8 +2,11 @@
 	import { inactive_state } from '$lib/inactive.svelte';
 	import type { ProcessingStage } from '$lib/types';
 	import {
+		addSeconds,
 		formatDate,
 		formatDistanceToNow,
+		formatDuration,
+		intervalToDuration,
 		isValid,
 		parseISO,
 	} from 'date-fns';
@@ -16,11 +19,13 @@
 
 	let elapsed_time = $derived(
 		loading
-			? progress.average_time_per_item
-				? `About ${formatDistanceToNow(progress.start_time)}`
-				: formatDistanceToNow(progress.start_time, {
-						includeSeconds: true,
-					})
+			? formatDuration(
+					intervalToDuration({
+						start: progress.start_time,
+						end: new Date(),
+					}),
+					{ format: ['hours', 'minutes', 'seconds'], delimiter: ' ' },
+				)
 			: '',
 	);
 
@@ -36,17 +41,15 @@
 		const estimated_seconds =
 			remaining_items * progress.average_time_per_item;
 
-		const hours = Math.floor(estimated_seconds / 3600);
-		const minutes = Math.floor((estimated_seconds % 3600) / 60);
-		const seconds = Math.floor(estimated_seconds % 60);
+		const duration = intervalToDuration({
+			start: new Date(),
+			end: addSeconds(new Date(), estimated_seconds),
+		});
 
-		if (hours > 0) {
-			return `About ${hours}h ${minutes}m ${seconds}s`;
-		} else if (minutes > 0) {
-			return `About ${minutes}m ${seconds}s`;
-		} else {
-			return `About ${seconds}s`;
-		}
+		return formatDuration(duration, {
+			format: ['hours', 'minutes', 'seconds'],
+			delimiter: ' ',
+		});
 	});
 
 	const format_relative_time = (date: string): string => {
