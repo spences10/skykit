@@ -20,7 +20,7 @@
 		);
 	};
 
-	const open_all_profiles = () => {
+	const open_all_profiles = async () => {
 		const tabs = inactive_follows.length;
 		const MAX_TABS = 25;
 
@@ -34,6 +34,8 @@
 					`https://bsky.app/profile/${follow.handle}`,
 					'_blank',
 				);
+				// Add a small delay between opening tabs to prevent browser blocking
+				await new Promise((resolve) => setTimeout(resolve, 5));
 			}
 		} else {
 			const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
@@ -43,6 +45,8 @@
 						`https://bsky.app/profile/${follow.handle}`,
 						'_blank',
 					);
+					// Add a small delay between opening tabs to prevent browser blocking
+					await new Promise((resolve) => setTimeout(resolve, 5));
 				}
 			}
 		}
