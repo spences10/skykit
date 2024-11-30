@@ -208,7 +208,7 @@
 									Open All Profiles ({inactive_follows.length})
 								</button>
 								<div class="stat-desc mt-2">
-									<span class="font-bold text-black">Note:</span> This
+									<span class="font-black">Note:</span> This
 									will open a new tab for each profile.
 								</div>
 							</div>
