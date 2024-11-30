@@ -125,7 +125,7 @@
 					<div class="stat">
 						<div class="stat-title">Sort by Last Post</div>
 						<div class="stat-actions mt-2">
-							<div class="join w-full">
+							<div class="join w-full border border-primary">
 								<button
 									class="btn join-item flex-1 {sort_direction ===
 									'desc'
