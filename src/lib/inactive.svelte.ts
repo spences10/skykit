@@ -24,7 +24,7 @@ export type Progress = {
 
 export function create_inactive_state() {
 	let loading = $state(false);
-	let has_checked = $state(false);
+	let process_started = $state(false);
 	let inactive_follows = $state<InactiveFollow[]>([]);
 	let error = $state<string | undefined>(undefined);
 	let cache_stats = $state<CacheStats | undefined>(undefined);
@@ -86,11 +86,11 @@ export function create_inactive_state() {
 		days: number,
 	) => {
 		loading = true;
+		process_started = true;
 		error = undefined;
 		reset_progress();
 		inactive_follows = [];
 		cache_stats = undefined;
-		has_checked = true;
 		days_threshold = days;
 
 		try {
@@ -144,8 +144,8 @@ export function create_inactive_state() {
 		get loading() {
 			return loading;
 		},
-		get has_checked() {
-			return has_checked;
+		get process_started() {
+			return process_started;
 		},
 		get inactive_follows() {
 			return inactive_follows;

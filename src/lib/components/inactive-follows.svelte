@@ -1,273 +1,28 @@
 <script lang="ts">
 	import { inactive_state } from '$lib/inactive.svelte';
-	import type { ProcessingStage } from '$lib/types';
-	import {
-		addSeconds,
-		formatDate,
-		formatDistanceToNow,
-		formatDuration,
-		intervalToDuration,
-		isValid,
-		parseISO,
-	} from 'date-fns';
+	import CacheStats from './cache-stats.svelte';
+	import EmptyState from './empty-state.svelte';
+	import FollowCard from './follow-card.svelte';
+	import InactiveProgress from './inactive-progress.svelte';
 
 	let loading = $derived(inactive_state.loading);
-	let progress = $derived(inactive_state.progress);
+	let process_started = $derived(inactive_state.process_started);
 	let cache_stats = $derived(inactive_state.cache_stats);
-	let has_checked = $derived(inactive_state.has_checked);
 	let follows = $derived(inactive_state.filtered_and_sorted_follows);
-
-	let elapsed_time = $derived(
-		loading
-			? formatDuration(
-					intervalToDuration({
-						start: progress.start_time,
-						end: new Date(),
-					}),
-					{ format: ['hours', 'minutes', 'seconds'], delimiter: ' ' },
-				)
-			: '',
-	);
-
-	let progress_percent = $derived(
-		progress.total
-			? Math.round((progress.processed / progress.total) * 100)
-			: 0,
-	);
-
-	let time_remaining = $derived.by(() => {
-		if (!loading || !progress.average_time_per_item) return '';
-		const remaining_items = progress.total - progress.processed;
-		const estimated_seconds =
-			remaining_items * progress.average_time_per_item;
-
-		const duration = intervalToDuration({
-			start: new Date(),
-			end: addSeconds(new Date(), estimated_seconds),
-		});
-
-		return formatDuration(duration, {
-			format: ['hours', 'minutes', 'seconds'],
-			delimiter: ' ',
-		});
-	});
-
-	const format_relative_time = (date: string): string => {
-		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
-		const parsed_date = parseISO(date);
-		if (!isValid(parsed_date)) return 'Invalid date';
-		return formatDistanceToNow(parsed_date, { addSuffix: true });
-	};
-
-	// Add number formatter
-	const number_format = new Intl.NumberFormat(undefined, {
-		maximumFractionDigits: 0,
-	});
-
-	const STAGE_DESCRIPTIONS = {
-		cache: 'Checking database for cached data...',
-		follows: 'Fetching follows from Bluesky API...',
-		profiles: 'Processing profiles...',
-		feeds: 'Fetching recent activity...',
-		complete: 'Processing complete',
-	} satisfies Record<ProcessingStage, string>;
-
-	const get_stage_description = (
-		stage: ProcessingStage,
-		current_batch_source?: string,
-	): string =>
-		current_batch_source ||
-		STAGE_DESCRIPTIONS[stage] ||
-		'Processing...';
 </script>
 
 <div class="space-y-6">
 	{#if loading}
-		<div class="card bg-base-200 shadow-lg">
-			<div class="card-body p-4 sm:p-6">
-				<div class="flex flex-col items-center gap-6">
-					<!-- Progress Bar -->
-					<div class="w-full">
-						<div class="mb-2 flex justify-between text-sm">
-							<span class="text-base-content/70">
-								{number_format.format(progress.processed)} of {number_format.format(
-									progress.total,
-								)}
-							</span>
-							<span class="font-medium text-primary">
-								{progress_percent}%
-							</span>
-						</div>
-						<progress
-							class="progress progress-primary w-full"
-							value={progress_percent}
-							max="100"
-						></progress>
-					</div>
-
-					<!-- Current Operation -->
-					<div class="text-center">
-						<div class="mb-3 flex items-center justify-center gap-3">
-							<span
-								class="loading loading-spinner loading-md text-primary"
-							></span>
-							<p class="text-lg font-medium text-base-content">
-								{get_stage_description(
-									progress.stage,
-									progress.current_batch_source,
-								)}
-							</p>
-						</div>
-					</div>
-
-					<!-- Timing Stats - Made responsive -->
-					<div
-						class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
-					>
-						<div class="stat bg-base-100 shadow sm:shadow-none">
-							<div class="stat-title">Time Elapsed</div>
-							<div class="stat-value text-xl text-primary">
-								{elapsed_time}
-							</div>
-						</div>
-						{#if time_remaining}
-							<div class="stat bg-base-100 shadow sm:shadow-none">
-								<div class="stat-title">Estimated Time</div>
-								<div class="stat-value text-xl text-secondary">
-									{time_remaining}
-								</div>
-							</div>
-						{/if}
-						{#if progress.average_time_per_item && !progress.cached}
-							<div class="stat bg-base-100 shadow sm:shadow-none">
-								<div class="stat-title">Processing Speed</div>
-								<div class="stat-value text-xl text-accent">
-									{(1 / progress.average_time_per_item).toFixed(1)}
-								</div>
-								<div class="stat-desc">follows per second</div>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</div>
-		</div>
-	{:else if !has_checked}
-		<div class="card bg-base-200 shadow-lg">
-			<div class="card-body p-6 text-center">
-				<div class="flex flex-col items-center gap-4">
-					<div class="text-5xl">🦋</div>
-					<p class="text-lg font-medium text-base-content/80">
-						Click "Check Inactive Follows" to start
-					</p>
-				</div>
-			</div>
-		</div>
-	{:else if follows.length === 0}
-		<div class="card bg-base-200 shadow-lg">
-			<div class="card-body p-6 text-center">
-				<div class="flex flex-col items-center gap-4">
-					<div class="text-5xl">🦋</div>
-					<p class="text-lg font-medium text-base-content/80">
-						No inactive follows found
-					</p>
-				</div>
-			</div>
-		</div>
-	{:else}
-		<!-- Cache Statistics Summary - Made responsive -->
+		<InactiveProgress />
+	{:else if process_started && follows.length === 0}
+		<EmptyState text="No inactive follows found" />
+	{:else if follows.length > 0}
 		{#if cache_stats}
-			<div class="card bg-base-200 shadow-lg">
-				<div class="card-body p-4 sm:p-6">
-					<div
-						class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
-					>
-						<div class="stat bg-base-100 shadow sm:shadow-none">
-							<div class="stat-title">Cache Performance</div>
-							<div class="stat-value text-2xl">
-								{cache_stats.hit_rate || 0}% from cache
-							</div>
-							<div class="stat-desc mt-3">
-								<div class="flex flex-wrap justify-center gap-2">
-									<div class="badge badge-success badge-lg gap-2">
-										<span class="font-medium">
-											{number_format.format(cache_stats.cache_hits)}
-										</span>
-										<span class="opacity-80">from database</span>
-									</div>
-									<div class="badge badge-warning badge-lg gap-2">
-										<span class="font-medium">
-											{number_format.format(cache_stats.cache_misses)}
-										</span>
-										<span class="opacity-80">from API</span>
-									</div>
-								</div>
-								<div class="mt-2 text-base-content/70">
-									Total Processed: {number_format.format(
-										cache_stats.total_processed,
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<CacheStats />
 		{/if}
 
 		{#each follows as follow (follow.did)}
-			<div
-				class="card bg-base-200 shadow-lg transition-shadow duration-200 hover:shadow-xl"
-			>
-				<div class="card-body p-4 sm:p-6">
-					<div
-						class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-					>
-						<div class="flex-1">
-							<h3 class="text-lg font-bold text-base-content">
-								{follow.displayName || follow.handle}
-							</h3>
-							<p class="text-base-content/70">
-								<a
-									href={`https://bsky.app/profile/${follow.handle}`}
-									target="_blank"
-									class="link link-primary"
-									rel="noopener noreferrer"
-								>
-									@{follow.handle}
-								</a>
-							</p>
-							<p class="mt-1 text-sm text-base-content/70">
-								Joined {formatDate(follow.createdAt, 'MMM d, yyyy')}
-								({format_relative_time(follow.createdAt)})
-							</p>
-						</div>
-						<div class="flex flex-col gap-1">
-							<p class="font-medium text-base-content/70">
-								Last post: <span class="font-bold">
-									{format_relative_time(follow.lastPost)}
-								</span>
-							</p>
-							<div class="flex items-center gap-2">
-								{#if follow.source}
-									<div
-										class="badge badge-sm {follow.source === 'cache'
-											? 'badge-success'
-											: 'badge-warning'}"
-									>
-										{follow.source === 'cache'
-											? 'Source - DB'
-											: 'Source - API'}
-									</div>
-								{/if}
-								{#if follow.follows_back}
-									<div class="badge badge-sm badge-info">
-										Follows Back
-									</div>
-								{/if}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<FollowCard {follow} />
 		{/each}
 	{/if}
 </div>
