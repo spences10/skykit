@@ -28,21 +28,22 @@
 			const message = `Opening too many tabs (${tabs}) may cause performance issues. Only the first ${MAX_TABS} tabs will be opened. Continue?`;
 			if (!window.confirm(message)) return;
 
-			inactive_follows.slice(0, MAX_TABS).forEach((follow) => {
+			const profiles_to_open = inactive_follows.slice(0, MAX_TABS);
+			for (const follow of profiles_to_open) {
 				window.open(
 					`https://bsky.app/profile/${follow.handle}`,
 					'_blank',
 				);
-			});
+			}
 		} else {
 			const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
 			if (window.confirm(message)) {
-				inactive_follows.forEach((follow) => {
+				for (const follow of inactive_follows) {
 					window.open(
 						`https://bsky.app/profile/${follow.handle}`,
 						'_blank',
 					);
-				});
+				}
 			}
 		}
 	};
