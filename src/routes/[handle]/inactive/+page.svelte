@@ -80,9 +80,9 @@
 			>
 				<div class="form-control">
 					<label class="label" for="days">
-						<span class="label-text font-medium"
-							>Inactivity Threshold</span
-						>
+						<span class="label-text font-medium">
+							Inactivity Threshold
+						</span>
 					</label>
 					<div class="join w-full sm:w-auto">
 						<input
@@ -95,9 +95,9 @@
 							class="input join-item input-bordered w-full sm:w-24"
 							aria-label="Days threshold"
 						/>
-						<span class="btn join-item btn-neutral no-animation"
-							>days</span
-						>
+						<span class="btn join-item btn-neutral no-animation">
+							days
+						</span>
 					</div>
 				</div>
 				<button
