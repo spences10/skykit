@@ -133,13 +133,66 @@ export interface FeedResults {
 	data: BskyPost[];
 }
 
+export interface CacheStats {
+	total_processed: number;
+	cache_hits: number;
+	cache_misses: number;
+	hit_rate: number;
+}
+
 export interface InactiveFollow {
 	did: string;
 	handle: string;
 	displayName?: string;
 	lastPost: string;
+	lastPostDate: Date;
+	createdAt: string;
+	source?: 'cache' | 'api';
+	follows_back: boolean;
 }
 
 export interface UserData {
 	inactive_follows?: InactiveFollow[];
+	cache_stats?: CacheStats;
 }
+
+export type ProcessingStage =
+	| 'cache'
+	| 'follows'
+	| 'profiles'
+	| 'feeds'
+	| 'complete';
+
+export interface ProcessingStats {
+	stage: ProcessingStage;
+	processed: number;
+	total: number;
+	current: string;
+	cache_hits: number;
+	cache_misses: number;
+	average_time_per_item?: number;
+	start_time: Date;
+	cached?: boolean;
+	batch_progress?: {
+		current: number;
+		total: number;
+	};
+	data_source?: 'cache' | 'api';
+	current_batch_source?: string;
+}
+
+export interface CachedAccount {
+	did: string;
+	handle: string;
+	last_post_date: Date | null;
+	last_checked: Date;
+	post_count: number | null;
+	followers_count: number | null;
+	follows_back: boolean;
+}
+
+// Use libsql types directly instead of custom interfaces
+export type {
+	Client as DbClient,
+	Transaction as DbTransaction,
+} from '@libsql/client';

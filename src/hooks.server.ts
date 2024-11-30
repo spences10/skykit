@@ -1,3 +1,4 @@
+import { init_db } from '$lib/db';
 import { themes } from '$lib/themes';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -16,3 +17,6 @@ export const theme: Handle = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(theme);
+
+// Initialize database
+init_db().catch(console.error);

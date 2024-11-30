@@ -62,7 +62,7 @@
 					Account Type
 					<div
 						class="tooltip tooltip-left cursor-pointer"
-						data-tip="Based on your posting frequency, engagement patterns, and content style. These categories are determined by analyzing your last 300 posts."
+						data-tip="Based on your posting frequency, engagement patterns, and content style. These categories are determined by analysing your last 300 posts."
 					>
 						<InformationCircle
 							class_names="h-4 w-4 text-base-content/60"

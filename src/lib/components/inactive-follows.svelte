@@ -1,61 +1,28 @@
 <script lang="ts">
-	import type { InactiveFollow } from '$lib/types';
-	import { formatDistanceToNow, isValid, parseISO } from 'date-fns';
+	import { inactive_state } from '$lib/inactive.svelte';
+	import CacheStats from './cache-stats.svelte';
+	import EmptyState from './empty-state.svelte';
+	import FollowCard from './follow-card.svelte';
+	import InactiveProgress from './inactive-progress.svelte';
 
-	export let inactive_follows: InactiveFollow[] = [];
-	export let loading = false;
-
-	const format_relative_time = (date: string): string => {
-		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
-		const parsed_date = parseISO(date);
-		if (!isValid(parsed_date)) return 'Invalid date';
-		return formatDistanceToNow(parsed_date, { addSuffix: true });
-	};
+	let loading = $derived(inactive_state.loading);
+	let process_started = $derived(inactive_state.process_started);
+	let cache_stats = $derived(inactive_state.cache_stats);
+	let follows = $derived(inactive_state.filtered_and_sorted_follows);
 </script>
 
-<div class="space-y-4">
+<div class="space-y-6">
 	{#if loading}
-		<div class="card bg-base-200">
-			<div class="card-body text-center">
-				<span class="loading loading-spinner"></span>
-				<p>Loading inactive follows...</p>
-			</div>
-		</div>
-	{:else if inactive_follows.length === 0}
-		<div class="card bg-base-200">
-			<div class="card-body text-center">
-				<p>No inactive follows found</p>
-			</div>
-		</div>
-	{:else}
-		{#each inactive_follows as follow (follow.did)}
-			<div class="card bg-base-200">
-				<div class="card-body">
-					<div class="flex items-center justify-between">
-						<div>
-							<h3 class="font-bold">
-								{follow.displayName || follow.handle}
-							</h3>
-							<p class="text-sm text-base-content/60">
-								<a
-									href={`https://bsky.app/profile/${follow.handle}`}
-									target="_blank"
-									class="link"
-									rel="noopener noreferrer"
-								>
-									@{follow.handle}
-								</a>
-							</p>
-						</div>
-						<div class="text-right">
-							<p class="text-sm text-base-content/60">Last post:</p>
-							<p class="font-medium">
-								{format_relative_time(follow.lastPost)}
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
+		<InactiveProgress />
+	{:else if process_started && follows.length === 0}
+		<EmptyState text="No inactive follows found" />
+	{:else if follows.length > 0}
+		{#if cache_stats}
+			<CacheStats />
+		{/if}
+
+		{#each follows as follow (follow.did)}
+			<FollowCard {follow} />
 		{/each}
 	{/if}
 </div>
