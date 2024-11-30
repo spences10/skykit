@@ -107,7 +107,7 @@
 
 			<!-- Timing Stats -->
 			<div
-				class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
+				class="grid w-full grid-cols-1 gap-4 sm:stats sm:grid-cols-3 sm:bg-base-100 sm:shadow"
 			>
 				<div class="stat bg-base-100 shadow sm:shadow-none">
 					<div class="stat-title">Time Elapsed</div>
@@ -115,6 +115,7 @@
 						{elapsed_time}
 					</div>
 				</div>
+
 				{#if time_remaining}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Estimated Time</div>
@@ -123,6 +124,7 @@
 						</div>
 					</div>
 				{/if}
+
 				{#if progress.average_time_per_item && !progress.cached}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Processing Speed</div>
