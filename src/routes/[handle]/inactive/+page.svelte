@@ -22,15 +22,28 @@
 
 	const open_all_profiles = () => {
 		const tabs = inactive_follows.length;
-		const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
+		const MAX_TABS = 25;
 
-		if (window.confirm(message)) {
-			inactive_follows.forEach((follow) => {
+		if (tabs > MAX_TABS) {
+			const message = `Opening too many tabs (${tabs}) may cause performance issues. Only the first ${MAX_TABS} tabs will be opened. Continue?`;
+			if (!window.confirm(message)) return;
+
+			inactive_follows.slice(0, MAX_TABS).forEach((follow) => {
 				window.open(
 					`https://bsky.app/profile/${follow.handle}`,
 					'_blank',
 				);
 			});
+		} else {
+			const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
+			if (window.confirm(message)) {
+				inactive_follows.forEach((follow) => {
+					window.open(
+						`https://bsky.app/profile/${follow.handle}`,
+						'_blank',
+					);
+				});
+			}
 		}
 	};
 </script>
@@ -208,8 +221,8 @@
 									Open All Profiles ({inactive_follows.length})
 								</button>
 								<div class="stat-desc mt-2">
-									<span class="font-black">Note:</span> This
-									will open a new tab for each profile.
+									<span class="font-black">Note:</span> This will open
+									a new tab for each profile.
 								</div>
 							</div>
 						</div>
