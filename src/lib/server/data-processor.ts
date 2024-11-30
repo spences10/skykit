@@ -141,21 +141,23 @@ export async function process_accounts_in_chunks(
 
 			const activity_dates = await Promise.all(activity_promises);
 
-			const batch_results = chunk.map((follow, i) => {
-				const profile = profiles.data.profiles[i];
-				const last_activity = activity_dates[i];
+			const batch_results: InactiveFollow[] = chunk.map(
+				(follow, i) => {
+					const profile = profiles.data.profiles[i];
+					const last_activity = activity_dates[i];
 
-				return {
-					did: follow.did,
-					handle: follow.handle,
-					displayName: follow.displayName,
-					lastPost: last_activity.toISOString(),
-					lastPostDate: last_activity,
-					createdAt: profile.indexedAt || new Date(0).toISOString(),
-					source: 'api',
-					follows_back: follows_back_map.get(follow.did) || false,
-				};
-			});
+					return {
+						did: follow.did,
+						handle: follow.handle,
+						displayName: follow.displayName,
+						lastPost: last_activity.toISOString(),
+						lastPostDate: last_activity,
+						createdAt: profile.indexedAt || new Date(0).toISOString(),
+						source: 'api' as const,
+						follows_back: follows_back_map.get(follow.did) || false,
+					};
+				},
+			);
 
 			results.push(...batch_results);
 			processed += chunk.length;
