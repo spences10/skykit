@@ -66,22 +66,25 @@
 		class="card mb-6 bg-base-100 shadow-xl"
 		aria-label="Inactive follows controls"
 	>
-		<div class="card-body p-4 sm:p-6">
+		<div class="card-body">
+			<!-- Search Form -->
 			<form
 				method="POST"
 				action="?/check_inactive"
-				class="space-y-4"
 				onsubmit={(e) => {
 					e.preventDefault();
 					handle_form_submit();
 				}}
 				aria-label="Inactive follows search form"
+				class="flex flex-col gap-4 sm:flex-row"
 			>
-				<div class="flex flex-wrap items-end gap-4">
-					<div class="form-control w-24">
-						<label class="label" for="days">
-							<span class="label-text">Days</span>
-						</label>
+				<div class="form-control">
+					<label class="label" for="days">
+						<span class="label-text font-medium"
+							>Inactivity Threshold</span
+						>
+					</label>
+					<div class="join w-full sm:w-auto">
 						<input
 							type="number"
 							name="days"
@@ -89,60 +92,42 @@
 							bind:value={inactive_state.days_threshold}
 							min="1"
 							max="365"
-							class="input input-bordered w-full"
+							class="input join-item input-bordered w-full sm:w-24"
 							aria-label="Days threshold"
 						/>
+						<span class="btn join-item btn-neutral no-animation"
+							>days</span
+						>
 					</div>
-					<button
-						type="submit"
-						class="btn btn-primary ml-auto"
-						disabled={loading}
-						aria-busy={loading}
-					>
-						{#if loading}
-							<span class="loading loading-spinner" aria-hidden="true"
-							></span>
-						{/if}
-						Check Inactive Follows
-					</button>
 				</div>
+				<button
+					type="submit"
+					class="btn btn-primary w-full self-end sm:ml-auto sm:w-auto"
+					disabled={loading}
+					aria-busy={loading}
+				>
+					{#if loading}
+						<span class="loading loading-spinner" aria-hidden="true"
+						></span>
+					{/if}
+					Check Inactive Follows
+				</button>
 			</form>
 
 			{#if inactive_follows.length > 0}
 				<div class="divider"></div>
-				<section
-					class="flex items-center justify-between"
-					aria-label="Statistics and controls"
-				>
-					<div
-						class="stats shadow"
-						role="region"
-						aria-label="Inactive follows statistics"
-					>
-						<div class="stat">
-							<h2 class="stat-title">Inactive Follows Found</h2>
-							<div class="stat-value text-primary">
-								{inactive_follows.length}
-							</div>
-							<div class="stat-desc">
-								{days_threshold} days or more of inactivity
-							</div>
-						</div>
-					</div>
 
-					<!-- Sort and Filter Controls -->
-					<div class="flex flex-col items-end gap-2">
-						<div
-							class="flex items-center gap-2"
-							role="group"
-							aria-label="Sort controls"
-						>
-							<span class="text-sm font-medium">
-								Sort by Last Post:
-							</span>
-							<div class="join">
+				<!-- Controls Section -->
+				<div
+					class="stats stats-vertical w-full bg-base-200 shadow-sm sm:stats-horizontal"
+				>
+					<!-- Sort Controls -->
+					<div class="stat">
+						<div class="stat-title">Sort by Last Post</div>
+						<div class="stat-actions mt-2">
+							<div class="join w-full">
 								<button
-									class="btn join-item btn-sm {sort_direction ===
+									class="btn join-item flex-1 {sort_direction ===
 									'desc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
@@ -150,10 +135,10 @@
 										(inactive_state.sort_direction = 'desc')}
 									aria-pressed={sort_direction === 'desc'}
 								>
-									Newest
+									Newest First
 								</button>
 								<button
-									class="btn join-item btn-sm {sort_direction ===
+									class="btn join-item flex-1 {sort_direction ===
 									'asc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
@@ -161,43 +146,74 @@
 										(inactive_state.sort_direction = 'asc')}
 									aria-pressed={sort_direction === 'asc'}
 								>
-									Oldest
+									Oldest First
 								</button>
 							</div>
 						</div>
+					</div>
 
-						<div class="flex flex-col gap-2">
-							<label class="label cursor-pointer gap-2">
-								<span class="label-text">Never Posted Only</span>
-								<input
-									type="checkbox"
-									class="checkbox"
-									bind:checked={inactive_state.show_never_posted}
-									aria-label="Show only users who never posted"
-								/>
-							</label>
-							<label class="label cursor-pointer gap-2">
-								<span class="label-text">Hide Follows Back</span>
-								<input
-									type="checkbox"
-									class="checkbox"
-									bind:checked={inactive_state.hide_follows_back}
-									aria-label="Hide users who follow you back"
-								/>
-							</label>
+					<!-- Filter Controls -->
+					<div class="stat">
+						<div class="stat-title">Filter Options</div>
+						<div class="stat-actions mt-2">
+							<div class="flex flex-col gap-2">
+								<label
+									class="label cursor-pointer justify-start gap-4"
+								>
+									<input
+										type="checkbox"
+										class="checkbox-primary checkbox"
+										bind:checked={inactive_state.show_never_posted}
+										aria-label="Show only users who never posted"
+									/>
+									<span class="label-text">Never Posted Only</span>
+								</label>
+								<label
+									class="label cursor-pointer justify-start gap-4"
+								>
+									<input
+										type="checkbox"
+										class="checkbox-primary checkbox"
+										bind:checked={inactive_state.hide_follows_back}
+										aria-label="Hide users who follow you back"
+									/>
+									<span class="label-text">Hide Follows Back</span>
+								</label>
+							</div>
 						</div>
 					</div>
-				</section>
+				</div>
 
-				<!-- Open All Profiles Button -->
-				<div class="mt-4 flex justify-end">
-					<button
-						class="btn btn-primary"
-						onclick={open_all_profiles}
-						aria-label={`Open all ${inactive_follows.length} profiles in new tabs`}
+				<!-- Statistics and Actions -->
+				<div class="mt-4">
+					<div
+						class="stats stats-vertical w-full bg-base-200 shadow-sm sm:stats-horizontal"
 					>
-						Open All Profiles ({inactive_follows.length})
-					</button>
+						<div class="stat">
+							<div class="stat-title">Inactive Follows Found</div>
+							<div class="stat-value text-primary">
+								{inactive_follows.length}
+							</div>
+							<div class="stat-desc">
+								{days_threshold} days or more of inactivity
+							</div>
+						</div>
+						<div class="stat">
+							<div class="stat-actions">
+								<button
+									class="btn btn-primary"
+									onclick={open_all_profiles}
+									aria-label={`Open all ${inactive_follows.length} profiles in new tabs`}
+								>
+									Open All Profiles ({inactive_follows.length})
+								</button>
+								<div class="stat-desc mt-2">
+									<span class="font-bold text-black">Note:</span> This
+									will open a new tab for each profile.
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			{/if}
 		</div>
