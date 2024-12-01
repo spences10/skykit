@@ -64,7 +64,7 @@
 	/>
 </svelte:head>
 
-<main class="container mx-auto max-w-4xl p-4">
+<main class="container mx-auto max-w-4xl overflow-x-hidden p-4">
 	<nav class="mb-4">
 		<a href="/" class="btn btn-ghost"> ← Back to Search </a>
 	</nav>
@@ -114,13 +114,15 @@
 			{#if is_data_visible}
 				<div
 					id="raw-data"
-					class="mockup-code mt-2"
+					class="mockup-code mt-2 max-w-full overflow-x-auto"
 					transition:slide={{ duration: 300 }}
 				>
 					<p class="ml-3 mt-2">
 						This is all the data that makes up this page.
 					</p>
-					<pre><code>{JSON.stringify(data, null, 2)}</code></pre>
+					<pre class="overflow-x-auto">
+						<code>{JSON.stringify(data, null, 2)}</code>
+					</pre>
 				</div>
 			{:else}
 				<span class="sr-only">Raw data is currently hidden</span>
