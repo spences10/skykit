@@ -1,7 +1,11 @@
 import { rate_limiter } from '$lib/rate-limiter';
 import type { InactiveFollow } from '$lib/types';
 import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
-import { differenceInDays, differenceInHours } from 'date-fns';
+import {
+	differenceInDays,
+	differenceInHours,
+	startOfDay,
+} from 'date-fns';
 import { batch_check_follows_back } from '../api';
 import { handle_rate_limit_error } from '../api/rate-limit-handler';
 import { get_cached_accounts_by_did } from '../db/account-cache';
@@ -23,10 +27,15 @@ export function filter_inactive_follows(
 	follows: InactiveFollow[],
 	days: number,
 ): InactiveFollow[] {
-	const now = new Date();
-	return follows.filter(
-		(follow) => differenceInDays(now, follow.lastPostDate) >= days,
-	);
+	// Use start of current day to avoid time-of-day affecting the calculation
+	const now = startOfDay(new Date());
+	return follows.filter((follow) => {
+		// Also use start of day for the last post date
+		const lastPostDay = startOfDay(follow.lastPostDate);
+		// Subtract one from the threshold to avoid counting edge cases as inactive
+		// e.g., for 30 days, we want posts from Nov 30 to not count as inactive on Dec 1
+		return differenceInDays(now, lastPostDay) > days - 1;
+	});
 }
 
 export async function process_accounts_in_chunks(
