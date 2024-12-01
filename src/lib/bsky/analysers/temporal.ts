@@ -10,6 +10,7 @@ import {
 	setDay,
 	subDays,
 } from 'date-fns';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 interface PostingMetrics {
 	total_days: number;
@@ -20,8 +21,12 @@ interface PostingMetrics {
 
 export function analyse_temporal_patterns(
 	posts: BskyPost[],
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ): TemporalPatterns {
-	const dates = posts.map((post) => new Date(post.post.indexedAt));
+	// Convert UTC dates to user's timezone
+	const dates = posts.map((post) =>
+		toZonedTime(new Date(post.post.indexedAt), timezone),
+	);
 	const [earliest, latest] = get_date_range(dates);
 	const metrics = calculate_posting_metrics(dates, earliest, latest);
 
@@ -37,10 +42,14 @@ export function analyse_temporal_patterns(
 			active_days_percentage:
 				(metrics.active_days / metrics.total_days) * 100,
 			longest_streak: metrics.longest_streak,
-			most_active_hours: get_most_active_hours(dates),
-			most_active_days: get_most_active_days(dates),
+			most_active_hours: get_most_active_hours(dates, timezone),
+			most_active_days: get_most_active_days(dates, timezone),
 		},
-		peak_activity_windows: calculate_peak_activity_windows(dates),
+		peak_activity_windows: calculate_peak_activity_windows(
+			dates,
+			timezone,
+		),
+		timezone: timezone,
 	};
 }
 
@@ -86,10 +95,11 @@ function group_posts_by_date(dates: Date[]): Map<string, number> {
 
 function get_most_active_hours(
 	dates: Date[],
+	timezone: string,
 ): Array<[string, number]> {
 	const posting_hours = new Map<string, number>();
 	dates.forEach((date) => {
-		const hour_str = format(date, 'HH:00');
+		const hour_str = formatInTimeZone(date, timezone, 'HH:00');
 		posting_hours.set(
 			hour_str,
 			(posting_hours.get(hour_str) || 0) + 1,
@@ -102,10 +112,11 @@ function get_most_active_hours(
 
 function get_most_active_days(
 	dates: Date[],
+	timezone: string,
 ): Array<[string, number]> {
 	const posting_days = new Map<string, number>();
 	dates.forEach((date) => {
-		const day = format(date, 'EEEE');
+		const day = formatInTimeZone(date, timezone, 'EEEE');
 		posting_days.set(day, (posting_days.get(day) || 0) + 1);
 	});
 	return Array.from(posting_days.entries()).sort(
@@ -116,14 +127,15 @@ function get_most_active_days(
 function calculate_longest_streak(
 	posts_by_date: Map<string, number>,
 ): number {
-	const dates = Array.from(posts_by_date.keys()).sort();
+	const dates = Array.from(posts_by_date.keys())
+		.map((dateStr) => parseISO(dateStr))
+		.sort((a, b) => a.getTime() - b.getTime());
+
 	let current_streak = 1;
 	let max_streak = 1;
 
 	for (let i = 1; i < dates.length; i++) {
-		const current = parseISO(dates[i]);
-		const prev = parseISO(dates[i - 1]);
-		const diff = differenceInDays(current, prev);
+		const diff = differenceInDays(dates[i], dates[i - 1]);
 
 		if (diff === 1) {
 			current_streak++;
@@ -136,7 +148,10 @@ function calculate_longest_streak(
 	return max_streak;
 }
 
-function calculate_peak_activity_windows(dates: Date[]): string[] {
+function calculate_peak_activity_windows(
+	dates: Date[],
+	timezone: string,
+): string[] {
 	const day_hour_counts = new Map<number, Map<number, number>>();
 
 	dates.forEach((date) => {
@@ -169,7 +184,11 @@ function calculate_peak_activity_windows(dates: Date[]): string[] {
 	const windows: string[] = [];
 	top_days.forEach(([day, _]) => {
 		const hour_counts = day_hour_counts.get(day)!;
-		const day_name = format(setDay(new Date(), day), 'EEEE');
+		const day_name = formatInTimeZone(
+			setDay(new Date(), day),
+			timezone,
+			'EEEE',
+		);
 
 		// Get top hours for this day
 		const sorted_hours = Array.from(hour_counts.entries())

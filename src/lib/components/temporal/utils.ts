@@ -1,4 +1,5 @@
 import { format, isValid, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 // Add type safety and validation for time windows
 export interface TimeWindow {
@@ -12,15 +13,16 @@ export interface GroupedTime {
 	count: number;
 }
 
-// Add error handling for date parsing
+// Add error handling for date parsing with timezone support
 export const safe_format_date = (
 	date_string: string,
 	format_string: string,
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
 ) => {
 	try {
 		const date = parseISO(date_string);
 		if (!isValid(date)) return 'Invalid date';
-		return format(date, format_string);
+		return formatInTimeZone(date, timezone, format_string);
 	} catch (err) {
 		console.error('Error formatting date:', err);
 		return 'Invalid date';
@@ -29,6 +31,7 @@ export const safe_format_date = (
 
 export const format_time_window = (
 	window: string,
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
 ): TimeWindow | null => {
 	try {
 		const [day, time_range, count] = window.split('|');
@@ -38,9 +41,13 @@ export const format_time_window = (
 			throw new Error('Invalid time window format');
 		}
 
+		// Convert times to user's timezone
+		const start_date = parseISO(`2000-01-01T${start_time}`);
+		const end_date = parseISO(`2000-01-01T${end_time}`);
+
 		return {
 			day,
-			time: `${format(parseISO(`2000-01-01T${start_time}`), 'h:mm a')} - ${format(parseISO(`2000-01-01T${end_time}`), 'h:mm a')}`,
+			time: `${formatInTimeZone(start_date, timezone, 'h:mm a')} - ${formatInTimeZone(end_date, timezone, 'h:mm a')}`,
 			count: parseInt(count),
 		};
 	} catch (err) {
@@ -51,6 +58,7 @@ export const format_time_window = (
 
 export function group_by_day(
 	windows: string[],
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
 ): Array<[string, GroupedTime[]]> {
 	const groups = new Map<string, GroupedTime[]>();
 
@@ -66,4 +74,9 @@ export function group_by_day(
 	});
 
 	return Array.from(groups.entries());
+}
+
+// Helper function to get user's timezone
+export function getUserTimezone(): string {
+	return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }

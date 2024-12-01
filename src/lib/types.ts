@@ -48,21 +48,24 @@ export interface ContentPatterns {
 	post_age_distribution?: Map<string, number>;
 }
 
+export interface DateRange {
+	from: string;
+	to: string;
+	total_days: number;
+}
+
 export interface TemporalPatterns {
 	posting_frequency: {
 		posts_per_day: number;
 		posts_per_week: number;
-		date_range: {
-			from: string;
-			to: string;
-			total_days: number;
-		};
+		date_range: DateRange;
 		active_days_percentage: number;
 		longest_streak: number;
 		most_active_hours: Array<[string, number]>;
 		most_active_days: Array<[string, number]>;
 	};
 	peak_activity_windows: string[];
+	timezone: string;
 }
 
 export interface NetworkAnalytics {

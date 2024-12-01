@@ -11,8 +11,9 @@
 			user_store.data.temporal?.posting_frequency.date_range;
 		if (!date_range) return '';
 
-		const from_date = safe_format_date(date_range.from, 'PP');
-		const to_date = safe_format_date(date_range.to, 'PP');
+		const timezone = user_store.data.temporal?.timezone;
+		const from_date = safe_format_date(date_range.from, 'PP', timezone);
+		const to_date = safe_format_date(date_range.to, 'PP', timezone);
 		return `Analysis from ${from_date} to ${to_date}`;
 	});
 </script>
@@ -44,6 +45,10 @@
 						</span>
 					</div>
 				{/if}
+
+				<div class="ml-auto text-sm text-base-content/60">
+					Times shown in {user_store.data.temporal.timezone}
+				</div>
 			</header>
 
 			<PostingFrequency />
