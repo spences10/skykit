@@ -35,17 +35,32 @@ export async function get_latest_activity(
 		);
 
 		let most_recent_date = new Date(0);
+		let most_recent_regular_post_date = new Date(0);
 
 		if (posts.data.feed.length > 0) {
 			for (const item of posts.data.feed) {
 				const post_date = parseISO(item.post.indexedAt);
+
+				// Check if this is a pinned post by looking at the post.embed property
+				// Pinned posts have a specific embed type that indicates they're pinned
+				const is_pinned =
+					item.post.embed?.type === 'app.bsky.embed.record';
+
+				if (!is_pinned && post_date > most_recent_regular_post_date) {
+					most_recent_regular_post_date = post_date;
+				}
+
 				if (post_date > most_recent_date) {
 					most_recent_date = post_date;
 				}
 			}
 		}
 
-		return most_recent_date;
+		// If we found a regular post, use its date
+		// Otherwise fall back to the most recent date (which might be a pinned post)
+		return most_recent_regular_post_date.getTime() > 0
+			? most_recent_regular_post_date
+			: most_recent_date;
 	} catch (error) {
 		console.error(`Error fetching activity for ${did}:`, error);
 		return new Date(0);
