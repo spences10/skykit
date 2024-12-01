@@ -20,35 +20,17 @@
 		);
 	};
 
-	const open_all_profiles = async () => {
+	const open_all_profiles = () => {
 		const tabs = inactive_follows.length;
-		const MAX_TABS = 25;
+		const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
 
-		if (tabs > MAX_TABS) {
-			const message = `Opening too many tabs (${tabs}) may cause performance issues. Only the first ${MAX_TABS} tabs will be opened. Continue?`;
-			if (!window.confirm(message)) return;
-
-			const profiles_to_open = inactive_follows.slice(0, MAX_TABS);
-			for (const follow of profiles_to_open) {
+		if (window.confirm(message)) {
+			inactive_follows.forEach((follow) => {
 				window.open(
 					`https://bsky.app/profile/${follow.handle}`,
 					'_blank',
 				);
-				// Add a small delay between opening tabs to prevent browser blocking
-				await new Promise((resolve) => setTimeout(resolve, 5));
-			}
-		} else {
-			const message = `This will open ${tabs} new tabs. Are you sure you want to continue?`;
-			if (window.confirm(message)) {
-				for (const follow of inactive_follows) {
-					window.open(
-						`https://bsky.app/profile/${follow.handle}`,
-						'_blank',
-					);
-					// Add a small delay between opening tabs to prevent browser blocking
-					await new Promise((resolve) => setTimeout(resolve, 5));
-				}
-			}
+			});
 		}
 	};
 </script>
