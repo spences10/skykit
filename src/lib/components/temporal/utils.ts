@@ -1,4 +1,4 @@
-import { format, isValid, parseISO } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
 // Add type safety and validation for time windows
@@ -17,7 +17,7 @@ export interface GroupedTime {
 export const safe_format_date = (
 	date_string: string,
 	format_string: string,
-	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ) => {
 	try {
 		const date = parseISO(date_string);
@@ -31,7 +31,7 @@ export const safe_format_date = (
 
 export const format_time_window = (
 	window: string,
-	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ): TimeWindow | null => {
 	try {
 		const [day, time_range, count] = window.split('|');
@@ -58,7 +58,7 @@ export const format_time_window = (
 
 export function group_by_day(
 	windows: string[],
-	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
+	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ): Array<[string, GroupedTime[]]> {
 	const groups = new Map<string, GroupedTime[]>();
 

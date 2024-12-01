@@ -12,7 +12,11 @@
 		if (!date_range) return '';
 
 		const timezone = user_store.data.temporal?.timezone;
-		const from_date = safe_format_date(date_range.from, 'PP', timezone);
+		const from_date = safe_format_date(
+			date_range.from,
+			'PP',
+			timezone,
+		);
 		const to_date = safe_format_date(date_range.to, 'PP', timezone);
 		return `Analysis from ${from_date} to ${to_date}`;
 	});

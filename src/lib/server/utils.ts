@@ -9,8 +9,8 @@ export function chunk_array<T>(array: T[], size: number): T[][] {
 
 // Add jitter to prevent thundering herd
 function get_jitter(base_delay: number): number {
-    const jitter = Math.random() * 0.3 - 0.15; // ±15% jitter
-    return base_delay * (1 + jitter);
+	const jitter = Math.random() * 0.3 - 0.15; // ±15% jitter
+	return base_delay * (1 + jitter);
 }
 
 export async function retry_with_backoff<T>(
@@ -25,22 +25,33 @@ export async function retry_with_backoff<T>(
 
 		// Handle network timeouts specifically
 		if (error?.cause?.code === 'ETIMEDOUT' || error?.status === 1) {
-			console.log(`Network timeout, retrying... (${retries} attempts remaining)`);
+			console.log(
+				`Network timeout, retrying... (${retries} attempts remaining)`,
+			);
 			const jittered_delay = get_jitter(delay);
-			await new Promise((resolve) => setTimeout(resolve, jittered_delay));
+			await new Promise((resolve) =>
+				setTimeout(resolve, jittered_delay),
+			);
 			return retry_with_backoff(operation, retries - 1, delay * 2);
 		}
 
 		// Handle rate limits differently - use a longer delay
 		if (error?.status === 429) {
-			const reset_after = parseInt(error?.headers?.['retry-after'] || '60', 10);
+			const reset_after = parseInt(
+				error?.headers?.['retry-after'] || '60',
+				10,
+			);
 			const rate_limit_delay = reset_after * 1000;
-			await new Promise((resolve) => setTimeout(resolve, rate_limit_delay));
+			await new Promise((resolve) =>
+				setTimeout(resolve, rate_limit_delay),
+			);
 			return retry_with_backoff(operation, retries - 1, delay);
 		}
 
 		// For other errors, use standard exponential backoff
-		await new Promise((resolve) => setTimeout(resolve, get_jitter(delay)));
+		await new Promise((resolve) =>
+			setTimeout(resolve, get_jitter(delay)),
+		);
 		return retry_with_backoff(operation, retries - 1, delay * 2);
 	}
 }

@@ -41,39 +41,47 @@ export class RateLimiter {
 
 		while (this.queue.length > 0) {
 			if (this.activeRequests >= this.maxConcurrent) {
-				await new Promise(resolve => setTimeout(resolve, 50)); // Decreased from 100ms to 50ms
+				await new Promise((resolve) => setTimeout(resolve, 50)); // Decreased from 100ms to 50ms
 				continue;
 			}
 
 			// Calculate dynamic delay based on remaining rate limit
-			const remainingRatio = this.remainingRequests / this.maxRequests;
+			const remainingRatio =
+				this.remainingRequests / this.maxRequests;
 			let delay = this.minRequestInterval;
 			if (remainingRatio < this.backoffThreshold) {
 				// Less aggressive backoff
-				delay = this.minRequestInterval * Math.pow(1.5, (this.backoffThreshold - remainingRatio) * 10);
+				delay =
+					this.minRequestInterval *
+					Math.pow(
+						1.5,
+						(this.backoffThreshold - remainingRatio) * 10,
+					);
 			}
 
 			const nextRequest = this.queue.shift();
 			if (nextRequest) {
 				this.activeRequests++;
 				this.executeRequest(nextRequest.request)
-					.then(result => {
+					.then((result) => {
 						nextRequest.resolve(result);
 						this.activeRequests--;
 					})
-					.catch(error => {
+					.catch((error) => {
 						nextRequest.reject(error);
 						this.activeRequests--;
 					});
 
-				await new Promise(resolve => setTimeout(resolve, delay));
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		}
 
 		this.isProcessing = false;
 	}
 
-	private async executeRequest<T>(request: () => Promise<T>): Promise<T> {
+	private async executeRequest<T>(
+		request: () => Promise<T>,
+	): Promise<T> {
 		try {
 			const response = await request();
 			this.update_rate_limits(response);
