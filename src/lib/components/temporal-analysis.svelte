@@ -52,13 +52,3 @@
 		</div>
 	</article>
 {/if}
-
-<style>
-	/* Add custom tooltip styles */
-	:global(.tooltip) {
-		--tooltip-tail: 3px;
-		--tooltip-color: hsl(var(--p));
-		--tooltip-text-color: hsl(var(--pc));
-		max-width: none !important;
-	}
-</style>
