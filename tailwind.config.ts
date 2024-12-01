@@ -9,6 +9,21 @@ export default {
 		extend: {},
 	},
 
+	safelist: [
+		'tooltip',
+		'tooltip-top',
+		'tooltip-bottom',
+		'tooltip-left',
+		'tooltip-right',
+		'tooltip-primary',
+		'tooltip-secondary',
+		'tooltip-accent',
+		'tooltip-info',
+		'tooltip-success',
+		'tooltip-warning',
+		'tooltip-error'
+	],
+
 	plugins: [typography, daisyui],
 
 	daisyui: {
