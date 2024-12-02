@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import {
 		ContentAnalysis,
@@ -39,11 +40,27 @@
 
 	let { data } = $props<{ data: PageData }>();
 	let store_initialized = $state(false);
+	let analysing = $state(false);
 
-	// Initialize user store with data
+	// Initialize user store with data only once when data changes
+	let prev_data = $state<string>('');
 	$effect(() => {
-		user_store.update_data(data);
-		store_initialized = true;
+		const data_string = JSON.stringify(data);
+		if (data_string !== prev_data) {
+			// Ensure data has all required fields before updating store
+			if (
+				data &&
+				data.profile &&
+				data.engagement &&
+				data.content &&
+				data.temporal &&
+				data.network
+			) {
+				user_store.update_data(data);
+				store_initialized = true;
+			}
+			prev_data = data_string;
+		}
 	});
 
 	$effect(() => {
@@ -73,6 +90,42 @@
 		<ProfileCard />
 		<SettingsPanel />
 		<DataNotice />
+
+		<div class="my-4 flex justify-center">
+			<form
+				method="POST"
+				action="?/analyse_all"
+				use:enhance={() => {
+					analysing = true;
+					return async ({ update, result }) => {
+						await update();
+						if (result.type === 'success' && result.data) {
+							// Ensure result data has all required fields before updating store
+							const result_data = result.data as PageData;
+							if (
+								result_data.profile &&
+								result_data.engagement &&
+								result_data.content &&
+								result_data.temporal &&
+								result_data.network
+							) {
+								user_store.update_data(result_data);
+							}
+						}
+						analysing = false;
+					};
+				}}
+			>
+				<button
+					class="btn btn-primary"
+					type="submit"
+					disabled={analysing}
+				>
+					{analysing ? 'Analysing All Posts...' : 'Analyse All Posts'}
+				</button>
+			</form>
+		</div>
+
 		<div class="sections">
 			{#each visibility_state.sections as section (section)}
 				<div

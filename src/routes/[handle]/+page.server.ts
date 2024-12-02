@@ -1,12 +1,25 @@
 import { api_status } from '$lib/api-status.svelte';
 import { rate_limiter } from '$lib/rate-limiter';
-import type { AnalysisResults } from '$lib/types';
+import type { AnalysisResults, BskyProfile } from '$lib/types';
 import { error } from '@sveltejs/kit';
 
 interface ValidationError {
 	field: string;
 	message: string;
 }
+
+// Define the shape of the API response
+interface ApiResponse extends AnalysisResults {
+	profile: BskyProfile | null;
+	cache_status?: {
+		profile: string;
+		feed: string;
+		insights: string;
+	};
+}
+
+// Export this as the PageData type
+export type PageData = ApiResponse;
 
 function validate_analysis_results(data: any): ValidationError[] {
 	const errors: ValidationError[] = [];
@@ -88,10 +101,37 @@ export const load = async ({ fetch, params }) => {
 			throw error(500, 'Invalid response data format');
 		}
 
-		return data as AnalysisResults;
+		return data as ApiResponse;
 	} catch (err: any) {
 		handle_error(err);
 	}
+};
+
+export const actions = {
+	analyse_all: async ({ fetch, params }) => {
+		const { handle } = params;
+		try {
+			const response = await fetch(
+				`/api/user?handle=${encodeURIComponent(handle)}&full_analysis=true`,
+			);
+
+			if (!response.ok) {
+				throw await handle_error_response(response);
+			}
+
+			const data = await response.json();
+			const validation_errors = validate_analysis_results(data);
+
+			if (validation_errors.length > 0) {
+				console.error('Validation errors:', validation_errors);
+				throw error(500, 'Invalid response data format');
+			}
+
+			return data as ApiResponse;
+		} catch (err: any) {
+			handle_error(err);
+		}
+	},
 };
 
 async function handle_error_response(response: Response) {
