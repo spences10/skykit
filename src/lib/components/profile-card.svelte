@@ -2,7 +2,6 @@
 	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
 	import { get_tooltip_props } from '$lib/utils';
-	import { formatDistance, isValid, parseISO } from 'date-fns';
 
 	// Create derived values with null checks
 	let followers_count = $derived(
@@ -14,18 +13,6 @@
 	let posts_count = $derived(
 		user_store.data.profile?.postsCount ?? 0,
 	);
-	let indexed_at = $derived(user_store.data.profile?.indexedAt ?? '');
-
-	const format_indexed_time = (date_string: string): string => {
-		try {
-			const date = parseISO(date_string);
-			if (!isValid(date)) return 'Unknown';
-			return formatDistance(date, new Date(), { addSuffix: true });
-		} catch (err) {
-			console.error('Error formatting indexed time:', err);
-			return 'Unknown';
-		}
-	};
 </script>
 
 {#if user_store.data?.profile}
@@ -108,14 +95,9 @@
 			{/if}
 
 			<footer class="card-actions mt-4 justify-end">
-				{#if indexed_at}
-					<time
-						class="text-sm text-base-content/60"
-						datetime={indexed_at}
-					>
-						Last updated: {format_indexed_time(indexed_at)}
-					</time>
-				{/if}
+				<a href="inactive" class="btn btn-ghost btn-sm">
+					View Inactive Follows
+				</a>
 			</footer>
 		</div>
 	</article>
