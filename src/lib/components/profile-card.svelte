@@ -95,7 +95,10 @@
 			{/if}
 
 			<footer class="card-actions mt-4 justify-end">
-				<a href="inactive" class="btn btn-ghost btn-sm">
+				<a
+					href={`/${user_store.data.profile.handle}/inactive`}
+					class="btn btn-ghost btn-sm"
+				>
 					View Inactive Follows
 				</a>
 			</footer>
