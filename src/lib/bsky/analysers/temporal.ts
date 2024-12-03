@@ -22,12 +22,13 @@ interface PostingMetrics {
 export function analyse_temporal_patterns(
 	posts: BskyPost[],
 	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
+	use_full_range: boolean = false,
 ): TemporalPatterns {
 	// Convert UTC dates to user's timezone
 	const dates = posts.map((post) =>
 		toZonedTime(new Date(post.post.indexedAt), timezone),
 	);
-	const [earliest, latest] = get_date_range(dates);
+	const [earliest, latest] = get_date_range(dates, use_full_range);
 	const metrics = calculate_posting_metrics(dates, earliest, latest);
 
 	return {
@@ -53,19 +54,27 @@ export function analyse_temporal_patterns(
 	};
 }
 
-function get_date_range(dates: Date[]): [Date, Date] {
+function get_date_range(dates: Date[], use_full_range: boolean = false): [Date, Date] {
 	const sorted_dates = dates.sort((a, b) =>
 		differenceInMilliseconds(b, a),
 	);
 	const latest = sorted_dates[0];
-	const thirty_days_ago = subDays(latest, 30);
-	const earliest = new Date(
-		Math.max(
-			thirty_days_ago.getTime(),
-			Math.min(...dates.map((d) => d.getTime())),
-		),
-	);
-	return [earliest, latest];
+	
+	if (use_full_range) {
+		// Use the earliest date from all posts
+		const earliest = sorted_dates[sorted_dates.length - 1];
+		return [earliest, latest];
+	} else {
+		// Default behavior - limit to 30 days
+		const thirty_days_ago = subDays(latest, 30);
+		const earliest = new Date(
+			Math.max(
+				thirty_days_ago.getTime(),
+				Math.min(...dates.map((d) => d.getTime())),
+			),
+		);
+		return [earliest, latest];
+	}
 }
 
 function calculate_posting_metrics(

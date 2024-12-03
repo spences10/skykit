@@ -2,7 +2,7 @@ import { generate_insights } from '$lib/bsky/insights';
 import { Cache } from '$lib/cache';
 import { rate_limiter } from '$lib/rate-limiter';
 import type { BskyProfile } from '$lib/types';
-import type { AppBskyActorDefs } from '@atproto/api';
+import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 
@@ -30,15 +30,72 @@ function ensure_profile_fields(
 	};
 }
 
+async function get_all_posts(
+	handle: string,
+): Promise<AppBskyFeedDefs.FeedViewPost[]> {
+	let all_posts: AppBskyFeedDefs.FeedViewPost[] = [];
+	let cursor: string | undefined = undefined;
+
+	do {
+		const response = await rate_limiter.add_to_queue(() =>
+			agent.api.app.bsky.feed.getAuthorFeed({
+				actor: handle,
+				limit: 100, // Max limit per request
+				cursor,
+			}),
+		);
+
+		all_posts = [...all_posts, ...response.data.feed];
+		cursor = response.data.cursor;
+	} while (cursor); // Continue until no more cursor is returned
+
+	return all_posts;
+}
+
 export const GET = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
+	const full_analysis =
+		url.searchParams.get('full_analysis') === 'true';
 
 	if (!handle) {
 		throw error(400, 'Handle is required');
 	}
 
 	try {
-		// Try to get cached data first
+		// For full analysis, bypass cache and get all posts
+		if (full_analysis) {
+			const [posts, profile_response] = await Promise.all([
+				get_all_posts(handle),
+				rate_limiter.add_to_queue(() =>
+					agent.api.app.bsky.actor.getProfile({
+						actor: handle,
+					}),
+				),
+			]);
+
+			if (!profile_response.data) {
+				throw error(404, 'Profile not found');
+			}
+
+			const profile = ensure_profile_fields(profile_response.data);
+			const insights = generate_insights(
+				posts,
+				profile,
+				full_analysis,
+			);
+
+			return Response.json({
+				profile,
+				...insights,
+				cache_status: {
+					profile: 'bypass',
+					feed: 'bypass',
+					insights: 'bypass',
+				},
+			});
+		}
+
+		// Regular flow with caching for initial view
 		const cached_profile = profile_cache.get(handle);
 		const cached_feed = feed_cache.get(handle);
 		const cached_insights = insights_cache.get(handle);
@@ -55,12 +112,12 @@ export const GET = async ({ url }) => {
 			});
 		}
 
-		// Fetch what we need
+		// Fetch initial data (first 100 posts)
 		const [feed_response, profile_response] = await Promise.all([
 			rate_limiter.add_to_queue(() =>
 				agent.api.app.bsky.feed.getAuthorFeed({
 					actor: handle,
-					limit: 100, // Always fetch 100 posts
+					limit: 100,
 				}),
 			),
 			rate_limiter.add_to_queue(() =>
@@ -78,6 +135,7 @@ export const GET = async ({ url }) => {
 		const insights = generate_insights(
 			feed_response.data.feed,
 			profile,
+			false,
 		);
 
 		// Cache and return the data

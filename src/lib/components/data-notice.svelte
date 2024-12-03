@@ -80,8 +80,11 @@
 		<div class="alert alert-info">
 			<InformationCircle class_names="h-4 w-4" />
 			<span>
-				Analysis is based on your {max_posts} most recent posts to provide
-				relevant insights about current posting patterns.
+				Analysis is based on {analysed_posts} posts
+				{#if date_range}
+					from {date_range}
+				{/if}
+				to provide relevant insights about current posting patterns.
 				{#if total_posts > max_posts}
 					This represents {percentage}% of your total posts.
 				{/if}
