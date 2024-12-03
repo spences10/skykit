@@ -78,7 +78,11 @@ export const GET = async ({ url }) => {
 			}
 
 			const profile = ensure_profile_fields(profile_response.data);
-			const insights = generate_insights(posts, profile);
+			const insights = generate_insights(
+				posts,
+				profile,
+				full_analysis,
+			);
 
 			return Response.json({
 				profile,
@@ -131,6 +135,7 @@ export const GET = async ({ url }) => {
 		const insights = generate_insights(
 			feed_response.data.feed,
 			profile,
+			false,
 		);
 
 		// Cache and return the data

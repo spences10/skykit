@@ -9,10 +9,11 @@ import {
 export function generate_insights(
 	posts: BskyPost[],
 	profile: BskyProfile,
+	full_analysis: boolean = false,
 ) {
 	const engagement = analysers.analyse_engagement(posts, profile);
 	const content = analysers.analyse_content(posts);
-	const temporal = analysers.analyse_temporal_patterns(posts);
+	const temporal = analysers.analyse_temporal_patterns(posts, undefined, full_analysis);
 	const network = analysers.analyse_network(posts);
 
 	return {
