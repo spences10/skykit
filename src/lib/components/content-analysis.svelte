@@ -9,6 +9,7 @@
 	} from '$lib/icons';
 	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
+	import { get_tooltip_props } from '$lib/utils';
 </script>
 
 {#if user_store.data.content}
@@ -61,9 +62,15 @@
 						</dt>
 						<dd class="stat-title">Original Posts</dd>
 						<dd class="stat-value text-primary">
-							{number_crunch(
-								user_store.data.content.post_types.text_only,
-							)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.post_types.text_only,
+								)}
+							>
+								{number_crunch(
+									user_store.data.content.post_types.text_only,
+								)}
+							</span>
 						</dd>
 						<dd class="stat-desc">Direct posts to your feed</dd>
 					</div>
@@ -74,9 +81,15 @@
 						</dt>
 						<dd class="stat-title">Replies</dd>
 						<dd class="stat-value text-secondary">
-							{number_crunch(
-								user_store.data.content.post_types.replies,
-							)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.post_types.replies,
+								)}
+							>
+								{number_crunch(
+									user_store.data.content.post_types.replies,
+								)}
+							</span>
 						</dd>
 						<dd class="stat-desc">Responses to other posts</dd>
 					</div>
@@ -87,9 +100,15 @@
 						</dt>
 						<dd class="stat-title">Reposts</dd>
 						<dd class="stat-value text-accent">
-							{number_crunch(
-								user_store.data.content.post_types.reposts,
-							)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.post_types.reposts,
+								)}
+							>
+								{number_crunch(
+									user_store.data.content.post_types.reposts,
+								)}
+							</span>
 						</dd>
 						<dd class="stat-desc">Shared posts from others</dd>
 					</div>
@@ -120,9 +139,15 @@
 						</dt>
 						<dd class="stat-title">Media Posts</dd>
 						<dd class="stat-value text-info">
-							{number_crunch(
-								user_store.data.content.post_types.with_media,
-							)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.post_types.with_media,
+								)}
+							>
+								{number_crunch(
+									user_store.data.content.post_types.with_media,
+								)}
+							</span>
 						</dd>
 						<dd class="stat-desc">Posts containing images</dd>
 					</div>
@@ -133,9 +158,15 @@
 						</dt>
 						<dd class="stat-title">Posts with Links</dd>
 						<dd class="stat-value text-success">
-							{number_crunch(
-								user_store.data.content.post_types.with_links,
-							)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.post_types.with_links,
+								)}
+							>
+								{number_crunch(
+									user_store.data.content.post_types.with_links,
+								)}
+							</span>
 						</dd>
 						<dd class="stat-desc">Posts containing external links</dd>
 					</div>
@@ -163,7 +194,13 @@
 					<div class="stat">
 						<dt class="stat-title">Average Post Length</dt>
 						<dd class="stat-value">
-							{user_store.data.content.avg_post_length.toFixed(0)}
+							<span
+								{...get_tooltip_props(
+									user_store.data.content.avg_post_length,
+								)}
+							>
+								{user_store.data.content.avg_post_length.toFixed(0)}
+							</span>
 						</dd>
 						<dd class="stat-desc">characters per post</dd>
 					</div>
@@ -185,9 +222,16 @@
 						<div class="stat">
 							<dt class="stat-title">Media Engagement</dt>
 							<dd class="stat-value">
-								{user_store.data.content.media_engagement.image_posts.avg_engagement.toFixed(
-									1,
-								)}
+								<span
+									{...get_tooltip_props(
+										user_store.data.content.media_engagement
+											.image_posts.avg_engagement,
+									)}
+								>
+									{user_store.data.content.media_engagement.image_posts.avg_engagement.toFixed(
+										1,
+									)}
+								</span>
 							</dd>
 							<dd class="stat-desc">
 								average interactions per media post
