@@ -17,41 +17,52 @@
 
 {#if user_store.data?.profile}
 	<article class="card mb-11 bg-base-100 shadow-xl">
-		<div class="card-body">
-			<header class="mb-4 flex items-center gap-4">
-				{#if user_store.data.profile.avatar}
-					<div class="avatar">
-						<div
-							class="w-24 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100"
-						>
-							<img
-								src={user_store.data.profile.avatar}
-								alt={`${user_store.data.profile.displayName}'s profile picture`}
-							/>
-						</div>
+		{#if user_store.data.profile.banner}
+			<figure class="relative h-40 w-full md:h-52">
+				<img
+					src={user_store.data.profile.banner}
+					alt={`${user_store.data.profile.displayName}'s profile banner`}
+					class="h-full w-full object-cover"
+				/>
+			</figure>
+		{/if}
+		<div class="relative px-4 pb-6 pt-4 md:px-8">
+			{#if user_store.data.profile.avatar}
+				<div
+					class="avatar absolute -top-12 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0"
+				>
+					<div
+						class="w-20 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 md:w-24"
+					>
+						<img
+							src={user_store.data.profile.avatar}
+							alt={`${user_store.data.profile.displayName}'s profile picture`}
+						/>
 					</div>
-				{/if}
-				<div>
-					<h1 class="card-title text-2xl">
-						{user_store.data.profile.displayName}
-					</h1>
-					<p class="text-base-content/60">
-						<a
-							href={`https://bsky.app/profile/${user_store.data.profile.handle}`}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							@{user_store.data.profile.handle}
-						</a>
-					</p>
-					<p class="mt-1 font-mono text-xs text-base-content/40">
-						{user_store.data.profile.did}
-					</p>
 				</div>
+			{/if}
+			<header class="mb-4 mt-10 text-center md:mt-14 md:text-left">
+				<h1
+					class="card-title justify-center text-xl md:justify-start md:text-2xl"
+				>
+					{user_store.data.profile.displayName}
+				</h1>
+				<p class="text-base-content/60">
+					<a
+						href={`https://bsky.app/profile/${user_store.data.profile.handle}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						@{user_store.data.profile.handle}
+					</a>
+				</p>
+				<p class="mt-1 font-mono text-xs text-base-content/40">
+					{user_store.data.profile.did}
+				</p>
 			</header>
 
 			<section
-				class="stats stats-vertical mb-4 shadow sm:stats-horizontal"
+				class="stats stats-vertical mb-4 w-full shadow sm:stats-horizontal"
 				aria-label="Profile statistics"
 			>
 				<div class="stat">

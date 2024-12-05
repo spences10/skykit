@@ -23,6 +23,7 @@ function ensure_profile_fields(
 		displayName: profile.displayName || profile.handle,
 		description: profile.description,
 		avatar: profile.avatar,
+		banner: profile.banner,
 		followersCount: profile.followersCount || 0,
 		followsCount: profile.followsCount || 0,
 		postsCount: profile.postsCount || 0,
