@@ -92,7 +92,7 @@
 		<SettingsPanel />
 		<DataNotice />
 
-		{#if !analysis_complete}
+		{#if !analysis_complete && (user_store.data.profile?.postsCount ?? 0) > 100}
 			<div class="mb-11">
 				<form
 					method="POST"
