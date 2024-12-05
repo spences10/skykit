@@ -7,6 +7,7 @@
 		Link,
 		Upload,
 	} from '$lib/icons';
+	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
 </script>
 
@@ -60,7 +61,9 @@
 						</dt>
 						<dd class="stat-title">Original Posts</dd>
 						<dd class="stat-value text-primary">
-							{user_store.data.content.post_types.text_only}
+							{number_crunch(
+								user_store.data.content.post_types.text_only,
+							)}
 						</dd>
 						<dd class="stat-desc">Direct posts to your feed</dd>
 					</div>
@@ -71,7 +74,9 @@
 						</dt>
 						<dd class="stat-title">Replies</dd>
 						<dd class="stat-value text-secondary">
-							{user_store.data.content.post_types.replies}
+							{number_crunch(
+								user_store.data.content.post_types.replies,
+							)}
 						</dd>
 						<dd class="stat-desc">Responses to other posts</dd>
 					</div>
@@ -82,7 +87,9 @@
 						</dt>
 						<dd class="stat-title">Reposts</dd>
 						<dd class="stat-value text-accent">
-							{user_store.data.content.post_types.reposts}
+							{number_crunch(
+								user_store.data.content.post_types.reposts,
+							)}
 						</dd>
 						<dd class="stat-desc">Shared posts from others</dd>
 					</div>
@@ -113,7 +120,9 @@
 						</dt>
 						<dd class="stat-title">Media Posts</dd>
 						<dd class="stat-value text-info">
-							{user_store.data.content.post_types.with_media}
+							{number_crunch(
+								user_store.data.content.post_types.with_media,
+							)}
 						</dd>
 						<dd class="stat-desc">Posts containing images</dd>
 					</div>
@@ -124,7 +133,9 @@
 						</dt>
 						<dd class="stat-title">Posts with Links</dd>
 						<dd class="stat-value text-success">
-							{user_store.data.content.post_types.with_links}
+							{number_crunch(
+								user_store.data.content.post_types.with_links,
+							)}
 						</dd>
 						<dd class="stat-desc">Posts containing external links</dd>
 					</div>

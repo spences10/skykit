@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { InformationCircle } from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
+	import { format_display_number } from '$lib/utils';
 	import { format, isValid, parseISO } from 'date-fns';
 
 	const max_posts = 100;
@@ -66,12 +67,16 @@
 			>
 				<div class="stat">
 					<dt class="stat-title">Analysed Posts</dt>
-					<dd class="stat-value text-primary">{analysed_posts}</dd>
+					<dd class="stat-value text-primary">
+						{format_display_number(analysed_posts)}
+					</dd>
 					<dd class="stat-desc">most recent posts</dd>
 				</div>
 				<div class="stat">
 					<dt class="stat-title">Total Posts</dt>
-					<dd class="stat-value">{total_posts}</dd>
+					<dd class="stat-value">
+						{format_display_number(total_posts)}
+					</dd>
 					<dd class="stat-desc">all time</dd>
 				</div>
 			</dl>
@@ -80,7 +85,7 @@
 		<div class="alert alert-info">
 			<InformationCircle class_names="h-4 w-4" />
 			<span>
-				Analysis is based on {analysed_posts} posts
+				Analysis is based on {format_display_number(analysed_posts)} posts
 				{#if date_range}
 					from {date_range}
 				{/if}
