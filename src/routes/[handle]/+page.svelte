@@ -72,6 +72,11 @@
 
 	let is_data_visible = $state(false);
 	const toggle_data_view = () => (is_data_visible = !is_data_visible);
+
+	function handle_analysis_error(error: unknown, reset: () => void) {
+		console.error('Analysis failed:', error);
+		analysing = false;
+	}
 </script>
 
 <svelte:head>
@@ -93,47 +98,63 @@
 		<DataNotice />
 
 		{#if !analysis_complete && (user_store.data.profile?.postsCount ?? 0) > 100}
-			<div class="mb-11">
-				<form
-					method="POST"
-					action="?/analyse_all"
-					use:enhance={() => {
-						analysing = true;
-						return async ({ update, result }) => {
-							await update();
-							if (result.type === 'success' && result.data) {
-								// Ensure result data has all required fields before updating store
-								const result_data = result.data as PageData;
-								if (
-									result_data.profile &&
-									result_data.engagement &&
-									result_data.content &&
-									result_data.temporal &&
-									result_data.network
-								) {
-									user_store.update_data(result_data);
-									analysis_complete = true;
+			<svelte:boundary onerror={handle_analysis_error}>
+				<div class="mb-11">
+					<form
+						method="POST"
+						action="?/analyse_all"
+						use:enhance={() => {
+							analysing = true;
+							return async ({ update, result }) => {
+								await update();
+								if (result.type === 'success' && result.data) {
+									// Ensure result data has all required fields before updating store
+									const result_data = result.data as PageData;
+									if (
+										result_data.profile &&
+										result_data.engagement &&
+										result_data.content &&
+										result_data.temporal &&
+										result_data.network
+									) {
+										user_store.update_data(result_data);
+										analysis_complete = true;
+									}
 								}
-							}
-							analysing = false;
-						};
-					}}
-				>
-					<button
-						class="btn btn-primary btn-lg btn-block"
-						type="submit"
-						disabled={analysing}
+								analysing = false;
+							};
+						}}
 					>
-						{#if analysing}
-							<span class="loading loading-spinner" aria-hidden="true"
-							></span>
-						{/if}
-						{analysing
-							? 'Analysing All Posts...'
-							: 'Analyse All Posts'}
-					</button>
-				</form>
-			</div>
+						<button
+							class="btn btn-primary btn-lg btn-block"
+							type="submit"
+							disabled={analysing}
+						>
+							{#if analysing}
+								<span class="loading loading-spinner" aria-hidden="true"
+								></span>
+							{/if}
+							{analysing
+								? 'Analysing All Posts...'
+								: 'Analyse All Posts'}
+						</button>
+					</form>
+				</div>
+
+				{#snippet failed(error: unknown, reset: () => void)}
+					<div class="alert alert-error mb-11">
+						<div class="flex w-full justify-between">
+							<span>Failed to analyze posts: {error instanceof Error ? error.message : String(error)}</span>
+							<button 
+								class="btn btn-ghost" 
+								onclick={() => reset()}
+							>
+								Try Again
+							</button>
+						</div>
+					</div>
+				{/snippet}
+			</svelte:boundary>
 		{/if}
 
 		<div class="sections">

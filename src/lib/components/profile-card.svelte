@@ -17,15 +17,17 @@
 
 {#if user_store.data?.profile}
 	<article class="card mb-11 bg-base-100 shadow-xl">
-		{#if user_store.data.profile.banner}
-			<figure class="relative h-40 w-full md:h-52">
+		<figure class="relative h-40 w-full md:h-52">
+			{#if user_store.data.profile.banner}
 				<img
 					src={user_store.data.profile.banner}
 					alt={`${user_store.data.profile.displayName}'s profile banner`}
 					class="h-full w-full object-cover"
 				/>
-			</figure>
-		{/if}
+			{:else}
+				<div class="h-full w-full bg-base-200"></div>
+			{/if}
+		</figure>
 		<div class="relative px-4 pb-6 pt-4 md:px-8">
 			{#if user_store.data.profile.avatar}
 				<div
