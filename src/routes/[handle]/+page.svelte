@@ -205,7 +205,7 @@
 						This is all the data that makes up this page.
 					</p>
 					<pre class="overflow-x-auto">
-						<code>{JSON.stringify(data, null, 2)}</code>
+						<code>{JSON.stringify(user_store.data, null, 2)}</code>
 					</pre>
 				</div>
 			{:else}
