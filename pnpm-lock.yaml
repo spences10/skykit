@@ -12,7 +12,7 @@ dependencies:
 devDependencies:
   '@atproto/api':
     specifier: ^0.13.18
-    version: 0.13.19
+    version: 0.13.20
   '@playwright/test':
     specifier: ^1.49.0
     version: 1.49.0
@@ -104,17 +104,17 @@ packages:
       '@jridgewell/trace-mapping': 0.3.25
     dev: true
 
-  /@atproto/api@0.13.19:
-    resolution: {integrity: sha512-rLWQBZaOIk3ds1Fx9CwrdyX3X2GbdSEvVJ9mdSPNX40joiEaE1ljGMOcziFipbvZacXynozE4E0Sb1CgOhzfmA==}
+  /@atproto/api@0.13.20:
+    resolution: {integrity: sha512-z/+CvG6BEttRHf856tKSe1AeUQNfrobRJldaHAthGmFk7O3wLZQyfcI9DUmBJQ9+4wAt0dZwvKWVGLZOV9eLHA==}
     dependencies:
       '@atproto/common-web': 0.3.1
-      '@atproto/lexicon': 0.4.3
+      '@atproto/lexicon': 0.4.4
       '@atproto/syntax': 0.3.1
-      '@atproto/xrpc': 0.6.4
+      '@atproto/xrpc': 0.6.5
       await-lock: 2.2.2
       multiformats: 9.9.0
       tlds: 1.255.0
-      zod: 3.23.8
+      zod: 3.24.1
     dev: true
 
   /@atproto/common-web@0.3.1:
@@ -123,28 +123,28 @@ packages:
       graphemer: 1.4.0
       multiformats: 9.9.0
       uint8arrays: 3.0.0
-      zod: 3.23.8
+      zod: 3.24.1
     dev: true
 
-  /@atproto/lexicon@0.4.3:
-    resolution: {integrity: sha512-lFVZXe1S1pJP0dcxvJuHP3r/a+EAIBwwU7jUK+r8iLhIja+ml6NmYv8KeFHmIJATh03spEQ9s02duDmFVdCoXg==}
+  /@atproto/lexicon@0.4.4:
+    resolution: {integrity: sha512-QFEmr3rpj/RoAmfX9ALU/asBG/rsVtQZnw+9nOB1/AuIwoxXd+ZyndR6lVUc2+DL4GEjl6W2yvBru5xbQIZWyA==}
     dependencies:
       '@atproto/common-web': 0.3.1
       '@atproto/syntax': 0.3.1
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
-      zod: 3.23.8
+      zod: 3.24.1
     dev: true
 
   /@atproto/syntax@0.3.1:
     resolution: {integrity: sha512-fzW0Mg1QUOVCWUD3RgEsDt6d1OZ6DdFmbKcDdbzUfh0t4rhtRAC05KbZYmxuMPWDAiJ4BbbQ5dkAc/mNypMXkw==}
     dev: true
 
-  /@atproto/xrpc@0.6.4:
-    resolution: {integrity: sha512-9ZAJ8nsXTqC4XFyS0E1Wlg7bAvonhXQNQ3Ocs1L1LIwFLXvsw/4fNpIHXxvXvqTCVeyHLbImOnE9UiO1c/qIYA==}
+  /@atproto/xrpc@0.6.5:
+    resolution: {integrity: sha512-t6u8iPEVbWge5RhzKZDahSzNDYIAxUtop6Q/X/apAZY1rgreVU0/1sSvvRoRFH19d3UIKjYdLuwFqMi9w8nY3Q==}
     dependencies:
-      '@atproto/lexicon': 0.4.3
-      zod: 3.23.8
+      '@atproto/lexicon': 0.4.4
+      zod: 3.24.1
     dev: true
 
   /@esbuild/aix-ppc64@0.21.5:
@@ -3510,6 +3510,6 @@ packages:
     resolution: {integrity: sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==}
     dev: true
 
-  /zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+  /zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
     dev: true
