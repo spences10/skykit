@@ -6,6 +6,8 @@
 		Refresh,
 	} from '$lib/icons';
 	import { user_store } from '$lib/user-data.svelte';
+	import { get_tooltip_props } from '$lib/utils';
+	import { number_crunch } from '$lib/number-crunch';
 </script>
 
 {#if user_store.data.engagement}
@@ -30,7 +32,9 @@
 				</dt>
 				<dd class="stat-title">Likes</dd>
 				<dd class="stat-value text-primary">
-					{user_store.data.engagement.avg_likes_per_post.toFixed(0)}
+					<span {...get_tooltip_props(user_store.data.engagement.avg_likes_per_post)}>
+						{number_crunch(user_store.data.engagement.avg_likes_per_post.toFixed(0))}
+					</span>
 				</dd>
 				<dd class="stat-desc">
 					Total: {user_store.data.engagement.engagement_distribution
@@ -44,7 +48,9 @@
 				</dt>
 				<dd class="stat-title">Reposts</dd>
 				<dd class="stat-value text-secondary">
-					{user_store.data.engagement.avg_reposts_per_post.toFixed(0)}
+					<span {...get_tooltip_props(user_store.data.engagement.avg_reposts_per_post)}>
+						{number_crunch(user_store.data.engagement.avg_reposts_per_post.toFixed(0))}
+					</span>
 				</dd>
 				<dd class="stat-desc">
 					Total: {user_store.data.engagement.engagement_distribution
@@ -58,7 +64,9 @@
 				</dt>
 				<dd class="stat-title">Replies</dd>
 				<dd class="stat-value text-accent">
-					{user_store.data.engagement.avg_replies_per_post.toFixed(0)}
+					<span {...get_tooltip_props(user_store.data.engagement.avg_replies_per_post)}>
+						{number_crunch(user_store.data.engagement.avg_replies_per_post.toFixed(0))}
+					</span>
 				</dd>
 				<dd class="stat-desc">
 					Total: {user_store.data.engagement.engagement_distribution
