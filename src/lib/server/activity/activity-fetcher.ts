@@ -37,26 +37,36 @@ export async function get_latest_activity(
 		let most_recent_date = new Date(0);
 		let most_recent_regular_post_date = new Date(0);
 
-		if (posts.data.feed.length > 0) {
-			for (const item of posts.data.feed) {
-				const post_date = parseISO(item.post.indexedAt);
+		// Only process the first two posts
+		const recent_posts = posts.data.feed.slice(0, 2);
 
-				// Check if this is a pinned post by looking at the post.embed property
-				// Pinned posts have a specific embed type that indicates they're pinned
-				const is_pinned =
-					item.post.embed?.type === 'app.bsky.embed.record';
+		if (recent_posts.length > 0) {
+			for (const item of recent_posts) {
+				// Safely access createdAt or fall back to indexedAt
+				const post_date = parseISO(
+					(item.post.record as { createdAt?: string })?.createdAt ||
+						item.post.indexedAt,
+				);
 
-				if (!is_pinned && post_date > most_recent_regular_post_date) {
+				// Check if this is a pinned post by looking for the pinned label
+				const is_pinned = item.post.labels?.some(
+					(label) => label.val === 'pinned',
+				);
+
+				// Consider all post types (original, reply, repost) as activity
+				// Only exclude pinned posts if they're older than regular posts
+				if (!is_pinned || post_date > most_recent_regular_post_date) {
 					most_recent_regular_post_date = post_date;
 				}
 
+				// Track the most recent post regardless of type
 				if (post_date > most_recent_date) {
 					most_recent_date = post_date;
 				}
 			}
 		}
 
-		// If we found a regular post, use its date
+		// If we found a regular post in the first two posts, use its date
 		// Otherwise fall back to the most recent date (which might be a pinned post)
 		return most_recent_regular_post_date.getTime() > 0
 			? most_recent_regular_post_date
