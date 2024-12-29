@@ -114,6 +114,7 @@
 					<div class="stat-value text-xl text-primary">
 						{elapsed_time}
 					</div>
+					<div class="stat-desc">total elapsed time</div>
 				</div>
 
 				{#if time_remaining}
@@ -122,6 +123,7 @@
 						<div class="stat-value text-xl text-secondary">
 							{time_remaining}
 						</div>
+						<div class="stat-desc">estimate for this batch</div>
 					</div>
 				{/if}
 
