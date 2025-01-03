@@ -12,7 +12,7 @@ dependencies:
 devDependencies:
   '@atproto/api':
     specifier: ^0.13.24
-    version: 0.13.24
+    version: 0.13.25
   '@playwright/test':
     specifier: ^1.49.1
     version: 1.49.1
@@ -104,8 +104,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.25
     dev: true
 
-  /@atproto/api@0.13.24:
-    resolution: {integrity: sha512-q9GHjaypnEyeag4plsWzP2eWaUfJWy9PHviBsJu5GauwMrGSU/4ijIqWwbFYzyXeWg85ErQxx6FqIne7HDbaVQ==}
+  /@atproto/api@0.13.25:
+    resolution: {integrity: sha512-5tz2NvYO7W9+0PV7x4k4KIAIazQI6Km+q4/+O6VUoNSqHsF3ry9/9mjcZKBoJLdmcVtZdcKSlPUTtxthan6iKw==}
     dependencies:
       '@atproto/common-web': 0.3.1
       '@atproto/lexicon': 0.4.4
