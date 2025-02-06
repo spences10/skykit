@@ -14,7 +14,7 @@ importers:
     devDependencies:
       '@atproto/api':
         specifier: ^0.13.32
-        version: 0.13.32
+        version: 0.13.35
       '@playwright/test':
         specifier: ^1.50.1
         version: 1.50.1
@@ -101,20 +101,20 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@atproto/api@0.13.32':
-    resolution: {integrity: sha512-xAKSsZgaugAK/Mog+JbQCd5d2Y+FpE5OwKAKgftvs51dPRuqVZt/MSVRREaFEtgV90nrfSRGIx4EP54Ju4ypBw==}
+  '@atproto/api@0.13.35':
+    resolution: {integrity: sha512-vsEfBj0C333TLjDppvTdTE0IdKlXuljKSveAeI4PPx/l6eUKNnDTsYxvILtXUVzwUlTDmSRqy5O4Ryh78n1b7g==}
 
-  '@atproto/common-web@0.3.2':
-    resolution: {integrity: sha512-Vx0JtL1/CssJbFAb0UOdvTrkbUautsDfHNOXNTcX2vyPIxH9xOameSqLLunM1hZnOQbJwyjmQCt6TV+bhnanDg==}
+  '@atproto/common-web@0.4.0':
+    resolution: {integrity: sha512-ZYL0P9myHybNgwh/hBY0HaBzqiLR1B5/ie5bJpLQAg0whRzNA28t8/nU2vh99tbsWcAF0LOD29M8++LyENJLNQ==}
 
-  '@atproto/lexicon@0.4.5':
-    resolution: {integrity: sha512-fljWqMGKn+XWtTprBcS3F1hGBREnQYh6qYHv2sjENucc7REms1gtmZXSerB9N6pVeHVNOnXiILdukeAcic5OEw==}
+  '@atproto/lexicon@0.4.6':
+    resolution: {integrity: sha512-RbiwXcnTuLp9vQrNoQ7xly8HyifKkovqCYtbfXVwqdylWYKPhmRsYkRfcPNv/lILhT9Lm0GVnxNwGGwvvgIsfA==}
 
-  '@atproto/syntax@0.3.1':
-    resolution: {integrity: sha512-fzW0Mg1QUOVCWUD3RgEsDt6d1OZ6DdFmbKcDdbzUfh0t4rhtRAC05KbZYmxuMPWDAiJ4BbbQ5dkAc/mNypMXkw==}
+  '@atproto/syntax@0.3.2':
+    resolution: {integrity: sha512-JLMhTbXER1Im98RrozfsLAZARGIAzKCZEm+Inh1IF00XU6tHcoGKS+HOw0Uy4R2r04yvxoFs8fswmwAhmMpMdw==}
 
-  '@atproto/xrpc@0.6.7':
-    resolution: {integrity: sha512-pbzZIONIskyGKxxG3s2wB7rQ2W1xu3ycfeYhKwk/E/ippeJFVxcof64iSC7f22+7JSKUJcxBeZ1piBB82vLj7g==}
+  '@atproto/xrpc@0.6.8':
+    resolution: {integrity: sha512-+KW0NcwdFyLziccYimX6tPkORiwwxlJPqlkVL9bJyj8nJ0aB8cyqo9HXkziMI+R6ansB1BuWQ0tfdPlLLwrUcA==}
 
   '@esbuild/aix-ppc64@0.24.2':
     resolution: {integrity: sha512-thpVCb/rhxE/BnMLQ7GReQLLN8q9qbHmI55F4489/ByVg2aQaQ6kbcLb6FHkocZzQhxc4gx0sCk0tJkKBFzDhA==}
@@ -1218,6 +1218,7 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@2.1.0:
@@ -1917,37 +1918,37 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@atproto/api@0.13.32':
+  '@atproto/api@0.13.35':
     dependencies:
-      '@atproto/common-web': 0.3.2
-      '@atproto/lexicon': 0.4.5
-      '@atproto/syntax': 0.3.1
-      '@atproto/xrpc': 0.6.7
+      '@atproto/common-web': 0.4.0
+      '@atproto/lexicon': 0.4.6
+      '@atproto/syntax': 0.3.2
+      '@atproto/xrpc': 0.6.8
       await-lock: 2.2.2
       multiformats: 9.9.0
       tlds: 1.255.0
       zod: 3.24.1
 
-  '@atproto/common-web@0.3.2':
+  '@atproto/common-web@0.4.0':
     dependencies:
       graphemer: 1.4.0
       multiformats: 9.9.0
       uint8arrays: 3.0.0
       zod: 3.24.1
 
-  '@atproto/lexicon@0.4.5':
+  '@atproto/lexicon@0.4.6':
     dependencies:
-      '@atproto/common-web': 0.3.2
-      '@atproto/syntax': 0.3.1
+      '@atproto/common-web': 0.4.0
+      '@atproto/syntax': 0.3.2
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
       zod: 3.24.1
 
-  '@atproto/syntax@0.3.1': {}
+  '@atproto/syntax@0.3.2': {}
 
-  '@atproto/xrpc@0.6.7':
+  '@atproto/xrpc@0.6.8':
     dependencies:
-      '@atproto/lexicon': 0.4.5
+      '@atproto/lexicon': 0.4.6
       zod: 3.24.1
 
   '@esbuild/aix-ppc64@0.24.2':
