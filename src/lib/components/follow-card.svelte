@@ -25,7 +25,7 @@
 			class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
 		>
 			<div class="flex-1">
-				<h3 class="text-lg font-bold text-base-content">
+				<h3 class="text-base-content text-lg font-bold">
 					{follow.displayName || follow.handle}
 				</h3>
 				<p class="text-base-content/70">
@@ -38,13 +38,13 @@
 						@{follow.handle}
 					</a>
 				</p>
-				<p class="mt-1 text-sm text-base-content/70">
+				<p class="text-base-content/70 mt-1 text-sm">
 					Joined {formatDate(follow.createdAt, 'MMM d, yyyy')}
 					({format_relative_time(follow.createdAt)})
 				</p>
 			</div>
 			<div class="flex flex-col gap-1">
-				<p class="font-medium text-base-content/70">
+				<p class="text-base-content/70 font-medium">
 					Last post: <span class="font-bold">
 						{format_relative_time(follow.lastPost)}
 					</span>

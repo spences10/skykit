@@ -5,9 +5,9 @@
 		InformationCircle,
 		Refresh,
 	} from '$lib/icons';
+	import { number_crunch } from '$lib/number-crunch';
 	import { user_store } from '$lib/user-data.svelte';
 	import { get_tooltip_props } from '$lib/utils';
-	import { number_crunch } from '$lib/number-crunch';
 </script>
 
 {#if user_store.data.engagement}
@@ -24,7 +24,7 @@
 			</div>
 		</h3>
 		<dl
-			class="stats stats-vertical w-full shadow sm:stats-horizontal"
+			class="stats stats-vertical sm:stats-horizontal w-full shadow"
 		>
 			<div class="stat">
 				<dt class="stat-figure text-primary">
@@ -32,8 +32,16 @@
 				</dt>
 				<dd class="stat-title">Likes</dd>
 				<dd class="stat-value text-primary">
-					<span {...get_tooltip_props(user_store.data.engagement.avg_likes_per_post)}>
-						{number_crunch(user_store.data.engagement.avg_likes_per_post.toFixed(0))}
+					<span
+						{...get_tooltip_props(
+							user_store.data.engagement.avg_likes_per_post,
+						)}
+					>
+						{number_crunch(
+							user_store.data.engagement.avg_likes_per_post.toFixed(
+								0,
+							),
+						)}
 					</span>
 				</dd>
 				<dd class="stat-desc">
@@ -48,8 +56,16 @@
 				</dt>
 				<dd class="stat-title">Reposts</dd>
 				<dd class="stat-value text-secondary">
-					<span {...get_tooltip_props(user_store.data.engagement.avg_reposts_per_post)}>
-						{number_crunch(user_store.data.engagement.avg_reposts_per_post.toFixed(0))}
+					<span
+						{...get_tooltip_props(
+							user_store.data.engagement.avg_reposts_per_post,
+						)}
+					>
+						{number_crunch(
+							user_store.data.engagement.avg_reposts_per_post.toFixed(
+								0,
+							),
+						)}
 					</span>
 				</dd>
 				<dd class="stat-desc">
@@ -64,8 +80,16 @@
 				</dt>
 				<dd class="stat-title">Replies</dd>
 				<dd class="stat-value text-accent">
-					<span {...get_tooltip_props(user_store.data.engagement.avg_replies_per_post)}>
-						{number_crunch(user_store.data.engagement.avg_replies_per_post.toFixed(0))}
+					<span
+						{...get_tooltip_props(
+							user_store.data.engagement.avg_replies_per_post,
+						)}
+					>
+						{number_crunch(
+							user_store.data.engagement.avg_replies_per_post.toFixed(
+								0,
+							),
+						)}
 					</span>
 				</dd>
 				<dd class="stat-desc">

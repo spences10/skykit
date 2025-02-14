@@ -11,7 +11,7 @@
 <div class="card bg-base-200 shadow-lg">
 	<div class="card-body p-4 sm:p-6">
 		<div
-			class="grid w-full grid-cols-1 gap-4 sm:stats sm:bg-base-100 sm:shadow"
+			class="sm:stats sm:bg-base-100 grid w-full grid-cols-1 gap-4 sm:shadow"
 		>
 			<div class="stat bg-base-100 shadow sm:shadow-none">
 				<div class="stat-title">Cache Performance</div>
@@ -33,7 +33,7 @@
 							<span class="opacity-80">from API</span>
 						</div>
 					</div>
-					<div class="mt-2 text-base-content/70">
+					<div class="text-base-content/70 mt-2">
 						Total Processed: {number_format.format(
 							cache_stats?.total_processed || 0,
 						)}

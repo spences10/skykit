@@ -11,7 +11,7 @@
 </script>
 
 {#if user_store.data.engagement}
-	<article class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card bg-base-100 mb-11 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">
 				Engagement Stats

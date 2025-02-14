@@ -63,7 +63,7 @@
 	</header>
 
 	<section
-		class="card mb-6 bg-base-100 shadow-xl"
+		class="card bg-base-100 mb-6 shadow-xl"
 		aria-label="Inactive follows controls"
 	>
 		<div class="card-body">
@@ -119,13 +119,13 @@
 
 				<!-- Controls Section -->
 				<div
-					class="stats stats-vertical w-full bg-base-200 shadow-sm sm:stats-horizontal"
+					class="stats stats-vertical bg-base-200 sm:stats-horizontal w-full shadow-sm"
 				>
 					<!-- Sort Controls -->
 					<div class="stat">
 						<div class="stat-title">Sort by Last Post</div>
 						<div class="stat-actions mt-2">
-							<div class="join w-full border border-primary">
+							<div class="join border-primary w-full border">
 								<button
 									class="btn join-item flex-1 {sort_direction ===
 									'desc'
@@ -187,7 +187,7 @@
 				<!-- Statistics and Actions -->
 				<div class="mt-4">
 					<div
-						class="stats stats-vertical w-full bg-base-200 shadow-sm sm:stats-horizontal"
+						class="stats stats-vertical bg-base-200 sm:stats-horizontal w-full shadow-sm"
 					>
 						<div class="stat">
 							<div class="stat-title">Inactive Follows Found</div>

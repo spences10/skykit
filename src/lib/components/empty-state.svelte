@@ -6,7 +6,7 @@
 	<div class="card-body p-6 text-center">
 		<div class="flex flex-col items-center gap-4">
 			<div class="text-5xl">🦋</div>
-			<p class="text-lg font-medium text-base-content/80">
+			<p class="text-base-content/80 text-lg font-medium">
 				{text}
 			</p>
 		</div>

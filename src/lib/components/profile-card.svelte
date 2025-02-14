@@ -16,7 +16,7 @@
 </script>
 
 {#if user_store.data?.profile}
-	<article class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card bg-base-100 mb-11 shadow-xl">
 		<figure class="relative h-40 w-full md:h-52">
 			{#if user_store.data.profile.banner}
 				<img
@@ -25,16 +25,16 @@
 					class="h-full w-full object-cover"
 				/>
 			{:else}
-				<div class="h-full w-full bg-base-200"></div>
+				<div class="bg-base-200 h-full w-full"></div>
 			{/if}
 		</figure>
-		<div class="relative px-4 pb-6 pt-4 md:px-8">
+		<div class="relative px-4 pt-4 pb-6 md:px-8">
 			{#if user_store.data.profile.avatar}
 				<div
 					class="avatar absolute -top-12 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0"
 				>
 					<div
-						class="w-20 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 md:w-24"
+						class="ring-primary ring-offset-base-100 w-20 rounded-full ring ring-offset-2 md:w-24"
 					>
 						<img
 							src={user_store.data.profile.avatar}
@@ -43,7 +43,7 @@
 					</div>
 				</div>
 			{/if}
-			<header class="mb-4 mt-10 text-center md:mt-14 md:text-left">
+			<header class="mt-10 mb-4 text-center md:mt-14 md:text-left">
 				<h1
 					class="card-title justify-center text-xl md:justify-start md:text-2xl"
 				>
@@ -58,13 +58,13 @@
 						@{user_store.data.profile.handle}
 					</a>
 				</p>
-				<p class="mt-1 font-mono text-xs text-base-content/40">
+				<p class="text-base-content/40 mt-1 font-mono text-xs">
 					{user_store.data.profile.did}
 				</p>
 			</header>
 
 			<section
-				class="stats stats-vertical mb-4 w-full shadow sm:stats-horizontal"
+				class="stats stats-vertical sm:stats-horizontal mb-4 w-full shadow"
 				aria-label="Profile statistics"
 			>
 				<div class="stat">
@@ -101,7 +101,7 @@
 					aria-label="Profile description"
 				>
 					<div class="divider"></div>
-					<p class="whitespace-pre-line text-base-content/80">
+					<p class="text-base-content/80 whitespace-pre-line">
 						{user_store.data.profile.description}
 					</p>
 				</section>

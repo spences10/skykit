@@ -47,11 +47,11 @@
 <div class="container mx-auto max-w-xl p-4 pt-20">
 	<div class="mb-12 text-center">
 		<h1
-			class="mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-5xl font-extrabold leading-normal text-transparent"
+			class="from-primary to-secondary mb-4 bg-gradient-to-r bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
 		>
 			SkyKit
 		</h1>
-		<p class="text-lg text-base-content/60">
+		<p class="text-base-content/60 text-lg">
 			Check out your Bluesky user stats
 		</p>
 	</div>

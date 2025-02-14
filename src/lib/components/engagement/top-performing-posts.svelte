@@ -49,7 +49,7 @@
 						{(top_posts[0].post.record as any).text}
 					</p>
 					<div class="flex items-center gap-6">
-						<button class="btn btn-ghost btn-sm gap-2 text-primary">
+						<button class="btn btn-ghost btn-sm text-primary gap-2">
 							<Heart class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -59,7 +59,7 @@
 								{number_crunch(top_posts[0].post.likeCount || 0)}
 							</span>
 						</button>
-						<button class="btn btn-ghost btn-sm gap-2 text-secondary">
+						<button class="btn btn-ghost btn-sm text-secondary gap-2">
 							<Refresh class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -69,7 +69,7 @@
 								{number_crunch(top_posts[0].post.repostCount || 0)}
 							</span>
 						</button>
-						<button class="btn btn-ghost btn-sm gap-2 text-accent">
+						<button class="btn btn-ghost btn-sm text-accent gap-2">
 							<Comment class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -83,7 +83,7 @@
 							href={`https://bsky.app/profile/${top_posts[0].post.author.handle}/post/${top_posts[0].post.uri.split('/').pop()}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn btn-ghost btn-sm gap-2 text-info"
+							class="btn btn-ghost btn-sm text-info gap-2"
 						>
 							<LinkOutgoing class_names="h-6 w-6" />
 							<span class="sr-only">View post</span>
@@ -102,7 +102,7 @@
 								</p>
 								<div class="flex items-center gap-6">
 									<button
-										class="btn btn-ghost btn-sm gap-2 text-primary"
+										class="btn btn-ghost btn-sm text-primary gap-2"
 									>
 										<Heart class_names="h-6 w-6" />
 										<span
@@ -112,7 +112,7 @@
 										</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm gap-2 text-secondary"
+										class="btn btn-ghost btn-sm text-secondary gap-2"
 									>
 										<Refresh class_names="h-6 w-6" />
 										<span
@@ -124,7 +124,7 @@
 										</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm gap-2 text-accent"
+										class="btn btn-ghost btn-sm text-accent gap-2"
 									>
 										<Comment class_names="h-6 w-6" />
 										<span
@@ -139,7 +139,7 @@
 										href={`https://bsky.app/profile/${post.post.author.handle}/post/${post.post.uri.split('/').pop()}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="btn btn-ghost btn-sm gap-2 text-info"
+										class="btn btn-ghost btn-sm text-info gap-2"
 									>
 										<LinkOutgoing class_names="h-6 w-6" />
 										<span class="sr-only">View post</span>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import {
 		ContentAnalysis,
 		DataNotice,
@@ -66,7 +66,7 @@
 
 	$effect(() => {
 		if (browser) {
-			visibility_state.load_sections($page.params.handle);
+			visibility_state.load_sections(page.params.handle);
 		}
 	});
 
@@ -131,7 +131,9 @@
 							disabled={analysing}
 						>
 							{#if analysing}
-								<span class="loading loading-spinner" aria-hidden="true"
+								<span
+									class="loading loading-spinner"
+									aria-hidden="true"
 								></span>
 							{/if}
 							{analysing
@@ -144,11 +146,12 @@
 				{#snippet failed(error: unknown, reset: () => void)}
 					<div class="alert alert-error mb-11">
 						<div class="flex w-full justify-between">
-							<span>Failed to analyze posts: {error instanceof Error ? error.message : String(error)}</span>
-							<button 
-								class="btn btn-ghost" 
-								onclick={() => reset()}
+							<span
+								>Failed to analyze posts: {error instanceof Error
+									? error.message
+									: String(error)}</span
 							>
+							<button class="btn btn-ghost" onclick={() => reset()}>
 								Try Again
 							</button>
 						</div>
@@ -201,7 +204,7 @@
 					class="mockup-code mt-2 max-w-full overflow-x-auto"
 					transition:slide={{ duration: 300 }}
 				>
-					<p class="ml-3 mt-2">
+					<p class="mt-2 ml-3">
 						This is all the data that makes up this page.
 					</p>
 					<pre class="overflow-x-auto">

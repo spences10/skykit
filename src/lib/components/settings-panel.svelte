@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Chevron } from '$lib/icons';
 	import { visibility_state } from '$lib/visibility.svelte';
 	import { slide } from 'svelte/transition';
@@ -20,7 +20,7 @@
 
 	// Load settings from localStorage on mount
 	$effect(() => {
-		const handle = $page.params.handle;
+		const handle = page.params.handle;
 		if (browser) {
 			visibility_state.load_sections(handle);
 		}
@@ -28,7 +28,7 @@
 
 	const handle_change = (id: string, event: Event) => {
 		const checked = (event.target as HTMLInputElement).checked;
-		const handle = $page.params.handle;
+		const handle = page.params.handle;
 		const current_sections = visibility_state.sections;
 
 		if (checked && !current_sections.includes(id)) {
@@ -61,7 +61,7 @@
 
 	{#if is_open}
 		<div
-			class="card mt-2 bg-base-200"
+			class="card bg-base-200 mt-2"
 			transition:slide={{ duration: 300 }}
 		>
 			<div class="card-body">

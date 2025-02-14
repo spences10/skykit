@@ -28,7 +28,7 @@
 			</div>
 		</h3>
 		<dl
-			class="stats stats-vertical w-full shadow sm:stats-horizontal"
+			class="stats stats-vertical sm:stats-horizontal w-full shadow"
 		>
 			<div class="stat">
 				<dt class="stat-title">Conversation Starter Rate</dt>

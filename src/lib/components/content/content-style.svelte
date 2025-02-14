@@ -15,7 +15,7 @@
 			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
-	<dl class="stats stats-vertical w-full shadow sm:stats-horizontal">
+	<dl class="stats stats-vertical sm:stats-horizontal w-full shadow">
 		<div class="stat">
 			<dt class="stat-figure text-info">
 				<Image />

@@ -24,7 +24,7 @@
 </script>
 
 {#if user_store.data.network}
-	<article class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card bg-base-100 mb-11 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title mb-4">
 				Network Analysis
@@ -64,7 +64,7 @@
 						/>
 					</div>
 				</h3>
-				<p class="mb-4 text-sm text-base-content/60">
+				<p class="text-base-content/60 mb-4 text-sm">
 					Shows who you interact with most through replies, quotes,
 					and mentions across your posts.
 				</p>
@@ -164,7 +164,7 @@
 											{#each cluster.users.slice(0, is_expanded(cluster.name) ? cluster.users.length : 15) as user}
 												<a
 													href={`https://bsky.app/profile/${user}`}
-													class="badge badge-outline badge-md transition-colors hover:border-primary hover:bg-primary hover:text-primary-content hover:no-underline"
+													class="badge badge-outline badge-md hover:border-primary hover:bg-primary hover:text-primary-content transition-colors hover:no-underline"
 													target="_blank"
 													rel="noopener noreferrer"
 													title={user}
@@ -174,7 +174,7 @@
 											{/each}
 											{#if cluster.users.length > 15}
 												<button
-													class="badge badge-ghost badge-md cursor-pointer transition-colors hover:border-base-300 hover:bg-base-300"
+													class="badge badge-ghost badge-md hover:border-base-300 hover:bg-base-300 cursor-pointer transition-colors"
 													onclick={() => toggle_cluster(cluster.name)}
 													aria-expanded={is_expanded(cluster.name)}
 												>

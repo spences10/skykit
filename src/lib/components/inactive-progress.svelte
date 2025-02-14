@@ -79,7 +79,7 @@
 							progress.total,
 						)}
 					</span>
-					<span class="font-medium text-primary">
+					<span class="text-primary font-medium">
 						{progress_percent}%
 					</span>
 				</div>
@@ -96,7 +96,7 @@
 					<span
 						class="loading loading-spinner loading-md text-primary"
 					></span>
-					<p class="text-lg font-medium text-base-content">
+					<p class="text-base-content text-lg font-medium">
 						{get_stage_description(
 							progress.stage,
 							progress.current_batch_source,
@@ -107,11 +107,11 @@
 
 			<!-- Timing Stats -->
 			<div
-				class="grid w-full grid-cols-1 gap-4 sm:stats sm:grid-cols-3 sm:bg-base-100 sm:shadow"
+				class="sm:stats sm:bg-base-100 grid w-full grid-cols-1 gap-4 sm:grid-cols-3 sm:shadow"
 			>
 				<div class="stat bg-base-100 shadow sm:shadow-none">
 					<div class="stat-title">Time Elapsed</div>
-					<div class="stat-value text-xl text-primary">
+					<div class="stat-value text-primary text-xl">
 						{elapsed_time}
 					</div>
 					<div class="stat-desc">total elapsed time</div>
@@ -120,7 +120,7 @@
 				{#if time_remaining}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Estimated Time</div>
-						<div class="stat-value text-xl text-secondary">
+						<div class="stat-value text-secondary text-xl">
 							{time_remaining}
 						</div>
 						<div class="stat-desc">estimate for this batch</div>
@@ -130,7 +130,7 @@
 				{#if progress.average_time_per_item && !progress.cached}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Processing Speed</div>
-						<div class="stat-value text-xl text-accent">
+						<div class="stat-value text-accent text-xl">
 							{(1 / progress.average_time_per_item).toFixed(1)}
 						</div>
 						<div class="stat-desc">follows per second</div>

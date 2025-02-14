@@ -45,7 +45,7 @@
 	);
 </script>
 
-<article class="card mb-11 bg-base-200 shadow-xl">
+<article class="card bg-base-200 mb-11 shadow-xl">
 	<div class="card-body">
 		<header class="mb-4 flex items-center gap-2">
 			<h2 class="card-title">
@@ -63,7 +63,7 @@
 
 		<section class="mb-6">
 			<dl
-				class="stats stats-vertical w-full shadow lg:stats-horizontal"
+				class="stats stats-vertical lg:stats-horizontal w-full shadow"
 			>
 				<div class="stat">
 					<dt class="stat-title">Analysed Posts</dt>

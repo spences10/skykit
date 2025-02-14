@@ -54,12 +54,15 @@ export function analyse_temporal_patterns(
 	};
 }
 
-function get_date_range(dates: Date[], use_full_range: boolean = false): [Date, Date] {
+function get_date_range(
+	dates: Date[],
+	use_full_range: boolean = false,
+): [Date, Date] {
 	const sorted_dates = dates.sort((a, b) =>
 		differenceInMilliseconds(b, a),
 	);
 	const latest = sorted_dates[0];
-	
+
 	if (use_full_range) {
 		// Use the earliest date from all posts
 		const earliest = sorted_dates[sorted_dates.length - 1];

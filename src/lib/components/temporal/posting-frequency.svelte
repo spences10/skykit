@@ -22,7 +22,7 @@
 			</div>
 		</h3>
 		<dl
-			class="stats stats-vertical w-full shadow md:stats-horizontal"
+			class="stats stats-vertical md:stats-horizontal w-full shadow"
 		>
 			<div class="stat">
 				<dt class="stat-figure text-primary">

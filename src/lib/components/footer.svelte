@@ -5,7 +5,7 @@
 <footer class="py-8">
 	<div class="container mx-auto max-w-4xl px-4">
 		<div
-			class="mt-8 flex flex-col items-center justify-center gap-2 border-t border-base-300 pt-8 text-center text-sm text-base-content/60"
+			class="border-base-300 text-base-content/60 mt-8 flex flex-col items-center justify-center gap-2 border-t pt-8 text-center text-sm"
 		>
 			<p class="flex items-center gap-2">
 				Made with <Heart

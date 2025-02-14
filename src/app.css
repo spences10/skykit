@@ -1,13 +1,33 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss';
 
-html {
-	scroll-behavior: smooth;
-	word-break: break-word;
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		word-break: break-word;
+	}
+
+	::selection {
+		color: var(--color-primary-content);
+		background: var(--color-primary);
+	}
+
+	/* Scrollbar styles using modern syntax */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-secondary) var(--color-primary) !important;
+	}
+
+	::-webkit-scrollbar-track {
+		background: var(--color-primary) !important;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: var(--color-secondary) !important;
+	}
 }
 
-::selection {
-	color: oklch(var(--pc));
-	background: oklch(var(--p));
+/* Plugin configurations */
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+	themes: all;
 }

@@ -17,14 +17,14 @@
 				/>
 			</div>
 		</h3>
-		<p class="mb-4 text-sm text-base-content/60">
+		<p class="text-base-content/60 mb-4 text-sm">
 			Showing your top 3 most active days and their busiest posting
 			hours
 		</p>
 		<div class="join join-vertical w-full">
 			{#each group_by_day(user_store.data.temporal.peak_activity_windows) as [day, times]}
 				<div
-					class="collapse join-item collapse-arrow border border-base-200"
+					class="join-item collapse-arrow border-base-200 collapse border"
 				>
 					<input type="checkbox" name="peak-activity-windows" />
 					<div class="collapse-title text-sm font-medium">

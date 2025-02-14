@@ -23,7 +23,7 @@
 </script>
 
 {#if user_store.data.temporal}
-	<article class="card mb-11 bg-base-100 shadow-xl">
+	<article class="card bg-base-100 mb-11 shadow-xl">
 		<div class="card-body">
 			<header class="mb-4 flex items-center gap-2">
 				<h2 class="card-title">
@@ -50,7 +50,7 @@
 					</div>
 				{/if}
 
-				<div class="ml-auto text-sm text-base-content/60">
+				<div class="text-base-content/60 ml-auto text-sm">
 					Times shown in {user_store.data.temporal.timezone}
 				</div>
 			</header>
