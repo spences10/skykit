@@ -13,8 +13,8 @@ importers:
         version: 0.14.0
     devDependencies:
       '@atproto/api':
-        specifier: ^0.13.32
-        version: 0.13.35
+        specifier: ^0.14.0
+        version: 0.14.1
       '@eslint/compat':
         specifier: ^1.2.5
         version: 1.2.6(eslint@9.20.1(jiti@2.4.2))
@@ -115,8 +115,8 @@ packages:
   '@asamuzakjp/css-color@2.8.3':
     resolution: {integrity: sha512-GIc76d9UI1hCvOATjZPyHFmE5qhRccp3/zGfMPapK3jBi+yocEzp6BBB0UnfRYP9NP4FANqUZYb0hnfs3TM3hw==}
 
-  '@atproto/api@0.13.35':
-    resolution: {integrity: sha512-vsEfBj0C333TLjDppvTdTE0IdKlXuljKSveAeI4PPx/l6eUKNnDTsYxvILtXUVzwUlTDmSRqy5O4Ryh78n1b7g==}
+  '@atproto/api@0.14.1':
+    resolution: {integrity: sha512-e7QB39RgbMY6VxoLLVtQUzzgJeFBLNx1WulkVWFqduUDrxHdD8GDDOPZWmVZrwXcqhU57tfrEwzxPFRcsJJHuQ==}
 
   '@atproto/common-web@0.4.0':
     resolution: {integrity: sha512-ZYL0P9myHybNgwh/hBY0HaBzqiLR1B5/ie5bJpLQAg0whRzNA28t8/nU2vh99tbsWcAF0LOD29M8++LyENJLNQ==}
@@ -2095,7 +2095,7 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
 
-  '@atproto/api@0.13.35':
+  '@atproto/api@0.14.1':
     dependencies:
       '@atproto/common-web': 0.4.0
       '@atproto/lexicon': 0.4.7
