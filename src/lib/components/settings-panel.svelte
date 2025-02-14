@@ -45,7 +45,7 @@
 	};
 </script>
 
-<div class="mb-6">
+<fieldset class="mb-6">
 	<button
 		class="btn btn-ghost btn-sm gap-2"
 		onclick={() => (is_open = !is_open)}
@@ -60,16 +60,16 @@
 	</button>
 
 	{#if is_open}
-		<div
+		<fieldset
 			class="card bg-base-200 mt-2"
 			transition:slide={{ duration: 300 }}
 		>
-			<div class="card-body">
+			<fieldset class="card-body">
 				<h3 class="card-title text-sm">Visible Sections</h3>
-				<div class="form-control">
+				<fieldset>
 					{#each sections as { id, label }}
-						<label class="label cursor-pointer">
-							<span class="label-text">{label}</span>
+						<label class="cursor-pointer">
+							<span class="label-text mr-2">{label}</span>
 							<input
 								type="checkbox"
 								class="checkbox"
@@ -78,13 +78,13 @@
 							/>
 						</label>
 					{/each}
-				</div>
+				</fieldset>
 
 				<div class="divider"></div>
 
 				<h3 class="card-title text-sm">Theme</h3>
 				<ThemeSelect />
-			</div>
-		</div>
+			</fieldset>
+		</fieldset>
 	{/if}
-</div>
+</fieldset>

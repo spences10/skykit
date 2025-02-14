@@ -69,7 +69,7 @@
 			>
 				<div class="stat">
 					<div class="stat-title">Followers</div>
-					<div class="stat-value">
+					<div class="stat-value text-primary">
 						<span {...get_tooltip_props(followers_count)}>
 							{number_crunch(followers_count)}
 						</span>
@@ -78,7 +78,7 @@
 
 				<div class="stat">
 					<div class="stat-title">Following</div>
-					<div class="stat-value">
+					<div class="stat-value text-primary">
 						<span {...get_tooltip_props(follows_count)}>
 							{number_crunch(follows_count)}
 						</span>
@@ -87,7 +87,7 @@
 
 				<div class="stat">
 					<div class="stat-title">Posts</div>
-					<div class="stat-value">
+					<div class="stat-value text-primary">
 						<span {...get_tooltip_props(posts_count)}>
 							{number_crunch(posts_count)}
 						</span>

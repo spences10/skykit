@@ -125,9 +125,11 @@
 					<div class="stat">
 						<div class="stat-title">Sort by Last Post</div>
 						<div class="stat-actions mt-2">
-							<div class="join border-primary w-full border">
+							<div
+								class="join border-primary rounded-box w-full border "
+							>
 								<button
-									class="btn join-item flex-1 {sort_direction ===
+									class="btn join-item rounded-l-box flex-1 {sort_direction ===
 									'desc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
@@ -138,7 +140,7 @@
 									Newest First
 								</button>
 								<button
-									class="btn join-item flex-1 {sort_direction ===
+									class="btn join-item rounded-r-box flex-1 {sort_direction ===
 									'asc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
