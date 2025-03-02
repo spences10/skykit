@@ -23,13 +23,13 @@ importers:
         version: 9.21.0
       '@fontsource-variable/manrope':
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.2.5
       '@fontsource-variable/playpen-sans':
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.2.5
       '@fontsource-variable/victor-mono':
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.2.5
       '@playwright/test':
         specifier: ^1.50.1
         version: 1.50.1
@@ -372,14 +372,14 @@ packages:
     resolution: {integrity: sha512-JubJ5B2pJ4k4yGxaNLdbjrnk9d/iDz6/q8wOilpIowd6PJPgaxCuHBnBszq7Ce2TyMrywm5r4PnKm6V3iiZF+g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fontsource-variable/manrope@5.1.1':
-    resolution: {integrity: sha512-bJTED5u+nlztikeRJwCgK3ij3qMVsivP4xTxpcrfQ15crvZuW9hjM5f61CgYF3ryL0rJwkjzOpZjB4CwL/pnBw==}
+  '@fontsource-variable/manrope@5.2.5':
+    resolution: {integrity: sha512-6Mo3ldtgAhxvSSyy+bLbFRjkiYhVo6RLcasJfj9Du5k2nX16/RwjQdBbZJfvsofVt6GqQ+O6AVkazmS3Xw5R9A==}
 
-  '@fontsource-variable/playpen-sans@5.1.1':
-    resolution: {integrity: sha512-uM0JuMDXHuZpu9HZt/VPDEfZKfsrE2qvnfsIiAyCFZ9AKmd93O56PRF2VzWc3si/ly4Yn+3p+mk1VKd3jrWMNA==}
+  '@fontsource-variable/playpen-sans@5.2.5':
+    resolution: {integrity: sha512-eOzr8Md3BUI/pwMzBnljhOhSFs4PC4KVCmEDpE+izPwmtY5/LkJJPX4D3jChltFZJ+Er6BGKMavxn3qoKOuJMQ==}
 
-  '@fontsource-variable/victor-mono@5.1.1':
-    resolution: {integrity: sha512-zqmK0OMc10EqSoMtMwkdn6hXiXPHt+3zNMZ3U4Bj11S9gbX36AdcZ5ZkyLjc43R4+1k7SbhnIrEjuMtV2Jm5jA==}
+  '@fontsource-variable/victor-mono@5.2.5':
+    resolution: {integrity: sha512-o8PBOBGGtPDNRheUXEDuGpblkTHUefKda45k+5rH3HOaUhDVrorXQhnEfKsCeVN9g338HXAU3T5dpw2zR0h+nw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2296,11 +2296,11 @@ snapshots:
       '@eslint/core': 0.12.0
       levn: 0.4.1
 
-  '@fontsource-variable/manrope@5.1.1': {}
+  '@fontsource-variable/manrope@5.2.5': {}
 
-  '@fontsource-variable/playpen-sans@5.1.1': {}
+  '@fontsource-variable/playpen-sans@5.2.5': {}
 
-  '@fontsource-variable/victor-mono@5.1.1': {}
+  '@fontsource-variable/victor-mono@5.2.5': {}
 
   '@humanfs/core@0.19.1': {}
 
