@@ -14,7 +14,7 @@ importers:
     devDependencies:
       '@atproto/api':
         specifier: ^0.14.12
-        version: 0.14.12
+        version: 0.14.16
       '@eslint/compat':
         specifier: ^1.2.7
         version: 1.2.7(eslint@9.23.0(jiti@2.4.2))
@@ -124,8 +124,8 @@ packages:
   '@asamuzakjp/css-color@2.8.3':
     resolution: {integrity: sha512-GIc76d9UI1hCvOATjZPyHFmE5qhRccp3/zGfMPapK3jBi+yocEzp6BBB0UnfRYP9NP4FANqUZYb0hnfs3TM3hw==}
 
-  '@atproto/api@0.14.12':
-    resolution: {integrity: sha512-EWz/9HotYzAz+woeNWvtt6o4ocGwF0HDHr2h2xxGaXAjSR7+tFOsr37/uBjzob3BrLBBwV81iTWNCbW/1tJAgg==}
+  '@atproto/api@0.14.16':
+    resolution: {integrity: sha512-xzUK3KVdp1TDJJ09Di2rvS/fisVctvMHO7Er0XhYviL3V4lxGQPNT3pHwbTbbb22QP7xH/d5ghCgfdIoS5Z8/A==}
 
   '@atproto/common-web@0.4.0':
     resolution: {integrity: sha512-ZYL0P9myHybNgwh/hBY0HaBzqiLR1B5/ie5bJpLQAg0whRzNA28t8/nU2vh99tbsWcAF0LOD29M8++LyENJLNQ==}
@@ -1871,8 +1871,8 @@ packages:
     resolution: {integrity: sha512-n1cw8k1k0x4pgA2+9XrOkFydTerNcJ1zWCO5Nn9scWHTD+5tp8dghT2x1uduQePZTZgd3Tupf+x9BxJjeJi77Q==}
     engines: {node: '>=14.0.0'}
 
-  tlds@1.255.0:
-    resolution: {integrity: sha512-tcwMRIioTcF/FcxLev8MJWxCp+GUALRhFEqbDoZrnowmKSGqPrl5pqS+Sut2m8BgJ6S4FExCSSpGffZ0Tks6Aw==}
+  tlds@1.256.0:
+    resolution: {integrity: sha512-ZmyVB9DAw+FFTmLElGYJgdZFsKLYd/I59Bg9NHkCGPwAbVZNRilFWDMAdX8UG+bHuv7kfursd5XGqo/9wi26lA==}
     hasBin: true
 
   tldts-core@6.1.77:
@@ -2101,7 +2101,7 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
 
-  '@atproto/api@0.14.12':
+  '@atproto/api@0.14.16':
     dependencies:
       '@atproto/common-web': 0.4.0
       '@atproto/lexicon': 0.4.9
@@ -2109,7 +2109,7 @@ snapshots:
       '@atproto/xrpc': 0.6.11
       await-lock: 2.2.2
       multiformats: 9.9.0
-      tlds: 1.255.0
+      tlds: 1.256.0
       zod: 3.24.2
 
   '@atproto/common-web@0.4.0':
@@ -3682,7 +3682,7 @@ snapshots:
 
   tinyspy@3.0.2: {}
 
-  tlds@1.255.0: {}
+  tlds@1.256.0: {}
 
   tldts-core@6.1.77: {}
 
