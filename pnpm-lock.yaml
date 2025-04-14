@@ -35,10 +35,10 @@ importers:
         version: 1.51.1
       '@sveltejs/adapter-node':
         specifier: ^5.2.12
-        version: 5.2.12(@sveltejs/kit@2.20.4(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))
+        version: 5.2.12(@sveltejs/kit@2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))
       '@sveltejs/kit':
         specifier: ^2.20.4
-        version: 2.20.4(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
+        version: 2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
       '@sveltejs/vite-plugin-svelte':
         specifier: ^5.0.3
         version: 5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
@@ -494,8 +494,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@polka/url@1.0.0-next.28':
-    resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
+  '@polka/url@1.0.0-next.29':
+    resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
   '@rollup/plugin-commonjs@28.0.2':
     resolution: {integrity: sha512-BEFI2EDqzl+vA1rl97IDRZ61AIwGH093d9nz8+dThxJNH8oSoB7MjWvPCX3dkaK1/RCJ/1v/R1XB15FuSs0fQw==}
@@ -638,8 +638,8 @@ packages:
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
-  '@sveltejs/kit@2.20.4':
-    resolution: {integrity: sha512-B3Y1mb1Qjt57zXLVch5tfqsK/ebHe6uYTcFSnGFNwRpId3+fplLgQK6Z2zhDVBezSsPuhDq6Pry+9PA88ocN6Q==}
+  '@sveltejs/kit@2.20.7':
+    resolution: {integrity: sha512-dVbLMubpJJSLI4OYB+yWYNHGAhgc2bVevWuBjDj8jFUXIJOAnLwYP3vsmtcgoxNGUXoq0rHS5f7MFCsryb6nzg==}
     engines: {node: '>=18.13'}
     hasBin: true
     peerDependencies:
@@ -1514,8 +1514,8 @@ packages:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
 
-  mrmime@2.0.0:
-    resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
+  mrmime@2.0.1:
+    resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
     engines: {node: '>=10'}
 
   ms@2.1.3:
@@ -1789,8 +1789,8 @@ packages:
   siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
 
-  sirv@3.0.0:
-    resolution: {integrity: sha512-BPwJGUeDaDCHihkORDchNyyTvWFhcusy1XMmhEVTQTwGeybFbp8YEmB+njbPnth1FibULBSBVwCQni25XlCUDg==}
+  sirv@3.0.1:
+    resolution: {integrity: sha512-FoqMu0NCGBLCcAkS1qA+XJIQTR6/JHfQXl+uGteNCQ76T91DMUjPa9xfmeqMY3z80nLSg9yQmNjK0Px6RWsH/A==}
     engines: {node: '>=18'}
 
   source-map-js@1.2.1:
@@ -2396,7 +2396,7 @@ snapshots:
     dependencies:
       playwright: 1.51.1
 
-  '@polka/url@1.0.0-next.28': {}
+  '@polka/url@1.0.0-next.29': {}
 
   '@rollup/plugin-commonjs@28.0.2(rollup@4.34.7)':
     dependencies:
@@ -2495,15 +2495,15 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
-  '@sveltejs/adapter-node@5.2.12(@sveltejs/kit@2.20.4(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))':
+  '@sveltejs/adapter-node@5.2.12(@sveltejs/kit@2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))':
     dependencies:
       '@rollup/plugin-commonjs': 28.0.2(rollup@4.34.7)
       '@rollup/plugin-json': 6.1.0(rollup@4.34.7)
       '@rollup/plugin-node-resolve': 16.0.0(rollup@4.34.7)
-      '@sveltejs/kit': 2.20.4(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
+      '@sveltejs/kit': 2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
       rollup: 4.34.7
 
-  '@sveltejs/kit@2.20.4(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))':
+  '@sveltejs/kit@2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)))(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 5.0.3(svelte@5.26.2)(vite@6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))
       '@types/cookie': 0.6.0
@@ -2513,10 +2513,10 @@ snapshots:
       import-meta-resolve: 4.1.0
       kleur: 4.1.5
       magic-string: 0.30.17
-      mrmime: 2.0.0
+      mrmime: 2.0.1
       sade: 1.8.1
       set-cookie-parser: 2.7.1
-      sirv: 3.0.0
+      sirv: 3.0.1
       svelte: 5.26.2
       vite: 6.2.5(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2)
 
@@ -3394,7 +3394,7 @@ snapshots:
 
   mri@1.2.0: {}
 
-  mrmime@2.0.0: {}
+  mrmime@2.0.1: {}
 
   ms@2.1.3: {}
 
@@ -3595,10 +3595,10 @@ snapshots:
 
   siginfo@2.0.0: {}
 
-  sirv@3.0.0:
+  sirv@3.0.1:
     dependencies:
-      '@polka/url': 1.0.0-next.28
-      mrmime: 2.0.0
+      '@polka/url': 1.0.0-next.29
+      mrmime: 2.0.1
       totalist: 3.0.1
 
   source-map-js@1.2.1: {}
