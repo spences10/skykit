@@ -1,10 +1,7 @@
 import { rate_limiter } from '$lib/rate-limiter';
 import type { InactiveFollow } from '$lib/types';
 import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
-import {
-	differenceInCalendarDays,
-	differenceInHours,
-} from 'date-fns';
+import { differenceInHours } from 'date-fns';
 import { batch_check_follows_back } from '../api';
 import { handle_rate_limit_error } from '../api/rate-limit-handler';
 import { get_cached_accounts_by_did } from '../db/account-cache';
