@@ -55,8 +55,8 @@ importers:
         specifier: ^5.2.7
         version: 5.2.7(svelte@5.28.2)(vite@6.3.3(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.2))(vitest@3.1.2(@types/node@22.13.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.29.2))
       daisyui:
-        specifier: 5.0.28
-        version: 5.0.28
+        specifier: 5.0.35
+        version: 5.0.35
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -1106,8 +1106,8 @@ packages:
     resolution: {integrity: sha512-9+vem03dMXG7gDmZ62uqmRiMRNtinIZ9ZyuF6BdxzfOD+FdN5hretzynkn0ReS2DO2GSw76RWHs0UmJPI2zUjw==}
     engines: {node: '>=18'}
 
-  daisyui@5.0.28:
-    resolution: {integrity: sha512-H082p8Lg3c7Se9wTbjfSOOhfUbp3BnOM2+cdr3OeY5G1Ll7GYLXB9NWLHgitkTsB1pQKwHRYYchqN2YG0VVShg==}
+  daisyui@5.0.35:
+    resolution: {integrity: sha512-AWi11n/x5++mps55jcwrBf0Lmip1euWY0FYcH/05SFGmoqrU7S7/aIUWaiaeqlJ5EcmEZ/7zEY73aOxMv6hcIg==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -1485,6 +1485,7 @@ packages:
 
   libsql@0.5.7:
     resolution: {integrity: sha512-YbWW3YsGZl6PrBRNAtUVuMLqKRqYcYPa/QqhQCuR67SlcOHIhJ11ksTLAHxXkDRJs6kSrzr9JgGJGJQ91e1Bww==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.29.2:
@@ -3056,7 +3057,7 @@ snapshots:
       '@asamuzakjp/css-color': 2.8.3
       rrweb-cssom: 0.8.0
 
-  daisyui@5.0.28: {}
+  daisyui@5.0.35: {}
 
   data-uri-to-buffer@4.0.1: {}
 
