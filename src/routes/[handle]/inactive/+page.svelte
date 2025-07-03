@@ -96,18 +96,16 @@
 					<div>
 						<h3 class="text-lg font-bold">Too Many Follows!</h3>
 						<p class="text-sm">
-							This account follows <strong
-								>{follows_count.toLocaleString()}</strong
-							>
-							people, which exceeds our server limit of
-							<strong
-								>{MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}</strong
-							>.
+							This account follows <strong>
+								{follows_count.toLocaleString()}
+							</strong>
+							people, which exceeds the server limit of
+							<strong>
+								{MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}
+							</strong>.
 						</p>
 						<p class="mt-2 text-sm">
-							🚀💥 This is a free service - please don't try to crash
-							our servers! Consider unfollowing some accounts first if
-							you really need this analysis.
+							🚀💥 This is a free service - please don't abuse it.
 						</p>
 					</div>
 				</div>

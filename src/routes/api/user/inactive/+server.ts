@@ -21,7 +21,7 @@ export async function GET({ url }) {
 	if (total_follows > MAX_INACTIVE_FOLLOWS_LIMIT) {
 		return Response.json(
 			{
-				error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}. This is a free service - please don't try to crash our servers! 🚀💥`,
+				error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}. This is a free service - please don't abuse it! 🚀💥`,
 				followsCount: total_follows,
 				limit: MAX_INACTIVE_FOLLOWS_LIMIT,
 			},
