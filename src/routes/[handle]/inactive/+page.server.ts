@@ -69,7 +69,20 @@ export const actions = {
 			);
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch inactive follows');
+				// Try to parse error response
+				try {
+					const error_data = await response.json();
+					return {
+						success: false,
+						error:
+							error_data.error || 'Failed to fetch inactive follows',
+					} satisfies ActionError;
+				} catch {
+					return {
+						success: false,
+						error: 'Failed to fetch inactive follows',
+					} satisfies ActionError;
+				}
 			}
 
 			const data = await response.json();

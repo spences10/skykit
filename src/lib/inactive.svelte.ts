@@ -122,6 +122,10 @@ export function create_inactive_state() {
 						cache_stats = data.cache_stats;
 						eventSource.close();
 						loading = false;
+					} else if (data.type === 'error') {
+						error = data.error;
+						eventSource.close();
+						loading = false;
 					}
 				} catch (e) {
 					console.error('Failed to parse event:', e);

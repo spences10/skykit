@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { InactiveFollows } from '$lib/components';
+	import { MAX_INACTIVE_FOLLOWS_LIMIT } from '$lib/constants';
 	import { inactive_state } from '$lib/inactive.svelte';
 	import type { PageData } from './$types';
 
@@ -13,7 +14,16 @@
 	let days_threshold = $derived(inactive_state.days_threshold);
 	let sort_direction = $derived(inactive_state.sort_direction);
 
+	// Check if the user follows too many people
+	const follows_count = $derived(data.profile?.followsCount || 0);
+	const exceeds_limit = $derived(
+		follows_count > MAX_INACTIVE_FOLLOWS_LIMIT,
+	);
+
 	const handle_form_submit = async () => {
+		if (exceeds_limit) {
+			return; // Don't submit if limit is exceeded
+		}
 		await inactive_state.fetch_inactive_follows(
 			data.profile.handle,
 			days_threshold,
@@ -67,6 +77,42 @@
 		aria-label="Inactive follows controls"
 	>
 		<div class="card-body">
+			{#if exceeds_limit}
+				<!-- Warning message when limit is exceeded -->
+				<div class="alert alert-warning mb-4" role="alert">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6 shrink-0 stroke-current"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"
+						/>
+					</svg>
+					<div>
+						<h3 class="text-lg font-bold">Too Many Follows!</h3>
+						<p class="text-sm">
+							This account follows <strong
+								>{follows_count.toLocaleString()}</strong
+							>
+							people, which exceeds our server limit of
+							<strong
+								>{MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}</strong
+							>.
+						</p>
+						<p class="mt-2 text-sm">
+							🚀💥 This is a free service - please don't try to crash
+							our servers! Consider unfollowing some accounts first if
+							you really need this analysis.
+						</p>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Search Form -->
 			<form
 				method="POST"
@@ -76,7 +122,9 @@
 					handle_form_submit();
 				}}
 				aria-label="Inactive follows search form"
-				class="flex flex-col gap-4 sm:flex-row"
+				class="flex flex-col gap-4 sm:flex-row {exceeds_limit
+					? 'opacity-50'
+					: ''}"
 			>
 				<div class="form-control">
 					<label class="label" for="days">
@@ -94,6 +142,7 @@
 							max="365"
 							class="input join-item input-bordered w-full sm:w-24"
 							aria-label="Days threshold"
+							disabled={exceeds_limit}
 						/>
 						<span class="btn join-item btn-neutral no-animation">
 							days
@@ -103,7 +152,7 @@
 				<button
 					type="submit"
 					class="btn btn-primary w-full self-end sm:ml-auto sm:w-auto"
-					disabled={loading}
+					disabled={loading || exceeds_limit}
 					aria-busy={loading}
 				>
 					{#if loading}
@@ -126,7 +175,7 @@
 						<div class="stat-title">Sort by Last Post</div>
 						<div class="stat-actions mt-2">
 							<div
-								class="join border-primary rounded-box w-full border "
+								class="join border-primary rounded-box w-full border"
 							>
 								<button
 									class="btn join-item rounded-l-box flex-1 {sort_direction ===

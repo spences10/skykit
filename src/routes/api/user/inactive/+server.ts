@@ -1,3 +1,4 @@
+import { MAX_INACTIVE_FOLLOWS_LIMIT } from '$lib/constants';
 import { agent, get_profile } from '$lib/server/api';
 import { filter_inactive_follows } from '$lib/server/data-processor';
 import { error } from '@sveltejs/kit';
@@ -13,15 +14,27 @@ export async function GET({ url }) {
 		throw error(400, 'Missing handle parameter');
 	}
 
+	// Check the user's follow count before processing
+	const profile = await get_profile(handle);
+	const total_follows = profile.data.followsCount || 0;
+
+	if (total_follows > MAX_INACTIVE_FOLLOWS_LIMIT) {
+		return Response.json(
+			{
+				error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}. This is a free service - please don't try to crash our servers! 🚀💥`,
+				followsCount: total_follows,
+				limit: MAX_INACTIVE_FOLLOWS_LIMIT,
+			},
+			{ status: 400 },
+		);
+	}
+
 	if (stream) {
 		return create_stream_response(handle, days);
 	}
 
 	// Non-streaming response
 	try {
-		const profile = await get_profile(handle);
-		const total_follows = profile.data.followsCount || 0;
-
 		const { results: all_follows, cache_stats } =
 			await get_all_follows(agent, profile.data.did, total_follows);
 
