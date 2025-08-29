@@ -14,7 +14,7 @@ importers:
     devDependencies:
       '@atproto/api':
         specifier: ^0.16.0
-        version: 0.16.5
+        version: 0.16.6
       '@eslint/compat':
         specifier: ^1.3.2
         version: 1.3.2(eslint@9.34.0(jiti@2.5.1))
@@ -120,20 +120,20 @@ packages:
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
 
-  '@atproto/api@0.16.5':
-    resolution: {integrity: sha512-CjBhpLsCK8iRpj1Pd8ODKpFEuTQMr0po/W6mME2gnCYxmOElyyWn3j+vE2HhOuWQjpHZ/OZmWnIxp5kXR1Au1w==}
+  '@atproto/api@0.16.6':
+    resolution: {integrity: sha512-/ZDWeHNAMmQFicyITAoGCxQujDU+wyzsWjpPnQfVa+ZKMfZEngipMFOr4fBwxHixEFLmuh58+5vJyylAFVrQ4g==}
 
   '@atproto/common-web@0.4.2':
     resolution: {integrity: sha512-vrXwGNoFGogodjQvJDxAeP3QbGtawgZute2ed1XdRO0wMixLk3qewtikZm06H259QDJVu6voKC5mubml+WgQUw==}
 
-  '@atproto/lexicon@0.4.14':
-    resolution: {integrity: sha512-jiKpmH1QER3Gvc7JVY5brwrfo+etFoe57tKPQX/SmPwjvUsFnJAow5xLIryuBaJgFAhnTZViXKs41t//pahGHQ==}
+  '@atproto/lexicon@0.5.0':
+    resolution: {integrity: sha512-3aAzEAy9EAPs3CxznzMhEcqDd7m3vz1eze/ya9/ThbB7yleqJIhz5GY2q76tCCwHPhn5qDDMhlA9kKV6fG23gA==}
 
-  '@atproto/syntax@0.4.0':
-    resolution: {integrity: sha512-b9y5ceHS8YKOfP3mdKmwAx5yVj9294UN7FG2XzP6V5aKUdFazEYRnR9m5n5ZQFKa3GNvz7de9guZCJ/sUTcOAA==}
+  '@atproto/syntax@0.4.1':
+    resolution: {integrity: sha512-CJdImtLAiFO+0z3BWTtxwk6aY5w4t8orHTMVJgkf++QRJWTxPbIFko/0hrkADB7n2EruDxDSeAgfUGehpH6ngw==}
 
-  '@atproto/xrpc@0.7.3':
-    resolution: {integrity: sha512-JaJbZ4ymIJzOakR3B/B+6NyppW3oQWn06OtQq03LqVsu93Afpc8VkNtPN3QnhQcD/yYSYCu73lLsDM/ErJEk7Q==}
+  '@atproto/xrpc@0.7.4':
+    resolution: {integrity: sha512-sDi68+QE1XHegTaNAndlX41Gp827pouSzSs8CyAwhrqZdsJUxE3P7TMtrA0z+zAjvxVyvzscRc0TsN/fGUGrhw==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -2156,12 +2156,12 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@atproto/api@0.16.5':
+  '@atproto/api@0.16.6':
     dependencies:
       '@atproto/common-web': 0.4.2
-      '@atproto/lexicon': 0.4.14
-      '@atproto/syntax': 0.4.0
-      '@atproto/xrpc': 0.7.3
+      '@atproto/lexicon': 0.5.0
+      '@atproto/syntax': 0.4.1
+      '@atproto/xrpc': 0.7.4
       await-lock: 2.2.2
       multiformats: 9.9.0
       tlds: 1.260.0
@@ -2174,19 +2174,19 @@ snapshots:
       uint8arrays: 3.0.0
       zod: 3.25.76
 
-  '@atproto/lexicon@0.4.14':
+  '@atproto/lexicon@0.5.0':
     dependencies:
       '@atproto/common-web': 0.4.2
-      '@atproto/syntax': 0.4.0
+      '@atproto/syntax': 0.4.1
       iso-datestring-validator: 2.2.2
       multiformats: 9.9.0
       zod: 3.25.76
 
-  '@atproto/syntax@0.4.0': {}
+  '@atproto/syntax@0.4.1': {}
 
-  '@atproto/xrpc@0.7.3':
+  '@atproto/xrpc@0.7.4':
     dependencies:
-      '@atproto/lexicon': 0.4.14
+      '@atproto/lexicon': 0.5.0
       zod: 3.25.76
 
   '@babel/code-frame@7.27.1':
