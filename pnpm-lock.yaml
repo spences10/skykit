@@ -26,7 +26,7 @@ importers:
         version: 5.2.8
       '@fontsource-variable/playpen-sans':
         specifier: ^5.2.8
-        version: 5.2.8
+        version: 5.2.9
       '@fontsource-variable/victor-mono':
         specifier: ^5.2.8
         version: 5.2.8
@@ -379,8 +379,8 @@ packages:
   '@fontsource-variable/manrope@5.2.8':
     resolution: {integrity: sha512-nc9lOuCRz73UHnovDE2bwXUdghE2SEOc7Aii0qGe3CLyE03W1a7VnY5Z6euRiapiKbCkGS+eXbY3s/kvWeGeSw==}
 
-  '@fontsource-variable/playpen-sans@5.2.8':
-    resolution: {integrity: sha512-mBL2fB702WPDeuWfTiy00XY8xifxdbX87DFevbN6E4w+DlrMM5Aj+mguixPfE8lGUR838xj7GaRlOPe8hbFCLg==}
+  '@fontsource-variable/playpen-sans@5.2.9':
+    resolution: {integrity: sha512-MET5qmJ9izZUhS5eQICWmofUDc8Muuf7sXLqN0NxSpdrpVfKaP6DY/dOeVBLqU6D6lyMh9KRuDEQ4UfpszN+ig==}
 
   '@fontsource-variable/victor-mono@5.2.8':
     resolution: {integrity: sha512-1j2AWMs4QhTbAdMcd5tyiVa/DZfT2Xk4DG4P2MmRDudYlo9o3hlWECrgk5sB9dAzXHYjimqb3E/VQFy7NR4p3w==}
@@ -1423,6 +1423,7 @@ packages:
 
   libsql@0.5.15:
     resolution: {integrity: sha512-N1ZhjpTadoxDW8UNssgJyZz+cAX/gi9OxOFHapH8AY6p7Qk/6umTC5UwQ+6bPnACDcxqbzhRlbLO+Mk60owFRA==}
+    cpu: [x64, arm64, wasm32, arm]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.30.1:
@@ -2353,7 +2354,7 @@ snapshots:
 
   '@fontsource-variable/manrope@5.2.8': {}
 
-  '@fontsource-variable/playpen-sans@5.2.8': {}
+  '@fontsource-variable/playpen-sans@5.2.9': {}
 
   '@fontsource-variable/victor-mono@5.2.8': {}
 
