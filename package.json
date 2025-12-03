@@ -19,7 +19,7 @@
 	},
 	"devDependencies": {
 		"@atproto/api": "^0.18.0",
-		"@eslint/compat": "^1.4.1",
+		"@eslint/compat": "^2.0.0",
 		"@eslint/js": "^9.39.1",
 		"@fontsource-variable/manrope": "^5.2.8",
 		"@fontsource-variable/playpen-sans": "^5.2.9",
