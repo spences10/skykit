@@ -1,10 +1,11 @@
-import { generate_insights } from '$lib/bsky/insights';
-import { Cache } from '$lib/cache';
-import { rate_limiter } from '$lib/rate-limiter';
-import type { BskyProfile } from '$lib/types';
+import { generate_insights } from '#lib/bsky/insights.js';
+import { Cache } from '#lib/cache.js';
+import { rate_limiter } from '#lib/rate-limiter.js';
+import type { BskyProfile } from '#lib/types.js';
 import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
 const PUBLIC_API = 'https://public.api.bsky.app';
 const agent = new AtpAgent({ service: PUBLIC_API });
@@ -53,7 +54,7 @@ async function get_all_posts(
 	return all_posts;
 }
 
-export const GET = async ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
 	const full_analysis =
 		url.searchParams.get('full_analysis') === 'true';

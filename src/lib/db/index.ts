@@ -1,4 +1,4 @@
-export type { CachedAccount } from '$lib/types';
+export type { CachedAccount } from '#lib/types.js';
 export {
 	cache_account_activity,
 	get_cached_accounts_by_handles,

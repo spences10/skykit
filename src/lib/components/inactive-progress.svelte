@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { inactive_state } from '$lib/inactive.svelte';
-	import type { ProcessingStage } from '$lib/types';
+	import { inactive_state } from '#lib/inactive.svelte.js';
+	import type { ProcessingStage } from '#lib/types.js';
 	import {
 		addSeconds,
 		formatDuration,
@@ -79,12 +79,12 @@
 							progress.total,
 						)}
 					</span>
-					<span class="text-primary font-medium">
+					<span class="font-medium text-primary">
 						{progress_percent}%
 					</span>
 				</div>
 				<progress
-					class="progress progress-primary w-full"
+					class="progress w-full progress-primary"
 					value={progress_percent}
 					max="100"
 				></progress>
@@ -94,9 +94,9 @@
 			<div class="text-center">
 				<div class="mb-3 flex items-center justify-center gap-3">
 					<span
-						class="loading loading-spinner loading-md text-primary"
+						class="loading loading-md loading-spinner text-primary"
 					></span>
-					<p class="text-base-content text-lg font-medium">
+					<p class="text-lg font-medium text-base-content">
 						{get_stage_description(
 							progress.stage,
 							progress.current_batch_source,
@@ -107,11 +107,11 @@
 
 			<!-- Timing Stats -->
 			<div
-				class="sm:stats sm:bg-base-100 grid w-full grid-cols-1 gap-4 sm:grid-cols-3 sm:shadow"
+				class="grid w-full grid-cols-1 gap-4 sm:stats sm:grid-cols-3 sm:bg-base-100 sm:shadow"
 			>
 				<div class="stat bg-base-100 shadow sm:shadow-none">
 					<div class="stat-title">Time Elapsed</div>
-					<div class="stat-value text-primary text-xl">
+					<div class="stat-value text-xl text-primary">
 						{elapsed_time}
 					</div>
 					<div class="stat-desc">total elapsed time</div>
@@ -120,7 +120,7 @@
 				{#if time_remaining}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Estimated Time</div>
-						<div class="stat-value text-secondary text-xl">
+						<div class="stat-value text-xl text-secondary">
 							{time_remaining}
 						</div>
 						<div class="stat-desc">estimate for this batch</div>
@@ -130,7 +130,7 @@
 				{#if progress.average_time_per_item && !progress.cached}
 					<div class="stat bg-base-100 shadow sm:shadow-none">
 						<div class="stat-title">Processing Speed</div>
-						<div class="stat-value text-accent text-xl">
+						<div class="stat-value text-xl text-accent">
 							{(1 / progress.average_time_per_item).toFixed(1)}
 						</div>
 						<div class="stat-desc">follows per second</div>

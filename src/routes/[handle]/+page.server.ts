@@ -1,7 +1,8 @@
-import { api_status } from '$lib/api-status.svelte';
-import { rate_limiter } from '$lib/rate-limiter';
-import type { AnalysisResults, BskyProfile } from '$lib/types';
+import { api_status } from '#lib/api-status.svelte.js';
+import { rate_limiter } from '#lib/rate-limiter.js';
+import type { AnalysisResults, BskyProfile } from '#lib/types.js';
 import { error } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
 interface ValidationError {
 	field: string;
@@ -78,7 +79,7 @@ const error_handlers = {
 	404: () => error(404, 'User not found'),
 } as const;
 
-export const load = async ({ fetch, params }) => {
+export const load: PageServerLoad = async ({ fetch, params }) => {
 	const { handle } = params;
 
 	try {
@@ -107,7 +108,7 @@ export const load = async ({ fetch, params }) => {
 	}
 };
 
-export const actions = {
+export const actions: Actions = {
 	analyse_all: async ({ fetch, params }) => {
 		const { handle } = params;
 		try {
@@ -155,7 +156,7 @@ async function handle_error_response(response: Response) {
 	);
 }
 
-function handle_error(err: any) {
+function handle_error(err: any): never {
 	if (err?.status) throw err;
 	console.error('Unexpected error:', err);
 	throw error(500, 'An unexpected error occurred');

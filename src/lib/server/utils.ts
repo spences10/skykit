@@ -1,4 +1,4 @@
-import type { ProcessingStats } from '$lib/types';
+import type { ProcessingStats } from '#lib/types.js';
 
 export function chunk_array<T>(array: T[], size: number): T[][] {
 	return Array.from(

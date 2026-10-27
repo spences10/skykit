@@ -1,4 +1,4 @@
-import { get_db } from '$lib/db';
+import { get_db } from '#lib/db/index.js';
 import type { Value } from '@libsql/client';
 
 interface InactiveUserData {
@@ -34,7 +34,7 @@ export async function execute_batch_update(
 
 		await tx.execute({
 			sql: `
-				INSERT INTO account_activity 
+				INSERT INTO account_activity
 				(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back)
 				VALUES ${placeholders}
 				ON CONFLICT(did) DO UPDATE SET

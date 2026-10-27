@@ -5,10 +5,10 @@
 		InformationCircle,
 		LinkOutgoing,
 		Refresh,
-	} from '$lib/icons';
-	import { number_crunch } from '$lib/number-crunch';
-	import { user_store } from '$lib/user-data.svelte';
-	import { get_tooltip_props } from '$lib/utils';
+	} from '#lib/icons/index.js';
+	import { number_crunch } from '#lib/number-crunch.js';
+	import { user_store } from '#lib/user-data.svelte.js';
+	import { get_tooltip_props } from '#lib/utils.js';
 	import { slide } from 'svelte/transition';
 
 	let show_all_top_posts = $state(false);
@@ -49,7 +49,7 @@
 						{(top_posts[0].post.record as any).text}
 					</p>
 					<div class="flex items-center gap-6">
-						<button class="btn btn-ghost btn-sm text-primary gap-2">
+						<button class="btn gap-2 btn-ghost text-primary btn-sm">
 							<Heart class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -59,7 +59,7 @@
 								{number_crunch(top_posts[0].post.likeCount || 0)}
 							</span>
 						</button>
-						<button class="btn btn-ghost btn-sm text-secondary gap-2">
+						<button class="btn gap-2 btn-ghost text-secondary btn-sm">
 							<Refresh class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -69,7 +69,7 @@
 								{number_crunch(top_posts[0].post.repostCount || 0)}
 							</span>
 						</button>
-						<button class="btn btn-ghost btn-sm text-accent gap-2">
+						<button class="btn gap-2 btn-ghost text-accent btn-sm">
 							<Comment class_names="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
@@ -83,7 +83,7 @@
 							href={`https://bsky.app/profile/${top_posts[0].post.author.handle}/post/${top_posts[0].post.uri.split('/').pop()}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn btn-ghost btn-sm text-info gap-2"
+							class="btn gap-2 btn-ghost text-info btn-sm"
 						>
 							<LinkOutgoing class_names="h-6 w-6" />
 							<span class="sr-only">View post</span>
@@ -102,7 +102,7 @@
 								</p>
 								<div class="flex items-center gap-6">
 									<button
-										class="btn btn-ghost btn-sm text-primary gap-2"
+										class="btn gap-2 btn-ghost text-primary btn-sm"
 									>
 										<Heart class_names="h-6 w-6" />
 										<span
@@ -112,7 +112,7 @@
 										</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm text-secondary gap-2"
+										class="btn gap-2 btn-ghost text-secondary btn-sm"
 									>
 										<Refresh class_names="h-6 w-6" />
 										<span
@@ -124,7 +124,7 @@
 										</span>
 									</button>
 									<button
-										class="btn btn-ghost btn-sm text-accent gap-2"
+										class="btn gap-2 btn-ghost text-accent btn-sm"
 									>
 										<Comment class_names="h-6 w-6" />
 										<span
@@ -139,7 +139,7 @@
 										href={`https://bsky.app/profile/${post.post.author.handle}/post/${post.post.uri.split('/').pop()}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="btn btn-ghost btn-sm text-info gap-2"
+										class="btn gap-2 btn-ghost text-info btn-sm"
 									>
 										<LinkOutgoing class_names="h-6 w-6" />
 										<span class="sr-only">View post</span>

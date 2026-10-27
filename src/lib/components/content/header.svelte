@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 </script>
 
-<h2 class="card-title mb-4">
+<h2 class="mb-4 card-title">
 	Content Analysis
 	<div
 		class="tooltip cursor-pointer"

@@ -1,5 +1,5 @@
-import { rate_limiter } from '$lib/rate-limiter';
-import type { InactiveFollow } from '$lib/types';
+import { rate_limiter } from '#lib/rate-limiter.js';
+import type { InactiveFollow } from '#lib/types.js';
 import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
 import { differenceInHours } from 'date-fns';
 import { batch_check_follows_back } from '../api';

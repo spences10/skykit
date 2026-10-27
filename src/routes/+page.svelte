@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { MagnifyingGlass } from '$lib/icons';
+	import { MagnifyingGlass } from '#lib/icons/index.js';
 
 	let handle = $state('');
 	let loading = $state(false);
@@ -47,11 +47,11 @@
 <div class="container mx-auto max-w-xl p-4 pt-20">
 	<div class="mb-12 text-center">
 		<h1
-			class="from-primary to-secondary mb-4 bg-gradient-to-r bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
+			class="mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
 		>
 			SkyKit
 		</h1>
-		<p class="text-base-content/60 text-lg">
+		<p class="text-lg text-base-content/60">
 			Check out your Bluesky user stats
 		</p>
 	</div>
@@ -69,12 +69,12 @@
 					autocapitalize="off"
 					spellcheck="false"
 					placeholder="Enter handle (e.g. alice.bsky.social)"
-					class="input join-item input-bordered flex-1 focus:outline-none"
+					class="input-bordered input join-item flex-1 focus:outline-none"
 				/>
 				<button
 					onclick={handle_search}
 					disabled={loading || !handle}
-					class="btn btn-primary join-item"
+					class="btn join-item btn-primary"
 				>
 					{#if loading}
 						<span class="loading loading-spinner"></span>

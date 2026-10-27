@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 	import {
 		AveragePerPost,
 		ConversationMetrics,
@@ -11,9 +11,9 @@
 </script>
 
 {#if user_store.data.engagement}
-	<article class="card bg-base-100 mb-11 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">
+			<h2 class="mb-4 card-title">
 				Engagement Stats
 				<div
 					class="tooltip cursor-pointer"

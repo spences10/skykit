@@ -1,4 +1,4 @@
-import type { InactiveFollow } from '$lib/types';
+import type { InactiveFollow } from '#lib/types.js';
 import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
 import {
 	filter_inactive_follows,

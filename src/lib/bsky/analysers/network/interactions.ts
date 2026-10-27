@@ -1,5 +1,5 @@
-import type { BskyPost } from '$lib/types';
-import type { AppBskyActorDefs } from '@atproto/api';
+import type { BskyPost } from '#lib/types.js';
+import { AppBskyFeedDefs } from '@atproto/api';
 import { map_to_sorted_array } from './utils';
 
 export function build_interaction_network(posts: BskyPost[]) {
@@ -28,9 +28,9 @@ function track_replies(
 	post: BskyPost,
 	reply_map: Map<string, number>,
 ) {
-	const reply_author = (
-		post.reply?.parent?.author as AppBskyActorDefs.ProfileViewBasic
-	)?.handle;
+	const reply_author = AppBskyFeedDefs.isPostView(post.reply?.parent)
+		? post.reply.parent.author.handle
+		: undefined;
 	if (reply_author && reply_author !== post.post.author.handle) {
 		reply_map.set(
 			reply_author,

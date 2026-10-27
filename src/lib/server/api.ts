@@ -1,4 +1,4 @@
-import { rate_limiter } from '$lib/rate-limiter';
+import { rate_limiter } from '#lib/rate-limiter.js';
 import type { AppBskyActorDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
 import {

@@ -32,22 +32,22 @@
 }
 
 /* Plugin configurations */
-@plugin "@tailwindcss/typography";
-@plugin "daisyui" {
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui' {
 	themes: all;
 }
 
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
 	name: 'corporate';
 	font-family: 'Manrope Variable';
 }
 
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
 	name: 'cyberpunk';
 	font-family: 'Victor Mono Variable';
 }
 
-@plugin "daisyui/theme" {
+@plugin 'daisyui/theme' {
 	name: 'wireframe';
 	font-family: 'Playpen Sans Variable';
 }

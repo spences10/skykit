@@ -1,4 +1,4 @@
-import type { AnalysisResults, BskyProfile } from '$lib/types';
+import type { AnalysisResults, BskyProfile } from '#lib/types.js';
 
 export type { BskyProfile };
 

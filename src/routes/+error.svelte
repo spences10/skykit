@@ -33,11 +33,11 @@
 			];
 </script>
 
-<div class="hero bg-base-200 min-h-screen">
+<div class="hero min-h-screen bg-base-200">
 	<div class="hero-content text-center">
 		<div class="max-w-md">
 			<div class="mb-8 flex justify-center">
-				<div class="avatar placeholder">
+				<div class="placeholder avatar">
 					<div class="bg-neutral-focus w-32 rounded-full text-5xl">
 						{#if is_rate_limited}
 							🐌
@@ -62,15 +62,15 @@
 				<div class="card-body">
 					<p class="text-lg">{random_message}</p>
 					{#if is_rate_limited}
-						<div class="alert alert-warning mt-4">
+						<div class="mt-4 alert alert-warning">
 							<p>
 								The API needs a little break. Try again in a few
 								moments! 🎭
 							</p>
 						</div>
 					{/if}
-					<div class="card-actions mt-6 justify-center">
-						<a href="/" class="btn btn-primary btn-wide gap-2">
+					<div class="mt-6 card-actions justify-center">
+						<a href="/" class="btn btn-wide gap-2 btn-primary">
 							<span>Take Me Home</span>
 							<span>🏠</span>
 						</a>

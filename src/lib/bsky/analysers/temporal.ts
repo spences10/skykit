@@ -1,4 +1,4 @@
-import type { BskyPost, TemporalPatterns } from '$lib/types';
+import type { BskyPost, TemporalPatterns } from '#lib/types.js';
 import {
 	differenceInDays,
 	differenceInMilliseconds,

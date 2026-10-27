@@ -1,36 +1,97 @@
+import adapter from '@sveltejs/adapter-node';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { svelteTesting } from '@testing-library/svelte/vite';
-import { defineConfig } from 'vite';
+import { playwright } from 'vite-plus/test/browser-playwright';
+import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
-	plugins: [sveltekit(), tailwindcss()],
-
+	plugins: [
+		tailwindcss(),
+		sveltekit({
+			adapter: adapter(),
+			preprocess: vitePreprocess(),
+		}),
+	],
 	test: {
-		workspace: [
+		projects: [
 			{
+				// Client-side tests (Svelte components)
 				extends: './vite.config.ts',
-				plugins: [svelteTesting()],
-
 				test: {
 					name: 'client',
-					environment: 'jsdom',
-					clearMocks: true,
+					testTimeout: 2000,
+					browser: {
+						enabled: true,
+						provider: playwright(),
+						instances: [{ browser: 'chromium', headless: true }],
+					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					exclude: ['src/lib/server/**'],
-					setupFiles: ['./vitest-setup-client.ts'],
+					exclude: [
+						'src/lib/server/**',
+						'src/**/*.ssr.{test,spec}.{js,ts}',
+					],
+					setupFiles: ['./src/vitest-setup-client.ts'],
 				},
 			},
 			{
+				// SSR tests (Server-side rendering)
 				extends: './vite.config.ts',
-
+				test: {
+					name: 'ssr',
+					environment: 'node',
+					include: ['src/**/*.ssr.{test,spec}.{js,ts}'],
+				},
+			},
+			{
+				// Server-side tests (Node.js utilities)
+				extends: './vite.config.ts',
 				test: {
 					name: 'server',
 					environment: 'node',
 					include: ['src/**/*.{test,spec}.{js,ts}'],
-					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					exclude: [
+						'src/**/*.svelte.{test,spec}.{js,ts}',
+						'src/**/*.ssr.{test,spec}.{js,ts}',
+					],
 				},
 			},
 		],
+		coverage: { include: ['src'] },
+	},
+	fmt: {
+		useTabs: true,
+		singleQuote: true,
+		printWidth: 70,
+		trailingComma: 'all',
+		proseWrap: 'always',
+		svelte: true,
+		sortTailwindcss: {
+			stylesheet: './src/app.css',
+		},
+		ignorePatterns: [
+			'.svelte-kit/**',
+			'build/**',
+			'coverage/**',
+			'playwright-report/**',
+			'test-results/**',
+			'package-lock.json',
+			'pnpm-lock.yaml',
+			'yarn.lock',
+			'.claude/settings.local.json',
+		],
+	},
+	lint: {
+		ignorePatterns: [
+			'.svelte-kit/**',
+			'build/**',
+			'coverage/**',
+			'playwright-report/**',
+			'test-results/**',
+		],
+		options: {
+			typeAware: true,
+			typeCheck: true,
+		},
 	},
 });

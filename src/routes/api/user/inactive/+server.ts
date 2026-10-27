@@ -1,11 +1,12 @@
-import { MAX_INACTIVE_FOLLOWS_LIMIT } from '$lib/constants';
-import { agent, get_profile } from '$lib/server/api';
-import { filter_inactive_follows } from '$lib/server/data-processor';
+import { MAX_INACTIVE_FOLLOWS_LIMIT } from '#lib/constants.js';
+import { agent, get_profile } from '#lib/server/api.js';
+import { filter_inactive_follows } from '#lib/server/data-processor.js';
 import { error } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 import { get_all_follows } from './follows-handler';
 import { create_stream_response } from './stream-handler';
 
-export async function GET({ url }) {
+export const GET: RequestHandler = async ({ url }) => {
 	const handle = url.searchParams.get('handle');
 	const days = parseInt(url.searchParams.get('days') || '30', 10);
 	const stream = url.searchParams.get('stream') === 'true';
@@ -52,4 +53,4 @@ export async function GET({ url }) {
 		console.error('Error:', err);
 		throw error(500, 'Failed to fetch inactive follows');
 	}
-}
+};

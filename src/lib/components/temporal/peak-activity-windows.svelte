@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 	import { group_by_day } from './utils';
 </script>
 
@@ -17,14 +17,14 @@
 				/>
 			</div>
 		</h3>
-		<p class="text-base-content/60 mb-4 text-sm">
+		<p class="mb-4 text-sm text-base-content/60">
 			Showing your top 3 most active days and their busiest posting
 			hours
 		</p>
-		<div class="join join-vertical w-full">
+		<div class="join w-full join-vertical">
 			{#each group_by_day(user_store.data.temporal.peak_activity_windows) as [day, times]}
 				<div
-					class="join-item collapse-arrow border-base-200 collapse border"
+					class="collapse-arrow collapse join-item border border-base-200"
 				>
 					<input type="checkbox" name="peak-activity-windows" />
 					<div class="collapse-title text-sm font-medium">
@@ -35,7 +35,7 @@
 							{#each times as { timeRange, count }}
 								<div class="flex items-center gap-1">
 									<span class="badge badge-ghost">{timeRange}</span>
-									<span class="badge badge-primary badge-sm"
+									<span class="badge badge-sm badge-primary"
 										>{count}</span
 									>
 								</div>

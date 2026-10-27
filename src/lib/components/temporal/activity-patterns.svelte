@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 </script>
 
 {#if user_store.data.temporal}

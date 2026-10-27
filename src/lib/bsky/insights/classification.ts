@@ -4,7 +4,7 @@ import type {
 	EngagementMetrics,
 	NetworkAnalytics,
 	TemporalPatterns,
-} from '$lib/types';
+} from '#lib/types.js';
 
 export function classify_account(data: {
 	engagement: EngagementMetrics;

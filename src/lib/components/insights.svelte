@@ -4,8 +4,8 @@
 		Clipboard,
 		InformationCircle,
 		LightBulb,
-	} from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	} from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 
 	const get_classification_description = (classification: string) => {
 		const descriptions: Record<string, string> = {
@@ -39,9 +39,9 @@
 </script>
 
 {#if user_store.data.account_classification}
-	<article class="card bg-base-100 mb-11 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">
+			<h2 class="mb-4 card-title">
 				Account Insights
 				<div
 					class="tooltip cursor-pointer"
@@ -56,7 +56,7 @@
 			<!-- Account Classification -->
 			<section class="mb-6">
 				<header
-					class="card-title mb-2 flex items-center gap-2 text-sm"
+					class="mb-2 card-title flex items-center gap-2 text-sm"
 				>
 					<Clipboard class_names="h-5 w-5" />
 					Account Type
@@ -72,7 +72,7 @@
 				<ul class="flex flex-wrap gap-2" role="list">
 					{#each user_store.data.account_classification as classification}
 						<li
-							class="badge badge-primary badge-lg tooltip cursor-pointer"
+							class="tooltip badge cursor-pointer badge-lg badge-primary"
 							data-tip={get_classification_description(
 								classification,
 							)}
@@ -104,7 +104,7 @@
 						{#if user_store.data.behavioural_insights}
 							<ul class="space-y-2" role="list">
 								{#each user_store.data.behavioural_insights as insight}
-									<li class="alert alert-info py-2">
+									<li class="alert py-2 alert-info">
 										{insight}
 									</li>
 								{/each}
@@ -133,7 +133,7 @@
 						{#if user_store.data.content_strategy_suggestions}
 							<ul class="space-y-2" role="list">
 								{#each user_store.data.content_strategy_suggestions as suggestion}
-									<li class="alert alert-success py-2">
+									<li class="alert py-2 alert-success">
 										{suggestion}
 									</li>
 								{/each}

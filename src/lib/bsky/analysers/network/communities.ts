@@ -1,5 +1,5 @@
-import type { BskyPost } from '$lib/types';
-import type { AppBskyActorDefs } from '@atproto/api';
+import type { BskyPost } from '#lib/types.js';
+import { AppBskyFeedDefs } from '@atproto/api';
 import { add_interaction } from './utils';
 
 export function detect_communities(posts: BskyPost[]) {
@@ -19,9 +19,11 @@ function build_interaction_map(posts: BskyPost[]) {
 
 	posts.forEach((post) => {
 		const current_author = post.post.author.handle;
-		const reply_author = (
-			post.reply?.parent?.author as AppBskyActorDefs.ProfileViewBasic
-		)?.handle;
+		const reply_author = AppBskyFeedDefs.isPostView(
+			post.reply?.parent,
+		)
+			? post.reply.parent.author.handle
+			: undefined;
 
 		if (reply_author) {
 			add_interaction(interactions, current_author, reply_author);

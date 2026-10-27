@@ -1,4 +1,4 @@
-import { NODE_ENV } from '$env/static/private';
+import { NODE_ENV } from '$app/env/private';
 import type { Client } from '@libsql/client';
 import { createClient } from '@libsql/client';
 
