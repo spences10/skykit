@@ -11,6 +11,11 @@ export const variables = defineEnvVars({
 		static: true,
 		schema: (input) => input ?? '',
 	},
+	DATABASE_PATH: {
+		static: false,
+		schema: (input) => input || undefined,
+		description: 'SQLite database file; defaults by NODE_ENV',
+	},
 	NODE_ENV: {
 		static: true,
 		schema: (input) => input ?? 'development',

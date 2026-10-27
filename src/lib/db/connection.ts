@@ -1,10 +1,11 @@
-import { NODE_ENV } from '$app/env/private';
+import { DATABASE_PATH, NODE_ENV } from '$app/env/private';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 const db_path =
-	NODE_ENV === 'production' ? '/app/data/db/skykit.db' : 'local.db';
+	DATABASE_PATH ??
+	(NODE_ENV === 'production' ? '/app/data/db/skykit.db' : 'local.db');
 
 // Only open the database at runtime, not during build
 let db: DatabaseSync;
