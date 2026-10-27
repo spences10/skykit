@@ -1,17 +1,13 @@
 <script lang="ts">
 	import { themes } from '#lib/themes/index.js';
+	import { browser } from '$app/env';
 
-	let current_theme = $state('');
-
-	$effect(() => {
-		if (typeof window !== 'undefined') {
-			const theme = window.localStorage.getItem('theme');
-			if (theme && themes.includes(theme)) {
-				document.documentElement.setAttribute('data-theme', theme);
-				current_theme = theme;
-			}
-		}
-	});
+	// hooks.server.ts already applied the theme cookie to <html>
+	let current_theme = $state(
+		browser
+			? (document.documentElement.getAttribute('data-theme') ?? '')
+			: '',
+	);
 
 	const set_theme = (event: Event) => {
 		const select = event.target as HTMLSelectElement;

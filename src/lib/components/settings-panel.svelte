@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Chevron } from '#lib/icons/index.js';
 	import { visibility_state } from '#lib/visibility.svelte.js';
-	import { browser } from '$app/env';
 	import { page } from '$app/state';
 	import { slide } from 'svelte/transition';
 	import ThemeSelect from './theme-select.svelte';
@@ -17,14 +16,6 @@
 
 	// State management
 	let is_open = $state(false);
-
-	// Load settings from localStorage on mount
-	$effect(() => {
-		const handle = page.params.handle;
-		if (browser && handle) {
-			visibility_state.load_sections(handle);
-		}
-	});
 
 	const handle_change = (id: string, event: Event) => {
 		const checked = (event.target as HTMLInputElement).checked;

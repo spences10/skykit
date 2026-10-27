@@ -12,8 +12,8 @@
 	import { Chevron } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { visibility_state } from '#lib/visibility.svelte.js';
-	import { browser } from '$app/env';
 	import { enhance } from '$app/forms';
+	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
@@ -43,29 +43,19 @@
 	let analysing = $state(false);
 	let analysis_complete = $state(false);
 
-	// Initialize user store with data only once when data changes
-	let prev_data = $state<string>('');
-	$effect(() => {
-		const data_string = JSON.stringify(data);
-		if (data_string !== prev_data) {
-			// Ensure data has all required fields before updating store
-			if (
-				data &&
-				data.profile &&
-				data.engagement &&
-				data.content &&
-				data.temporal &&
-				data.network
-			) {
-				user_store.update_data(data);
-				store_initialized = true;
-			}
-			prev_data = data_string;
+	// Runs on first load and whenever the handle (and so data) changes
+	afterNavigate(() => {
+		if (
+			data.profile &&
+			data.engagement &&
+			data.content &&
+			data.temporal &&
+			data.network
+		) {
+			user_store.update_data(data);
+			store_initialized = true;
 		}
-	});
-
-	$effect(() => {
-		if (browser && page.params.handle) {
+		if (page.params.handle) {
 			visibility_state.load_sections(page.params.handle);
 		}
 	});
