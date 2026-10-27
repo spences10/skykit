@@ -1,29 +1,26 @@
 import { rate_limiter } from '#lib/rate-limiter.js';
 import type { AtpAgent } from '@atproto/api';
-import { differenceInDays, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { retry_with_backoff } from '../utils';
-import {
-	RECENT_ACTIVITY_THRESHOLD,
-	type FeedOptions,
-} from './constants';
+import type { FeedOptions } from './constants';
+import { get_last_commit_date } from './repo-activity';
 
 export async function get_latest_activity(
 	agent: AtpAgent,
 	did: string,
-	profile_indexed_at: string | undefined,
 	options: FeedOptions,
 ): Promise<Date> {
 	try {
-		if (profile_indexed_at) {
-			const indexed_date = parseISO(profile_indexed_at);
-			if (
-				differenceInDays(new Date(), indexed_date) <
-				RECENT_ACTIVITY_THRESHOLD
-			) {
-				return indexed_date;
-			}
-		}
+		const last_commit = await get_last_commit_date(did);
+		if (last_commit) return last_commit;
+	} catch (error) {
+		console.warn(
+			`Repo lookup failed for ${did}, falling back to feed:`,
+			error,
+		);
+	}
 
+	try {
 		const posts = await retry_with_backoff(() =>
 			rate_limiter.add_to_queue(() =>
 				agent.api.app.bsky.feed.getAuthorFeed({

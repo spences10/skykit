@@ -1,6 +1,6 @@
 import { rate_limiter } from '#lib/rate-limiter.js';
 import type { AppBskyActorDefs } from '@atproto/api';
-import { AtpAgent } from '@atproto/api';
+import { AppBskyGraphDefs, AtpAgent } from '@atproto/api';
 import {
 	chunk_array,
 	report_progress,
@@ -11,6 +11,7 @@ export const PUBLIC_API = 'https://public.api.bsky.app';
 export const agent = new AtpAgent({ service: PUBLIC_API });
 
 const MAX_ACTORS_PER_REQUEST = 25;
+const MAX_RELATIONSHIPS_PER_REQUEST = 30;
 const DELAY_BETWEEN_CHUNKS = 500;
 const MAX_RETRIES = 3;
 
@@ -62,37 +63,28 @@ export async function batch_check_follows_back(
 	target_dids: string[],
 ): Promise<Map<string, boolean>> {
 	const follows_map = new Map<string, boolean>();
-	const chunks = chunk_array(target_dids, 100);
+	const chunks = chunk_array(
+		target_dids,
+		MAX_RELATIONSHIPS_PER_REQUEST,
+	);
 	let retries = 0;
 
 	for (const chunk of chunks) {
 		try {
-			const follows_data = await Promise.all(
-				chunk.map(async (target_did) => {
-					const response = await rate_limiter.add_to_queue(() =>
-						agent.api.app.bsky.graph.getFollows({
-							actor: target_did,
-							limit: 100,
-						}),
-					);
-					return {
-						target_did,
-						follows_back:
-							response.data.follows?.some(
-								(follow) => follow.did === viewer_did,
-							) || false,
-					};
+			const response = await rate_limiter.add_to_queue(() =>
+				agent.api.app.bsky.graph.getRelationships({
+					actor: viewer_did,
+					others: chunk,
 				}),
 			);
 
-			follows_data.forEach(({ target_did, follows_back }) => {
-				follows_map.set(target_did, follows_back);
-			});
-
-			if (chunks.length > 1) {
-				await new Promise((resolve) =>
-					setTimeout(resolve, DELAY_BETWEEN_CHUNKS),
-				);
+			for (const relationship of response.data.relationships) {
+				if (AppBskyGraphDefs.isRelationship(relationship)) {
+					follows_map.set(
+						relationship.did,
+						Boolean(relationship.followedBy),
+					);
+				}
 			}
 
 			retries = 0; // Reset retries on success

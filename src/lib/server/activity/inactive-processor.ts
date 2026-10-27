@@ -85,13 +85,8 @@ export async function process_accounts_in_chunks(
 				]);
 
 				const activity_promises = accounts_needing_update.map(
-					(follow, index) =>
-						get_latest_activity(
-							agent,
-							follow.did,
-							profiles.data.profiles[index].indexedAt,
-							feed_options,
-						),
+					(follow) =>
+						get_latest_activity(agent, follow.did, feed_options),
 				);
 
 				const activity_dates = await Promise.all(activity_promises);
