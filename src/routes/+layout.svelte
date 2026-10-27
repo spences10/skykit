@@ -1,27 +1,25 @@
 <script lang="ts">
 	import { Footer } from '#lib/components/index.js';
-	import { browser } from '$app/env';
 	import {
 		PUBLIC_FATHOM_ID,
 		PUBLIC_FATHOM_URL,
 	} from '$app/env/public';
-	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
 	import * as Fathom from 'fathom-client';
+	import { onMount } from 'svelte';
 	import '../app.css';
 
 	let { children } = $props();
 
-	$effect(() => {
-		if (browser) {
-			Fathom.load(PUBLIC_FATHOM_ID, {
-				url: PUBLIC_FATHOM_URL,
-			});
-		}
+	onMount(() => {
+		Fathom.load(PUBLIC_FATHOM_ID, {
+			url: PUBLIC_FATHOM_URL,
+		});
 	});
 
-	// Track pageview on route change
-	$effect(() => {
-		(page.url.pathname, browser && Fathom.trackPageview());
+	// Track pageview on every navigation, including the first load
+	afterNavigate(() => {
+		Fathom.trackPageview();
 	});
 </script>
 

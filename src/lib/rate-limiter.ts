@@ -141,7 +141,7 @@ export class RateLimiter {
 		return new Promise((resolve, reject) => {
 			this.queue.push({ request, resolve, reject });
 			if (!this.isProcessing) {
-				this.processQueue();
+				void this.processQueue();
 			}
 		});
 	}

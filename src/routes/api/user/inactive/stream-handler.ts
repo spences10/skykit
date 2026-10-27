@@ -26,7 +26,7 @@ export function create_stream_response(handle: string, days: number) {
 		},
 	});
 
-	(async () => {
+	void (async () => {
 		try {
 			const controller = await promise;
 			const profile = await get_profile(handle);

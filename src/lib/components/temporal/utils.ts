@@ -58,7 +58,6 @@ export const format_time_window = (
 
 export function group_by_day(
 	windows: string[],
-	timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
 ): Array<[string, GroupedTime[]]> {
 	const groups = new Map<string, GroupedTime[]>();
 

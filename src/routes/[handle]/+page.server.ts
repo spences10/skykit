@@ -54,7 +54,7 @@ function validate_analysis_results(data: any): ValidationError[] {
 }
 
 const error_handlers = {
-	429: (response: Response, error_data: any) => {
+	429: (response: Response) => {
 		const reset_time = response.headers.get('retry-after');
 		return error(
 			429,

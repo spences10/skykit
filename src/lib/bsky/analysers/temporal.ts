@@ -194,7 +194,7 @@ function calculate_peak_activity_windows(
 
 	// Generate windows for top days
 	const windows: string[] = [];
-	top_days.forEach(([day, _]) => {
+	top_days.forEach(([day]) => {
 		const hour_counts = day_hour_counts.get(day)!;
 		const day_name = formatInTimeZone(
 			setDay(new Date(), day),
