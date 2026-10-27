@@ -1,4 +1,4 @@
-import type { InactiveFollow } from '$lib/types';
+import type { InactiveFollow } from '#lib/types.js';
 import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 

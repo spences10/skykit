@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { enhance } from '$app/forms';
-	import { page } from '$app/state';
 	import {
 		ContentAnalysis,
 		DataNotice,
@@ -11,10 +8,13 @@
 		ProfileCard,
 		SettingsPanel,
 		TemporalAnalysis,
-	} from '$lib/components';
-	import { Chevron } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
-	import { visibility_state } from '$lib/visibility.svelte';
+	} from '#lib/components/index.js';
+	import { Chevron } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
+	import { visibility_state } from '#lib/visibility.svelte.js';
+	import { browser } from '$app/env';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, slide } from 'svelte/transition';
@@ -38,7 +38,7 @@
 		},
 	});
 
-	let { data } = $props<{ data: PageData }>();
+	let { data }: { data: PageData } = $props();
 	let store_initialized = $state(false);
 	let analysing = $state(false);
 	let analysis_complete = $state(false);
@@ -65,7 +65,7 @@
 	});
 
 	$effect(() => {
-		if (browser) {
+		if (browser && page.params.handle) {
 			visibility_state.load_sections(page.params.handle);
 		}
 	});
@@ -126,7 +126,7 @@
 						}}
 					>
 						<button
-							class="btn btn-primary btn-lg btn-block"
+							class="btn btn-block btn-lg btn-primary"
 							type="submit"
 							disabled={analysing}
 						>
@@ -144,7 +144,7 @@
 				</div>
 
 				{#snippet failed(error: unknown, reset: () => void)}
-					<div class="alert alert-error mb-11">
+					<div class="mb-11 alert alert-error">
 						<div class="flex w-full justify-between">
 							<span
 								>Failed to analyze posts: {error instanceof Error

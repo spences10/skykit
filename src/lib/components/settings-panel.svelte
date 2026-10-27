@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { Chevron } from '#lib/icons/index.js';
+	import { visibility_state } from '#lib/visibility.svelte.js';
+	import { browser } from '$app/env';
 	import { page } from '$app/state';
-	import { Chevron } from '$lib/icons';
-	import { visibility_state } from '$lib/visibility.svelte';
 	import { slide } from 'svelte/transition';
 	import ThemeSelect from './theme-select.svelte';
 
@@ -21,7 +21,7 @@
 	// Load settings from localStorage on mount
 	$effect(() => {
 		const handle = page.params.handle;
-		if (browser) {
+		if (browser && handle) {
 			visibility_state.load_sections(handle);
 		}
 	});
@@ -29,6 +29,7 @@
 	const handle_change = (id: string, event: Event) => {
 		const checked = (event.target as HTMLInputElement).checked;
 		const handle = page.params.handle;
+		if (!handle) return;
 		const current_sections = visibility_state.sections;
 
 		if (checked && !current_sections.includes(id)) {
@@ -47,7 +48,7 @@
 
 <fieldset class="mb-6">
 	<button
-		class="btn btn-ghost btn-sm gap-2"
+		class="btn gap-2 btn-ghost btn-sm"
 		onclick={() => (is_open = !is_open)}
 		aria-expanded={is_open}
 	>
@@ -61,7 +62,7 @@
 
 	{#if is_open}
 		<fieldset
-			class="card bg-base-200 mt-2"
+			class="card mt-2 bg-base-200"
 			transition:slide={{ duration: 300 }}
 		>
 			<fieldset class="card-body">

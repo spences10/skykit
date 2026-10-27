@@ -1,4 +1,4 @@
-import type { BskyPost } from '$lib/types';
+import type { BskyPost } from '#lib/types.js';
 
 export function sum_interactions(
 	interactions: Array<[string, number]>,

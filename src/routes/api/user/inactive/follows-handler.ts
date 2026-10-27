@@ -1,13 +1,13 @@
 import {
 	get_all_follows_for_user,
 	get_profiles_in_chunks,
-} from '$lib/server/api';
+} from '#lib/server/api.js';
 import {
 	get_cached_accounts_by_did,
 	process_accounts_in_chunks,
-} from '$lib/server/data-processor';
-import { report_progress } from '$lib/server/utils';
-import type { CacheStats, InactiveFollow } from '$lib/types';
+} from '#lib/server/data-processor.js';
+import { report_progress } from '#lib/server/utils.js';
+import type { CacheStats, InactiveFollow } from '#lib/types.js';
 import type { AtpAgent } from '@atproto/api';
 import { differenceInDays } from 'date-fns';
 import type { ReadableStreamDefaultController } from 'node:stream/web';

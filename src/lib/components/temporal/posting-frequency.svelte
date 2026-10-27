@@ -4,8 +4,8 @@
 		CircleCheck,
 		InformationCircle,
 		Spark,
-	} from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	} from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 </script>
 
 {#if user_store.data.temporal}
@@ -22,7 +22,7 @@
 			</div>
 		</h3>
 		<dl
-			class="stats stats-vertical md:stats-horizontal w-full shadow"
+			class="stats w-full stats-vertical shadow md:stats-horizontal"
 		>
 			<div class="stat">
 				<dt class="stat-figure text-primary">

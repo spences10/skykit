@@ -1,6 +1,6 @@
-import { MAX_INACTIVE_FOLLOWS_LIMIT } from '$lib/constants';
-import { agent, get_profile } from '$lib/server/api';
-import { filter_inactive_follows } from '$lib/server/data-processor';
+import { MAX_INACTIVE_FOLLOWS_LIMIT } from '#lib/constants.js';
+import { agent, get_profile } from '#lib/server/api.js';
+import { filter_inactive_follows } from '#lib/server/data-processor.js';
 import type { ReadableStreamDefaultController } from 'node:stream/web';
 import { get_all_follows } from './follows-handler';
 

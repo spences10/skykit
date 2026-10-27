@@ -1,4 +1,4 @@
-import type { BskyPost, NetworkAnalytics } from '$lib/types';
+import type { BskyPost, NetworkAnalytics } from '#lib/types.js';
 import { detect_communities } from './communities';
 import { build_interaction_network } from './interactions';
 import { sum_interactions, sum_post_metric } from './utils';

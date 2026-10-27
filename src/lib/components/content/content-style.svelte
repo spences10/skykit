@@ -1,8 +1,12 @@
 <script lang="ts">
-	import { Image, InformationCircle, Link } from '$lib/icons';
-	import { number_crunch } from '$lib/number-crunch';
-	import { user_store } from '$lib/user-data.svelte';
-	import { get_tooltip_props } from '$lib/utils';
+	import {
+		Image,
+		InformationCircle,
+		Link,
+	} from '#lib/icons/index.js';
+	import { number_crunch } from '#lib/number-crunch.js';
+	import { user_store } from '#lib/user-data.svelte.js';
+	import { get_tooltip_props } from '#lib/utils.js';
 </script>
 
 <section class="mb-6">
@@ -15,7 +19,7 @@
 			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
-	<dl class="stats stats-vertical sm:stats-horizontal w-full shadow">
+	<dl class="stats w-full stats-vertical shadow sm:stats-horizontal">
 		<div class="stat">
 			<dt class="stat-figure text-info">
 				<Image />

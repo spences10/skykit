@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Heart } from '$lib/icons';
+	import { Heart } from '#lib/icons/index.js';
 </script>
 
 <footer class="py-8">
 	<div class="container mx-auto max-w-4xl px-4">
 		<div
-			class="border-base-300 text-base-content/60 mt-8 flex flex-col items-center justify-center gap-2 border-t pt-8 text-center text-sm"
+			class="mt-8 flex flex-col items-center justify-center gap-2 border-t border-base-300 pt-8 text-center text-sm text-base-content/60"
 		>
 			<p class="flex items-center gap-2">
 				Made with <Heart
@@ -15,7 +15,7 @@
 					href="https://scottspence.com"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="link-hover link link-primary"
+					class="link link-primary link-hover"
 				>
 					Scott Spence
 				</a>

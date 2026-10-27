@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { InactiveFollows } from '$lib/components';
-	import { MAX_INACTIVE_FOLLOWS_LIMIT } from '$lib/constants';
-	import { inactive_state } from '$lib/inactive.svelte';
+	import { InactiveFollows } from '#lib/components/index.js';
+	import { MAX_INACTIVE_FOLLOWS_LIMIT } from '#lib/constants.js';
+	import { inactive_state } from '#lib/inactive.svelte.js';
 	import type { PageData } from './$types';
 
-	let { data } = $props<{ data: PageData }>();
+	let { data }: { data: PageData } = $props();
 
 	let loading = $derived(inactive_state.loading);
 	let inactive_follows = $derived(
@@ -73,13 +73,13 @@
 	</header>
 
 	<section
-		class="card bg-base-100 mb-6 shadow-xl"
+		class="card mb-6 bg-base-100 shadow-xl"
 		aria-label="Inactive follows controls"
 	>
 		<div class="card-body">
 			{#if exceeds_limit}
 				<!-- Warning message when limit is exceeded -->
-				<div class="alert alert-warning mb-4" role="alert">
+				<div class="mb-4 alert alert-warning" role="alert">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						class="h-6 w-6 shrink-0 stroke-current"
@@ -138,18 +138,18 @@
 							bind:value={inactive_state.days_threshold}
 							min="1"
 							max="365"
-							class="input join-item input-bordered w-full sm:w-24"
+							class="input-bordered input join-item w-full sm:w-24"
 							aria-label="Days threshold"
 							disabled={exceeds_limit}
 						/>
-						<span class="btn join-item btn-neutral no-animation">
+						<span class="no-animation btn join-item btn-neutral">
 							days
 						</span>
 					</div>
 				</div>
 				<button
 					type="submit"
-					class="btn btn-primary w-full self-end sm:ml-auto sm:w-auto"
+					class="btn w-full self-end btn-primary sm:ml-auto sm:w-auto"
 					disabled={loading || exceeds_limit}
 					aria-busy={loading}
 				>
@@ -166,17 +166,17 @@
 
 				<!-- Controls Section -->
 				<div
-					class="stats stats-vertical bg-base-200 sm:stats-horizontal w-full shadow-sm"
+					class="stats w-full stats-vertical bg-base-200 shadow-sm sm:stats-horizontal"
 				>
 					<!-- Sort Controls -->
 					<div class="stat">
 						<div class="stat-title">Sort by Last Post</div>
 						<div class="stat-actions mt-2">
 							<div
-								class="join border-primary rounded-box w-full border"
+								class="join w-full rounded-box border border-primary"
 							>
 								<button
-									class="btn join-item rounded-l-box flex-1 {sort_direction ===
+									class="btn join-item flex-1 rounded-l-box {sort_direction ===
 									'desc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
@@ -187,7 +187,7 @@
 									Newest First
 								</button>
 								<button
-									class="btn join-item rounded-r-box flex-1 {sort_direction ===
+									class="btn join-item flex-1 rounded-r-box {sort_direction ===
 									'asc'
 										? 'btn-primary'
 										: 'btn-ghost'}"
@@ -211,7 +211,7 @@
 								>
 									<input
 										type="checkbox"
-										class="checkbox-primary checkbox"
+										class="checkbox checkbox-primary"
 										bind:checked={inactive_state.show_never_posted}
 										aria-label="Show only users who never posted"
 									/>
@@ -222,7 +222,7 @@
 								>
 									<input
 										type="checkbox"
-										class="checkbox-primary checkbox"
+										class="checkbox checkbox-primary"
 										bind:checked={inactive_state.hide_follows_back}
 										aria-label="Hide users who follow you back"
 									/>
@@ -236,7 +236,7 @@
 				<!-- Statistics and Actions -->
 				<div class="mt-4">
 					<div
-						class="stats stats-vertical bg-base-200 sm:stats-horizontal w-full shadow-sm"
+						class="stats w-full stats-vertical bg-base-200 shadow-sm sm:stats-horizontal"
 					>
 						<div class="stat">
 							<div class="stat-title">Inactive Follows Found</div>
@@ -257,8 +257,8 @@
 									Open All Profiles ({inactive_follows.length})
 								</button>
 								<div class="stat-desc mt-2">
-									<span class="font-black">Note:</span> This will open
-									a new tab for each profile.
+									<span class="font-black">Note:</span> This will open a
+									new tab for each profile.
 								</div>
 							</div>
 						</div>
@@ -269,7 +269,7 @@
 	</section>
 
 	{#if error}
-		<div class="alert alert-error mb-4" role="alert">
+		<div class="mb-4 alert alert-error" role="alert">
 			<p>{error}</p>
 		</div>
 	{/if}

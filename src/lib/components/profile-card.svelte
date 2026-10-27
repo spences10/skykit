@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { number_crunch } from '$lib/number-crunch';
-	import { user_store } from '$lib/user-data.svelte';
-	import { get_tooltip_props } from '$lib/utils';
+	import { number_crunch } from '#lib/number-crunch.js';
+	import { user_store } from '#lib/user-data.svelte.js';
+	import { get_tooltip_props } from '#lib/utils.js';
 
 	// Create derived values with null checks
 	let followers_count = $derived(
@@ -16,7 +16,7 @@
 </script>
 
 {#if user_store.data?.profile}
-	<article class="card bg-base-100 mb-11 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<figure class="relative h-40 w-full md:h-52">
 			{#if user_store.data.profile.banner}
 				<img
@@ -25,7 +25,7 @@
 					class="h-full w-full object-cover"
 				/>
 			{:else}
-				<div class="bg-base-200 h-full w-full"></div>
+				<div class="h-full w-full bg-base-200"></div>
 			{/if}
 		</figure>
 		<div class="relative px-4 pt-4 pb-6 md:px-8">
@@ -34,7 +34,7 @@
 					class="avatar absolute -top-12 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0"
 				>
 					<div
-						class="ring-primary ring-offset-base-100 w-20 rounded-full ring ring-offset-2 md:w-24"
+						class="w-20 rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 md:w-24"
 					>
 						<img
 							src={user_store.data.profile.avatar}
@@ -58,13 +58,13 @@
 						@{user_store.data.profile.handle}
 					</a>
 				</p>
-				<p class="text-base-content/40 mt-1 font-mono text-xs">
+				<p class="mt-1 font-mono text-xs text-base-content/40">
 					{user_store.data.profile.did}
 				</p>
 			</header>
 
 			<section
-				class="stats stats-vertical sm:stats-horizontal mb-4 w-full shadow"
+				class="stats mb-4 w-full stats-vertical shadow sm:stats-horizontal"
 				aria-label="Profile statistics"
 			>
 				<div class="stat">
@@ -101,13 +101,13 @@
 					aria-label="Profile description"
 				>
 					<div class="divider"></div>
-					<p class="text-base-content/80 whitespace-pre-line">
+					<p class="whitespace-pre-line text-base-content/80">
 						{user_store.data.profile.description}
 					</p>
 				</section>
 			{/if}
 
-			<footer class="card-actions mt-4 justify-end">
+			<footer class="mt-4 card-actions justify-end">
 				<a
 					href={`/${user_store.data.profile.handle}/inactive`}
 					class="btn btn-ghost btn-sm"

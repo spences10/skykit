@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 	import ActivityPatterns from './temporal/activity-patterns.svelte';
 	import PeakActivityWindows from './temporal/peak-activity-windows.svelte';
 	import PostingFrequency from './temporal/posting-frequency.svelte';
@@ -23,7 +23,7 @@
 </script>
 
 {#if user_store.data.temporal}
-	<article class="card bg-base-100 mb-11 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
 			<header class="mb-4 flex items-center gap-2">
 				<h2 class="card-title">
@@ -50,7 +50,7 @@
 					</div>
 				{/if}
 
-				<div class="text-base-content/60 ml-auto text-sm">
+				<div class="ml-auto text-sm text-base-content/60">
 					Times shown in {user_store.data.temporal.timezone}
 				</div>
 			</header>

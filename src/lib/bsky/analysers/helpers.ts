@@ -1,5 +1,8 @@
-import type { BskyPost } from '$lib/types';
-import type { AppBskyEmbedImages } from '@atproto/api';
+import type { BskyPost } from '#lib/types.js';
+import {
+	AppBskyEmbedExternal,
+	AppBskyEmbedImages,
+} from '@atproto/api';
 
 export const is_reply = (post: BskyPost): boolean =>
 	!!(post.post.record as any).reply;
@@ -8,12 +11,12 @@ export const is_quote = (post: BskyPost): boolean =>
 	!!(post.post.record as any).quote;
 
 export const has_media = (post: BskyPost): boolean => {
-	const images = post.post.embed?.images as AppBskyEmbedImages.View[];
-	return Array.isArray(images) && images.length > 0;
+	const embed = post.post.embed;
+	return AppBskyEmbedImages.isView(embed) && embed.images.length > 0;
 };
 
 export const has_links = (post: BskyPost): boolean =>
-	!!post.post.embed?.external;
+	AppBskyEmbedExternal.isView(post.post.embed);
 
 export const extract_mentions = (text: string): string[] =>
 	(text.match(/@[\w.-]+/g) || []).map((mention) => mention.slice(1));

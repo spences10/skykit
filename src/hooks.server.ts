@@ -1,7 +1,6 @@
-import { init_db } from '$lib/db';
-import { themes } from '$lib/themes';
-import type { Handle } from '@sveltejs/kit';
-import { sequence } from '@sveltejs/kit/hooks';
+import { init_db } from '#lib/db/index.js';
+import { themes } from '#lib/themes/index.js';
+import { sequence, type Handle } from '@sveltejs/kit/hooks';
 
 export const theme: Handle = async ({ event, resolve }) => {
 	const theme = event.cookies.get('theme');

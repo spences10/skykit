@@ -1,4 +1,4 @@
-import { rate_limiter } from '$lib/rate-limiter';
+import { rate_limiter } from '#lib/rate-limiter.js';
 import type { AtpAgent } from '@atproto/api';
 import { differenceInDays, parseISO } from 'date-fns';
 import { retry_with_backoff } from '../utils';

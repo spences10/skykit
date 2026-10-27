@@ -4,8 +4,8 @@
 		Comment,
 		InformationCircle,
 		People,
-	} from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	} from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 
 	let expanded_clusters = $state<string[]>([]);
 
@@ -24,9 +24,9 @@
 </script>
 
 {#if user_store.data.network}
-	<article class="card bg-base-100 mb-11 shadow-xl">
+	<article class="card mb-11 bg-base-100 shadow-xl">
 		<div class="card-body">
-			<h2 class="card-title mb-4">
+			<h2 class="mb-4 card-title">
 				Network Analysis
 				<div
 					class="tooltip cursor-pointer"
@@ -64,7 +64,7 @@
 						/>
 					</div>
 				</h3>
-				<p class="text-base-content/60 mb-4 text-sm">
+				<p class="mb-4 text-sm text-base-content/60">
 					Shows who you interact with most through replies, quotes,
 					and mentions across your posts.
 				</p>
@@ -82,7 +82,7 @@
 										<dt>
 											<a
 												href={`https://bsky.app/profile/${handle}`}
-												class="link link-primary text-sm"
+												class="link text-sm link-primary"
 												target="_blank"
 												rel="noopener noreferrer"
 											>
@@ -109,7 +109,7 @@
 										<dt>
 											<a
 												href={`https://bsky.app/profile/${handle}`}
-												class="link link-primary text-sm"
+												class="link text-sm link-primary"
 												target="_blank"
 												rel="noopener noreferrer"
 											>
@@ -164,7 +164,7 @@
 											{#each cluster.users.slice(0, is_expanded(cluster.name) ? cluster.users.length : 15) as user}
 												<a
 													href={`https://bsky.app/profile/${user}`}
-													class="badge badge-outline badge-md hover:border-primary hover:bg-primary hover:text-primary-content transition-colors hover:no-underline"
+													class="badge badge-outline badge-md transition-colors hover:border-primary hover:bg-primary hover:text-primary-content hover:no-underline"
 													target="_blank"
 													rel="noopener noreferrer"
 													title={user}
@@ -174,7 +174,7 @@
 											{/each}
 											{#if cluster.users.length > 15}
 												<button
-													class="badge badge-ghost badge-md hover:border-base-300 hover:bg-base-300 cursor-pointer transition-colors"
+													class="badge cursor-pointer badge-ghost badge-md transition-colors hover:border-base-300 hover:bg-base-300"
 													onclick={() => toggle_cluster(cluster.name)}
 													aria-expanded={is_expanded(cluster.name)}
 												>

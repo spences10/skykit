@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
 
 	let totalEngagementPerPost = $derived.by(() => {
 		if (!user_store.data.engagement) return '0';
@@ -26,7 +26,7 @@
 			</div>
 		</h3>
 		<dl
-			class="stats stats-vertical sm:stats-horizontal w-full shadow"
+			class="stats w-full stats-vertical shadow sm:stats-horizontal"
 		>
 			<div class="stat">
 				<dt class="stat-title">Total Engagement per Post</dt>

@@ -1,4 +1,4 @@
-import type { BskyPost, ContentPatterns } from '$lib/types';
+import type { BskyPost, ContentPatterns } from '#lib/types.js';
 import { differenceInDays, parseISO, startOfDay } from 'date-fns';
 import { has_links, has_media, is_reply } from './helpers';
 

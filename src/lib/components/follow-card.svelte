@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { InactiveFollow } from '$lib/types';
+	import type { InactiveFollow } from '#lib/types.js';
 	import {
 		formatDate,
 		formatDistanceToNow,
@@ -7,7 +7,7 @@
 		parseISO,
 	} from 'date-fns';
 
-	const { follow } = $props<{ follow: InactiveFollow }>();
+	const { follow }: { follow: InactiveFollow } = $props();
 
 	const format_relative_time = (date: string): string => {
 		if (!date || date === '1970-01-01T00:00:00.000Z') return 'Never';
@@ -25,7 +25,7 @@
 			class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
 		>
 			<div class="flex-1">
-				<h3 class="text-base-content text-lg font-bold">
+				<h3 class="text-lg font-bold text-base-content">
 					{follow.displayName || follow.handle}
 				</h3>
 				<p class="text-base-content/70">
@@ -38,13 +38,13 @@
 						@{follow.handle}
 					</a>
 				</p>
-				<p class="text-base-content/70 mt-1 text-sm">
+				<p class="mt-1 text-sm text-base-content/70">
 					Joined {formatDate(follow.createdAt, 'MMM d, yyyy')}
 					({format_relative_time(follow.createdAt)})
 				</p>
 			</div>
 			<div class="flex flex-col gap-1">
-				<p class="text-base-content/70 font-medium">
+				<p class="font-medium text-base-content/70">
 					Last post: <span class="font-bold">
 						{format_relative_time(follow.lastPost)}
 					</span>
@@ -62,7 +62,7 @@
 						</div>
 					{/if}
 					{#if follow.follows_back}
-						<div class="badge badge-info badge-sm">Follows Back</div>
+						<div class="badge badge-sm badge-info">Follows Back</div>
 					{/if}
 				</div>
 			</div>

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { page } from '$app/state';
+	import { Footer } from '#lib/components/index.js';
+	import { browser } from '$app/env';
 	import {
 		PUBLIC_FATHOM_ID,
 		PUBLIC_FATHOM_URL,
-	} from '$env/static/public';
-	import { Footer } from '$lib/components';
+	} from '$app/env/public';
+	import { page } from '$app/state';
 	import * as Fathom from 'fathom-client';
 	import '../app.css';
 
@@ -21,7 +21,7 @@
 
 	// Track pageview on route change
 	$effect(() => {
-		page.url.pathname, browser && Fathom.trackPageview();
+		(page.url.pathname, browser && Fathom.trackPageview());
 	});
 </script>
 

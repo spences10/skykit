@@ -1,5 +1,5 @@
-import { chunk_array } from '$lib/db/utils';
-import type { CachedAccount } from '$lib/types';
+import { chunk_array } from '#lib/db/utils.js';
+import type { CachedAccount } from '#lib/types.js';
 import type { Value } from '@libsql/client';
 import { get_db } from './connection';
 
@@ -14,8 +14,8 @@ export const cache_account_activity = async (
 	const client = get_db();
 	await client.execute({
 		sql: `
-			INSERT OR REPLACE INTO account_activity 
-			(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back) 
+			INSERT OR REPLACE INTO account_activity
+			(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back)
 			VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
 		`,
 		args: [

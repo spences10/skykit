@@ -1,5 +1,5 @@
-import { get_db } from '$lib/db';
-import type { CachedAccount } from '$lib/types';
+import { get_db } from '#lib/db/index.js';
+import type { CachedAccount } from '#lib/types.js';
 import type { Value } from '@libsql/client';
 import { chunk_array } from '../utils';
 

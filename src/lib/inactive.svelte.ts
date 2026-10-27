@@ -2,7 +2,7 @@ import type {
 	CacheStats,
 	InactiveFollow,
 	ProcessingStage,
-} from '$lib/types';
+} from '#lib/types.js';
 
 export type Progress = {
 	stage: ProcessingStage;

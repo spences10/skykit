@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { inactive_state } from '$lib/inactive.svelte';
+	import { inactive_state } from '#lib/inactive.svelte.js';
 	import CacheStats from './cache-stats.svelte';
 	import EmptyState from './empty-state.svelte';
 	import FollowCard from './follow-card.svelte';

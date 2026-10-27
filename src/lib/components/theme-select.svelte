@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { themes } from '$lib/themes';
+	import { themes } from '#lib/themes/index.js';
 
 	let current_theme = $state('');
 
@@ -29,7 +29,7 @@
 <select
 	bind:value={current_theme}
 	data-choose-theme
-	class="select select-bordered w-full"
+	class="select-bordered select w-full"
 	onchange={set_theme}
 >
 	<option value="" disabled={current_theme !== ''}>Theme</option>

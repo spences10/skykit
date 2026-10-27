@@ -1,4 +1,4 @@
-import type { BskyPost, BskyProfile } from '$lib/types';
+import type { BskyPost, BskyProfile } from '#lib/types.js';
 import * as analysers from './analysers';
 import {
 	classify_account,

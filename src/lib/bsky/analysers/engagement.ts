@@ -2,7 +2,7 @@ import type {
 	BskyPost,
 	BskyProfile,
 	EngagementMetrics,
-} from '$lib/types';
+} from '#lib/types.js';
 import { differenceInDays, parseISO } from 'date-fns';
 
 export function analyse_engagement(

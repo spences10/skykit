@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { InformationCircle } from '$lib/icons';
-	import { user_store } from '$lib/user-data.svelte';
-	import { get_tooltip_props } from '$lib/utils';
+	import { InformationCircle } from '#lib/icons/index.js';
+	import { user_store } from '#lib/user-data.svelte.js';
+	import { get_tooltip_props } from '#lib/utils.js';
 </script>
 
 <section>
@@ -14,7 +14,7 @@
 			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
-	<dl class="stats stats-vertical sm:stats-horizontal w-full shadow">
+	<dl class="stats w-full stats-vertical shadow sm:stats-horizontal">
 		<div class="stat">
 			<dt class="stat-title">Average Post Length</dt>
 			<dd class="stat-value">
@@ -32,7 +32,7 @@
 		{#if user_store.data.content.most_used_hashtags.length > 0}
 			<div class="stat">
 				<dt class="stat-title">Top Hashtag</dt>
-				<dd class="stat-value text-secondary text-sm">
+				<dd class="stat-value text-sm text-secondary">
 					{user_store.data.content.most_used_hashtags[0][0]}
 				</dd>
 				<dd class="stat-desc">
