@@ -1,4 +1,4 @@
-import { MAX_INACTIVE_FOLLOWS_LIMIT } from '#lib/constants.js';
+import { max_inactive_follows_limit } from '#lib/constants.js';
 import { agent, get_profile } from '#lib/server/api.js';
 import { filter_inactive_follows } from '#lib/server/data-processor.js';
 import type { ReadableStreamDefaultController } from 'node:stream/web';
@@ -33,15 +33,15 @@ export function create_stream_response(handle: string, days: number) {
 			const total_follows = profile.data.followsCount || 0;
 
 			// Check follow count limit
-			if (total_follows > MAX_INACTIVE_FOLLOWS_LIMIT) {
+			if (total_follows > max_inactive_follows_limit) {
 				const encoder = new TextEncoder();
 				controller.enqueue(
 					encoder.encode(
 						`data: ${JSON.stringify({
 							type: 'error',
-							error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}. This is a free service - please don't abuse it! 🚀💥`,
+							error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${max_inactive_follows_limit.toLocaleString()}. This is a free service - please don't abuse it! 🚀💥`,
 							followsCount: total_follows,
-							limit: MAX_INACTIVE_FOLLOWS_LIMIT,
+							limit: max_inactive_follows_limit,
 						})}\n\n`,
 					),
 				);

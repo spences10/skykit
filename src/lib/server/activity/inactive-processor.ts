@@ -13,9 +13,9 @@ import {
 } from '../utils';
 import { get_latest_activity } from './activity-fetcher';
 import {
-	DELAY_BETWEEN_BATCHES,
-	FEED_CHUNK_SIZE,
-	PROFILE_CHUNK_SIZE,
+	delay_between_batches,
+	feed_chunk_size,
+	profile_chunk_size,
 	type FeedOptions,
 } from './constants';
 
@@ -26,7 +26,7 @@ export function filter_inactive_follows(
 	const now = new Date();
 	return follows.filter((follow) => {
 		// Use differenceInHours for more accurate time comparison
-		return differenceInHours(now, follow.lastPostDate) >= days * 24;
+		return differenceInHours(now, follow.last_post_date) >= days * 24;
 	});
 }
 
@@ -37,13 +37,13 @@ export async function process_accounts_in_chunks(
 	controller?: ReadableStreamDefaultController,
 	cache_stats?: { hits: number; misses: number },
 ): Promise<InactiveFollow[]> {
-	const chunks = chunk_array(accounts, PROFILE_CHUNK_SIZE);
+	const chunks = chunk_array(accounts, profile_chunk_size);
 	const results: InactiveFollow[] = [];
 	let processed = 0;
 
 	const feed_options: FeedOptions = {
 		filter: 'posts_with_replies',
-		limit: FEED_CHUNK_SIZE,
+		limit: feed_chunk_size,
 	};
 
 	for (const chunk of chunks) {
@@ -100,8 +100,8 @@ export async function process_accounts_in_chunks(
 							did: follow.did,
 							handle: follow.handle,
 							displayName: follow.displayName,
-							lastPost: last_activity.toISOString(),
-							lastPostDate: last_activity,
+							last_post: last_activity.toISOString(),
+							last_post_date: last_activity,
 							createdAt:
 								profile.indexedAt || new Date(0).toISOString(),
 							source: 'api' as const,
@@ -116,7 +116,7 @@ export async function process_accounts_in_chunks(
 						batch_results.map((result, index) => ({
 							did: result.did,
 							handle: result.handle,
-							last_post_date: result.lastPost,
+							last_post_date: result.last_post,
 							post_count:
 								profiles.data.profiles[index].postsCount || 0,
 							followers_count:
@@ -143,8 +143,8 @@ export async function process_accounts_in_chunks(
 						did: account.did,
 						handle: account.handle,
 						displayName: account.displayName,
-						lastPost: cached.last_post_date!.toISOString(),
-						lastPostDate: cached.last_post_date!,
+						last_post: cached.last_post_date!.toISOString(),
+						last_post_date: cached.last_post_date!,
 						createdAt: new Date(0).toISOString(), // We don't have this in cache
 						source: 'cache' as const,
 						follows_back: cached.follows_back,
@@ -177,7 +177,7 @@ export async function process_accounts_in_chunks(
 
 			if (chunks.length > 1) {
 				await new Promise((resolve) =>
-					setTimeout(resolve, DELAY_BETWEEN_BATCHES),
+					setTimeout(resolve, delay_between_batches),
 				);
 			}
 		} catch (error: any) {

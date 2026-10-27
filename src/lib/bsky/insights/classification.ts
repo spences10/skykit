@@ -40,9 +40,9 @@ export function classify_account(data: {
 	}
 
 	// Network-based classification
-	const followerCount = data.profile.followersCount || 0;
-	const followingCount = data.profile.followsCount || 0;
-	if (followingCount > 0 && followerCount > followingCount * 2) {
+	const follower_count = data.profile.followersCount || 0;
+	const following_count = data.profile.followsCount || 0;
+	if (following_count > 0 && follower_count > following_count * 2) {
 		classifications.push('Influential');
 	}
 

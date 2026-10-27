@@ -1,6 +1,6 @@
-export const PROFILE_CHUNK_SIZE = 25;
-export const FEED_CHUNK_SIZE = 100;
-export const DELAY_BETWEEN_BATCHES = 100;
+export const profile_chunk_size = 25;
+export const feed_chunk_size = 100;
+export const delay_between_batches = 100;
 
 export interface FeedOptions {
 	filter:

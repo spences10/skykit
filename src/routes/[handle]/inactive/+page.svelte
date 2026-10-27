@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { InactiveFollows } from '#lib/components/index.js';
-	import { MAX_INACTIVE_FOLLOWS_LIMIT } from '#lib/constants.js';
+	import { max_inactive_follows_limit } from '#lib/constants.js';
 	import { inactive_state } from '#lib/inactive.svelte.js';
 	import type { PageData } from './$types';
 
@@ -17,7 +17,7 @@
 	// Check if the user follows too many people
 	const follows_count = $derived(data.profile?.followsCount || 0);
 	const exceeds_limit = $derived(
-		follows_count > MAX_INACTIVE_FOLLOWS_LIMIT,
+		follows_count > max_inactive_follows_limit,
 	);
 
 	const handle_form_submit = async () => {
@@ -101,7 +101,7 @@
 							</strong>
 							people, which exceeds the server limit of
 							<strong>
-								{MAX_INACTIVE_FOLLOWS_LIMIT.toLocaleString()}
+								{max_inactive_follows_limit.toLocaleString()}
 							</strong>.
 						</p>
 						<p class="mt-2 text-sm">

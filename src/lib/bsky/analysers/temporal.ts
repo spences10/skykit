@@ -140,7 +140,7 @@ function calculate_longest_streak(
 	posts_by_date: Map<string, number>,
 ): number {
 	const dates = Array.from(posts_by_date.keys())
-		.map((dateStr) => parseISO(dateStr))
+		.map((date_str) => parseISO(date_str))
 		.sort((a, b) => a.getTime() - b.getTime());
 
 	let current_streak = 1;

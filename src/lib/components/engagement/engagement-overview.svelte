@@ -2,7 +2,7 @@
 	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 
-	let totalEngagementPerPost = $derived.by(() => {
+	let total_engagement_per_post = $derived.by(() => {
 		if (!user_store.data.engagement) return '0';
 		return (
 			user_store.data.engagement.avg_likes_per_post +
@@ -30,7 +30,7 @@
 		>
 			<div class="stat">
 				<dt class="stat-title">Total Engagement per Post</dt>
-				<dd class="stat-value">{totalEngagementPerPost}</dd>
+				<dd class="stat-value">{total_engagement_per_post}</dd>
 				<dd class="stat-desc">
 					Combined average of all interactions
 				</dd>

@@ -12,7 +12,7 @@ import type { AtpAgent } from '@atproto/api';
 import { differenceInDays } from 'date-fns';
 import type { ReadableStreamDefaultController } from 'node:stream/web';
 
-const CACHE_FRESHNESS_DAYS = 7;
+const cache_freshness_days = 7;
 
 export async function get_all_follows(
 	agent: AtpAgent,
@@ -71,7 +71,7 @@ export async function get_all_follows(
 				cached &&
 				cached.last_checked &&
 				differenceInDays(new Date(), cached.last_checked) <
-					CACHE_FRESHNESS_DAYS;
+					cache_freshness_days;
 
 			processed++;
 			if (controller) {
@@ -93,8 +93,8 @@ export async function get_all_follows(
 					did: follow.did,
 					handle: follow.handle,
 					displayName: follow.displayName,
-					lastPost: cached.last_post_date.toISOString(),
-					lastPostDate: cached.last_post_date,
+					last_post: cached.last_post_date.toISOString(),
+					last_post_date: cached.last_post_date,
 					createdAt: profile?.indexedAt || new Date(0).toISOString(),
 					source: 'cache',
 					follows_back: cached.follows_back,

@@ -32,9 +32,9 @@
 					</div>
 					<div class="collapse-content">
 						<div class="flex flex-wrap gap-2">
-							{#each times as { timeRange, count }}
+							{#each times as { time_range, count }}
 								<div class="flex items-center gap-1">
-									<span class="badge badge-ghost">{timeRange}</span>
+									<span class="badge badge-ghost">{time_range}</span>
 									<span class="badge badge-sm badge-primary"
 										>{count}</span
 									>

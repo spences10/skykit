@@ -14,7 +14,7 @@
 		maximumFractionDigits: 0,
 	});
 
-	const STAGE_DESCRIPTIONS = {
+	const stage_descriptions = {
 		cache: 'Checking database for cached data...',
 		follows: 'Fetching follows from Bluesky API...',
 		profiles: 'Processing profiles...',
@@ -27,7 +27,7 @@
 		current_batch_source?: string,
 	): string =>
 		current_batch_source ||
-		STAGE_DESCRIPTIONS[stage] ||
+		stage_descriptions[stage] ||
 		'Processing...';
 
 	let elapsed_time = $derived(

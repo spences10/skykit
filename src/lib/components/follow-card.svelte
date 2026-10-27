@@ -46,7 +46,7 @@
 			<div class="flex flex-col gap-1">
 				<p class="font-medium text-base-content/70">
 					Last post: <span class="font-bold">
-						{format_relative_time(follow.lastPost)}
+						{format_relative_time(follow.last_post)}
 					</span>
 				</p>
 				<div class="flex items-center gap-2">

@@ -2,6 +2,13 @@ import type { BskyPost, ContentPatterns } from '#lib/types.js';
 import { differenceInDays, parseISO, startOfDay } from 'date-fns';
 import { has_links, has_media, is_reply } from './helpers';
 
+function get_age_bucket(age_in_days: number): string {
+	if (age_in_days <= 7) return 'week';
+	if (age_in_days <= 30) return 'month';
+	if (age_in_days <= 90) return 'quarter';
+	return 'older';
+}
+
 export function analyse_content(posts: BskyPost[]): ContentPatterns {
 	if (!posts.length) {
 		return get_empty_content_patterns();
@@ -164,14 +171,7 @@ function calculate_post_age_distribution(
 			startOfDay(post_date),
 		);
 
-		const age_bucket =
-			age_in_days <= 7
-				? 'week'
-				: age_in_days <= 30
-					? 'month'
-					: age_in_days <= 90
-						? 'quarter'
-						: 'older';
+		const age_bucket = get_age_bucket(age_in_days);
 
 		age_distribution.set(
 			age_bucket,

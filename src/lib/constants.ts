@@ -1,2 +1,2 @@
 // Global constants for the application
-export const MAX_INACTIVE_FOLLOWS_LIMIT = 5000;
+export const max_inactive_follows_limit = 5000;

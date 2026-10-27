@@ -147,8 +147,8 @@ export interface InactiveFollow {
 	did: string;
 	handle: string;
 	displayName?: string;
-	lastPost: string;
-	lastPostDate: Date;
+	last_post: string;
+	last_post_date: Date;
 	createdAt: string;
 	source?: 'cache' | 'api';
 	follows_back: boolean;

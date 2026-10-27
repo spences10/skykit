@@ -34,11 +34,11 @@ export const get_cached_accounts_by_handles = async (
 	if (handles.length === 0) return [];
 
 	const client = get_db();
-	const CHUNK_SIZE = 1000;
+	const chunk_size = 1000;
 	const all_results: CachedAccount[] = [];
 
 	try {
-		for (const chunk of chunk_array(handles, CHUNK_SIZE)) {
+		for (const chunk of chunk_array(handles, chunk_size)) {
 			const placeholders = chunk.map(() => '?').join(',');
 			const rows = client
 				.prepare(

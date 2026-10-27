@@ -7,13 +7,13 @@ import {
 	retry_with_backoff,
 } from './utils';
 
-export const PUBLIC_API = 'https://public.api.bsky.app';
-export const agent = new AtpAgent({ service: PUBLIC_API });
+export const public_api = 'https://public.api.bsky.app';
+export const agent = new AtpAgent({ service: public_api });
 
-const MAX_ACTORS_PER_REQUEST = 25;
-const MAX_RELATIONSHIPS_PER_REQUEST = 30;
-const DELAY_BETWEEN_CHUNKS = 500;
-const MAX_RETRIES = 3;
+const max_actors_per_request = 25;
+const max_relationships_per_request = 30;
+const delay_between_chunks = 500;
+const max_retries = 3;
 
 export type FeedFilter =
 	| 'posts_no_replies'
@@ -65,7 +65,7 @@ export async function batch_check_follows_back(
 	const follows_map = new Map<string, boolean>();
 	const chunks = chunk_array(
 		target_dids,
-		MAX_RELATIONSHIPS_PER_REQUEST,
+		max_relationships_per_request,
 	);
 	let retries = 0;
 
@@ -93,7 +93,7 @@ export async function batch_check_follows_back(
 			if (api_error.status === 429) {
 				await handle_rate_limit(api_error);
 				retries++;
-				if (retries < MAX_RETRIES) {
+				if (retries < max_retries) {
 					// Retry this chunk
 					chunks.unshift(chunk);
 					continue;
@@ -132,7 +132,7 @@ export async function get_all_follows_for_user(
 
 			if (cursor) {
 				await new Promise((resolve) =>
-					setTimeout(resolve, DELAY_BETWEEN_CHUNKS),
+					setTimeout(resolve, delay_between_chunks),
 				);
 			}
 
@@ -155,13 +155,13 @@ export async function get_all_follows_for_user(
 			if (api_error.status === 429) {
 				await handle_rate_limit(api_error);
 				retries++;
-				if (retries < MAX_RETRIES) {
+				if (retries < max_retries) {
 					continue;
 				}
 			}
 			throw error;
 		}
-	} while (cursor && retries < MAX_RETRIES);
+	} while (cursor && retries < max_retries);
 
 	return all_follows;
 }
@@ -170,7 +170,7 @@ export async function get_profiles_in_chunks(
 	dids: string[],
 	controller?: ReadableStreamDefaultController,
 ): Promise<Map<string, AppBskyActorDefs.ProfileViewDetailed>> {
-	const chunks = chunk_array(dids, MAX_ACTORS_PER_REQUEST);
+	const chunks = chunk_array(dids, max_actors_per_request);
 	const profile_map = new Map<
 		string,
 		AppBskyActorDefs.ProfileViewDetailed
@@ -208,7 +208,7 @@ export async function get_profiles_in_chunks(
 
 			if (chunks.length > 1) {
 				await new Promise((resolve) =>
-					setTimeout(resolve, DELAY_BETWEEN_CHUNKS),
+					setTimeout(resolve, delay_between_chunks),
 				);
 			}
 
@@ -218,7 +218,7 @@ export async function get_profiles_in_chunks(
 			if (api_error.status === 429) {
 				await handle_rate_limit(api_error);
 				retries++;
-				if (retries < MAX_RETRIES) {
+				if (retries < max_retries) {
 					// Retry this chunk
 					chunks.unshift(chunk);
 					continue;

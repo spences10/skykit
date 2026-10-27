@@ -49,7 +49,7 @@ export function create_inactive_state() {
 		// Apply never posted filter if enabled
 		if (show_never_posted) {
 			result = result.filter(
-				(follow) => follow.lastPost === '1970-01-01T00:00:00.000Z',
+				(follow) => follow.last_post === '1970-01-01T00:00:00.000Z',
 			);
 		}
 
@@ -60,9 +60,11 @@ export function create_inactive_state() {
 
 		// Apply sorting
 		result.sort((a, b) => {
-			const dateA = new Date(a.lastPost).getTime();
-			const dateB = new Date(b.lastPost).getTime();
-			return sort_direction === 'asc' ? dateA - dateB : dateB - dateA;
+			const date_a = new Date(a.last_post).getTime();
+			const date_b = new Date(b.last_post).getTime();
+			return sort_direction === 'asc'
+				? date_a - date_b
+				: date_b - date_a;
 		});
 
 		return result;
@@ -94,11 +96,11 @@ export function create_inactive_state() {
 		days_threshold = days;
 
 		try {
-			const eventSource = new EventSource(
+			const event_source = new EventSource(
 				`/api/user/inactive?handle=${encodeURIComponent(handle)}&days=${days}&stream=true`,
 			);
 
-			eventSource.onmessage = (event) => {
+			event_source.onmessage = (event) => {
 				try {
 					const data = JSON.parse(event.data);
 
@@ -120,11 +122,11 @@ export function create_inactive_state() {
 					} else if (data.type === 'complete') {
 						inactive_follows = data.inactive_follows;
 						cache_stats = data.cache_stats;
-						eventSource.close();
+						event_source.close();
 						loading = false;
 					} else if (data.type === 'error') {
 						error = data.error;
-						eventSource.close();
+						event_source.close();
 						loading = false;
 					}
 				} catch (e) {
@@ -132,9 +134,9 @@ export function create_inactive_state() {
 				}
 			};
 
-			eventSource.onerror = () => {
+			event_source.onerror = () => {
 				error = 'Connection lost';
-				eventSource.close();
+				event_source.close();
 				loading = false;
 			};
 		} catch (err) {

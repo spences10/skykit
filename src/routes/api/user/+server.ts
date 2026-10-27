@@ -7,8 +7,8 @@ import { AtpAgent } from '@atproto/api';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-const PUBLIC_API = 'https://public.api.bsky.app';
-const agent = new AtpAgent({ service: PUBLIC_API });
+const public_api = 'https://public.api.bsky.app';
+const agent = new AtpAgent({ service: public_api });
 
 // Separate caches for different types of data with different TTLs
 const profile_cache = new Cache(5); // 5 minutes for profiles

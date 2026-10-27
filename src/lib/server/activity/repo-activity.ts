@@ -1,7 +1,7 @@
-const SLINGSHOT = 'https://slingshot.microcosm.blue';
-const USER_AGENT = 'skykit (https://skykit.dev)';
-const REQUEST_TIMEOUT_MS = 5000;
-const TID_ALPHABET = '234567abcdefghijklmnopqrstuvwxyz';
+const slingshot = 'https://slingshot.microcosm.blue';
+const user_agent = 'skykit (https://skykit.dev)';
+const request_timeout_ms = 5000;
+const tid_alphabet = '234567abcdefghijklmnopqrstuvwxyz';
 
 // DID -> PDS host rarely changes, so keep it for the process lifetime
 const pds_cache = new Map<string, string>();
@@ -12,7 +12,7 @@ export function tid_to_date(tid: string): Date | null {
 
 	let value = 0n;
 	for (const char of tid) {
-		value = value * 32n + BigInt(TID_ALPHABET.indexOf(char));
+		value = value * 32n + BigInt(tid_alphabet.indexOf(char));
 	}
 	const micros = value >> 10n;
 	return new Date(Number(micros / 1000n));
@@ -20,8 +20,8 @@ export function tid_to_date(tid: string): Date | null {
 
 async function fetch_json<T>(url: string): Promise<T> {
 	const response = await fetch(url, {
-		headers: { 'user-agent': USER_AGENT },
-		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+		headers: { 'user-agent': user_agent },
+		signal: AbortSignal.timeout(request_timeout_ms),
 	});
 	if (!response.ok) {
 		throw new Error(`${response.status} from ${url}`);
@@ -34,7 +34,7 @@ async function resolve_pds(did: string): Promise<string> {
 	if (cached) return cached;
 
 	const { pds } = await fetch_json<{ pds: string }>(
-		`${SLINGSHOT}/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${encodeURIComponent(did)}`,
+		`${slingshot}/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${encodeURIComponent(did)}`,
 	);
 	pds_cache.set(did, pds);
 	return pds;

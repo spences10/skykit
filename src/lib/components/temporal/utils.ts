@@ -9,7 +9,7 @@ export interface TimeWindow {
 }
 
 export interface GroupedTime {
-	timeRange: string;
+	time_range: string;
 	count: number;
 }
 
@@ -62,12 +62,12 @@ export function group_by_day(
 	const groups = new Map<string, GroupedTime[]>();
 
 	windows.forEach((window) => {
-		const [day, timeRange, count] = window.split('|');
+		const [day, time_range, count] = window.split('|');
 		if (!groups.has(day)) {
 			groups.set(day, []);
 		}
 		groups.get(day)?.push({
-			timeRange,
+			time_range,
 			count: parseInt(count),
 		});
 	});
@@ -76,6 +76,6 @@ export function group_by_day(
 }
 
 // Helper function to get user's timezone
-export function getUserTimezone(): string {
+export function get_user_timezone(): string {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
