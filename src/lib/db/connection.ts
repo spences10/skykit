@@ -1,23 +1,24 @@
 import { NODE_ENV } from '$app/env/private';
-import type { Client } from '@libsql/client';
-import { createClient } from '@libsql/client';
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 
 const db_path =
-	NODE_ENV === 'production'
-		? 'file:/app/data/db/skykit.db'
-		: 'file:local.db';
+	NODE_ENV === 'production' ? '/app/data/db/skykit.db' : 'local.db';
 
-// Only create the client at runtime, not during build
-let db: Client;
+// Only open the database at runtime, not during build
+let db: DatabaseSync;
 
 export const get_db = () => {
 	if (!db) {
 		try {
-			db = createClient({
-				url: db_path,
-			});
+			mkdirSync(dirname(db_path), { recursive: true });
+			db = new DatabaseSync(db_path);
+			db.exec('PRAGMA busy_timeout = 5000');
+			db.exec('PRAGMA journal_mode = WAL');
+			db.exec('PRAGMA synchronous = NORMAL');
 		} catch (error: unknown) {
-			console.error('Failed to create database client:', error);
+			console.error('Failed to open database:', error);
 			throw error;
 		}
 	}
@@ -28,7 +29,7 @@ export const init_db = async () => {
 	const client = get_db();
 
 	try {
-		await client.execute(`
+		client.exec(`
 			CREATE TABLE IF NOT EXISTS account_activity (
 				did TEXT PRIMARY KEY,
 				handle TEXT NOT NULL,
@@ -40,7 +41,7 @@ export const init_db = async () => {
 			)
 		`);
 
-		await client.execute(`
+		client.exec(`
 			CREATE TABLE IF NOT EXISTS stats (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				type TEXT NOT NULL,
@@ -49,16 +50,16 @@ export const init_db = async () => {
 			)
 		`);
 
-		await client.execute(`
+		client.exec(`
 			CREATE INDEX IF NOT EXISTS idx_handle ON account_activity(handle)
 		`);
 
 		// Add follows_back column if it doesn't exist (for existing databases)
 		try {
-			await client.execute(`
+			client.exec(`
 				ALTER TABLE account_activity ADD COLUMN follows_back BOOLEAN DEFAULT FALSE;
 			`);
-		} catch (e: unknown) {
+		} catch {
 			// Column might already exist, ignore the error
 		}
 

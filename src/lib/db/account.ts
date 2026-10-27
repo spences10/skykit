@@ -1,6 +1,5 @@
 import { chunk_array } from '#lib/db/utils.js';
 import type { CachedAccount } from '#lib/types.js';
-import type { Value } from '@libsql/client';
 import { get_db } from './connection';
 
 export const cache_account_activity = async (
@@ -11,22 +10,22 @@ export const cache_account_activity = async (
 	followers_count?: unknown,
 	follows_back: boolean = false,
 ) => {
-	const client = get_db();
-	await client.execute({
-		sql: `
+	get_db()
+		.prepare(
+			`
 			INSERT OR REPLACE INTO account_activity
 			(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back)
 			VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
 		`,
-		args: [
+		)
+		.run(
 			did,
 			handle,
 			last_post_date,
 			post_count || null,
 			typeof followers_count === 'number' ? followers_count : null,
-			follows_back,
-		] as Value[],
-	});
+			follows_back ? 1 : 0,
+		);
 };
 
 export const get_cached_accounts_by_handles = async (
@@ -39,17 +38,16 @@ export const get_cached_accounts_by_handles = async (
 	const all_results: CachedAccount[] = [];
 
 	try {
-		const tx = await client.transaction();
-
 		for (const chunk of chunk_array(handles, CHUNK_SIZE)) {
 			const placeholders = chunk.map(() => '?').join(',');
-			const result = await tx.execute({
-				sql: `SELECT * FROM account_activity WHERE handle IN (${placeholders})`,
-				args: chunk as Value[],
-			});
+			const rows = client
+				.prepare(
+					`SELECT * FROM account_activity WHERE handle IN (${placeholders})`,
+				)
+				.all(...chunk);
 
 			all_results.push(
-				...result.rows.map((row) => ({
+				...rows.map((row) => ({
 					did: row.did as string,
 					handle: row.handle as string,
 					last_post_date: row.last_post_date
@@ -63,7 +61,6 @@ export const get_cached_accounts_by_handles = async (
 			);
 		}
 
-		await tx.commit();
 		return all_results;
 	} catch (e) {
 		console.error('Error fetching cached accounts:', e);

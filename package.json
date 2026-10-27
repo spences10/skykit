@@ -22,9 +22,6 @@
 		"test:e2e": "playwright test",
 		"test:ci": "vp test --run"
 	},
-	"dependencies": {
-		"@libsql/client": "^0.18.0"
-	},
 	"devDependencies": {
 		"@atproto/api": "^0.29.4",
 		"@fontsource-variable/manrope": "^5.2.8",

@@ -1,6 +1,5 @@
 import { get_db } from '#lib/db/index.js';
 import type { CachedAccount } from '#lib/types.js';
-import type { Value } from '@libsql/client';
 import { chunk_array } from '../utils';
 
 export async function get_cached_accounts_by_did(
@@ -13,16 +12,15 @@ export async function get_cached_accounts_by_did(
 	const all_results: CachedAccount[] = [];
 
 	try {
-		const tx = await client.transaction();
-
 		for (const chunk of chunk_array(dids, CHUNK_SIZE)) {
 			const placeholders = chunk.map(() => '?').join(',');
-			const result = await tx.execute({
-				sql: `SELECT * FROM account_activity WHERE did IN (${placeholders})`,
-				args: chunk as Value[],
-			});
+			const rows = client
+				.prepare(
+					`SELECT * FROM account_activity WHERE did IN (${placeholders})`,
+				)
+				.all(...chunk);
 
-			const chunk_results = result.rows.map((row) => ({
+			const chunk_results = rows.map((row) => ({
 				did: row.did as string,
 				handle: row.handle as string,
 				last_post_date: row.last_post_date
@@ -37,7 +35,6 @@ export async function get_cached_accounts_by_did(
 			all_results.push(...chunk_results);
 		}
 
-		await tx.commit();
 		return all_results;
 	} catch (e) {
 		console.error('Error fetching cached accounts:', e);

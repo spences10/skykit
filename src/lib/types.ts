@@ -193,9 +193,3 @@ export interface CachedAccount {
 	followers_count: number | null;
 	follows_back: boolean;
 }
-
-// Use libsql types directly instead of custom interfaces
-export type {
-	Client as DbClient,
-	Transaction as DbTransaction,
-} from '@libsql/client';

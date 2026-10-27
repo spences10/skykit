@@ -1,5 +1,4 @@
 import { get_db } from '#lib/db/index.js';
-import type { Value } from '@libsql/client';
 
 interface InactiveUserData {
 	did: string;
@@ -14,26 +13,23 @@ export async function execute_batch_update(
 	updates: InactiveUserData[],
 ) {
 	const db = get_db();
-	const tx = await db.transaction();
+	db.exec('BEGIN');
 	try {
 		const placeholders = updates
 			.map(() => '(?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)')
 			.join(',');
 
-		const args = updates.flatMap(
-			(u) =>
-				[
-					u.did,
-					u.handle,
-					u.last_post_date,
-					u.post_count,
-					u.followers_count,
-					u.follows_back,
-				] as Value[],
-		);
+		const args = updates.flatMap((u) => [
+			u.did,
+			u.handle,
+			u.last_post_date,
+			u.post_count,
+			u.followers_count,
+			u.follows_back ? 1 : 0,
+		]);
 
-		await tx.execute({
-			sql: `
+		db.prepare(
+			`
 				INSERT INTO account_activity
 				(did, handle, last_post_date, last_checked, post_count, followers_count, follows_back)
 				VALUES ${placeholders}
@@ -44,11 +40,10 @@ export async function execute_batch_update(
 					followers_count = EXCLUDED.followers_count,
 					follows_back = EXCLUDED.follows_back
 			`,
-			args,
-		});
-		await tx.commit();
+		).run(...args);
+		db.exec('COMMIT');
 	} catch (e: unknown) {
-		await tx.rollback();
+		db.exec('ROLLBACK');
 		throw e;
 	}
 }
