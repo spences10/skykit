@@ -43,6 +43,8 @@ jobs:
             echo "Update the installed Playwright packages and CI images together."
             exit 1
           fi
+      - name: Check
+        run: pnpm run check
       - name: Build
         run: pnpm run build
         env:

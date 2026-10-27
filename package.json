@@ -12,14 +12,16 @@
 		"preview": "vp preview",
 		"start": "node ./build/index.js",
 		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && vp check && svelte-check --tsconfig ./tsconfig.json --tsgo",
+		"check": "svelte-kit sync && pnpm run check:guardrails && vp check --no-lint && vp lint --deny-warnings && svelte-check --tsconfig ./tsconfig.json --tsgo",
+		"check:guardrails": "node tools/checks/run.ts",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch --tsgo",
 		"format": "vp check --fix",
 		"lint": "vp check",
 		"test:unit": "vp test",
 		"test": "pnpm run test:ci && pnpm run test:e2e",
+		"test:guardrails": "node --test tools/checks/*.test.ts",
 		"test:e2e": "playwright test",
-		"test:ci": "vp test --run"
+		"test:ci": "pnpm run test:guardrails && vp test --run"
 	},
 	"devDependencies": {
 		"@atproto/api": "^0.29.4",

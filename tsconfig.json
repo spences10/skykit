@@ -4,5 +4,10 @@
 		"sourceMap": true,
 		"strict": true
 	},
-	"include": ["src", "vite.config.ts", "playwright.config.ts"]
+	"include": [
+		"src",
+		"vite.config.ts",
+		"playwright.config.ts",
+		"tools"
+	]
 }
