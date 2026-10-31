@@ -11,6 +11,8 @@ export default defineConfig({
 		sveltekit({
 			adapter: adapter(),
 			preprocess: vitePreprocess(),
+			// Remote functions, as in cv0 and devs.contact: the handle typeahead
+			experimental: { remoteFunctions: true },
 		}),
 	],
 	// Fixed port: a second `pnpm dev` fails instead of moving to 5181

@@ -249,6 +249,9 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      valibot:
+        specifier: 1.5.0
+        version: 1.5.0(typescript@6.0.3)
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@1.4.0
         version: '@voidzero-dev/vite-plus-core@1.4.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@6.0.3)'
@@ -1746,6 +1749,14 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  valibot@1.5.0:
+    resolution: {integrity: sha512-nil6AkP2TChWL43Z5uJ6GTxX01CUA+g8LWUM+N/rB9NBbkUMaUsi9PUNzlUPgoKASgmx9f7eGOYpJ04/fSa6FQ==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vite-plus@1.4.0:
     resolution: {integrity: sha512-bLyUKNFl0XjbHe20FpDM6OuknOb2E4ueoWKCW4n+wMO2+lQtA9tmAjW+Xs0Xe9rg2+tCgY3W13GOgDh2wjwjAQ==}
     engines: {node: ^22.18.0 || ^24.11.0 || >=26.0.0}
@@ -2925,6 +2936,10 @@ snapshots:
   unicode-segmenter@0.14.5: {}
 
   util-deprecate@1.0.2: {}
+
+  valibot@1.5.0(typescript@6.0.3):
+    optionalDependencies:
+      typescript: 6.0.3
 
   vite-plus@1.4.0(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(jiti@2.7.0)(playwright@1.64.1)(svelte@5.57.3)(typescript@6.0.3):
     dependencies:
