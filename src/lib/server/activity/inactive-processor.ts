@@ -4,8 +4,8 @@ import type { AtpAgent } from '@atproto/api';
 import { differenceInHours } from 'date-fns';
 import { batch_check_follows_back } from '../api';
 import { handle_rate_limit_error } from '../api/rate-limit-handler';
-import { get_cached_accounts_by_did } from '../db/account-cache';
 import type { FollowSummary } from '../db/follow-list-cache';
+import { store_follows_back } from '../db/follows-back-cache';
 import { execute_batch_update } from '../inactive-process';
 import {
 	chunk_array,
@@ -14,8 +14,9 @@ import {
 } from '../utils';
 import { get_latest_activity } from './activity-fetcher';
 import {
-	delay_between_batches,
+	chunk_concurrency,
 	feed_chunk_size,
+	max_chunk_attempts,
 	profile_chunk_size,
 	type FeedOptions,
 } from './constants';
@@ -31,6 +32,103 @@ export function filter_inactive_follows(
 	});
 }
 
+const feed_options: FeedOptions = {
+	filter: 'posts_with_replies',
+	limit: feed_chunk_size,
+};
+
+// Fetch activity, profiles and follows-back for one chunk and save it
+async function process_chunk(
+	viewer_did: string,
+	chunk: FollowSummary[],
+	agent: AtpAgent,
+): Promise<InactiveFollow[]> {
+	const dids = chunk.map((f) => f.did);
+	const [profiles, follows_back_map, activity_dates] =
+		await Promise.all([
+			retry_with_backoff(() =>
+				rate_limiter.add_to_queue(() =>
+					agent.api.app.bsky.actor.getProfiles({ actors: dids }),
+				),
+			),
+			retry_with_backoff(() =>
+				batch_check_follows_back(viewer_did, dids),
+			),
+			Promise.all(
+				dids.map((did) =>
+					get_latest_activity(agent, did, feed_options),
+				),
+			),
+		]);
+
+	const profile_by_did = new Map(
+		profiles.data.profiles.map((p) => [p.did, p]),
+	);
+
+	const batch_results: InactiveFollow[] = chunk.map((follow, i) => {
+		const profile = profile_by_did.get(follow.did);
+		const last_activity = activity_dates[i];
+		return {
+			did: follow.did,
+			handle: follow.handle,
+			displayName: follow.displayName,
+			last_post: last_activity.toISOString(),
+			last_post_date: last_activity,
+			createdAt:
+				profile?.createdAt ||
+				profile?.indexedAt ||
+				new Date(0).toISOString(),
+			source: 'api' as const,
+			follows_back: follows_back_map.get(follow.did) || false,
+		};
+	});
+
+	await retry_with_backoff(() =>
+		execute_batch_update(
+			batch_results.map((result) => {
+				const profile = profile_by_did.get(result.did);
+				return {
+					did: result.did,
+					handle: result.handle,
+					last_post_date: result.last_post,
+					post_count: profile?.postsCount || 0,
+					followers_count: profile?.followersCount || null,
+					created_at:
+						profile?.createdAt || profile?.indexedAt || null,
+				};
+			}),
+		),
+	);
+	store_follows_back(viewer_did, follows_back_map);
+
+	return batch_results;
+}
+
+async function process_chunk_with_retry(
+	viewer_did: string,
+	chunk: FollowSummary[],
+	agent: AtpAgent,
+): Promise<InactiveFollow[]> {
+	for (let attempt = 1; ; attempt++) {
+		try {
+			return await process_chunk(viewer_did, chunk, agent);
+		} catch (error: any) {
+			if (attempt >= max_chunk_attempts) throw error;
+			if (error?.status === 429) {
+				await handle_rate_limit_error(error);
+				continue;
+			}
+			if (error?.cause?.code === 'ETIMEDOUT' || error?.status === 1) {
+				console.log('Network timeout processing chunk, retrying...');
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				continue;
+			}
+			throw error;
+		}
+	}
+}
+
+/** Fetch fresh data for accounts the caller found missing or stale in the cache. */
 export async function process_accounts_in_chunks(
 	viewer_did: string,
 	accounts: FollowSummary[],
@@ -42,130 +140,20 @@ export async function process_accounts_in_chunks(
 	const chunks = chunk_array(accounts, profile_chunk_size);
 	const results: InactiveFollow[] = [];
 	let processed = 0;
+	let next_chunk = 0;
 
-	const feed_options: FeedOptions = {
-		filter: 'posts_with_replies',
-		limit: feed_chunk_size,
-	};
-
-	for (const chunk of chunks) {
-		try {
-			// First check if we have recent data in the database
-			const cached_accounts = await get_cached_accounts_by_did(
-				chunk.map((f) => f.did),
+	// A few workers pull chunks off a shared index; the rate limiter
+	// still caps concurrent AppView requests
+	const worker = async () => {
+		while (next_chunk < chunks.length) {
+			const chunk = chunks[next_chunk++];
+			const batch_results = await process_chunk_with_retry(
+				viewer_did,
+				chunk,
+				agent,
 			);
-			const cached_map = new Map(
-				cached_accounts.map((a) => [a.did, a]),
-			);
-
-			// Filter out accounts that have recent data (less than 24 hours old)
-			const accounts_needing_update = chunk.filter((account) => {
-				const cached = cached_map.get(account.did);
-				return (
-					!cached ||
-					!cached.last_checked ||
-					differenceInHours(new Date(), cached.last_checked) >= 24
-				);
-			});
-
-			// If we have accounts that need updating, process them with the API
-			if (accounts_needing_update.length > 0) {
-				const [profiles, follows_back_map] = await Promise.all([
-					retry_with_backoff(() =>
-						rate_limiter.add_to_queue(() =>
-							agent.api.app.bsky.actor.getProfiles({
-								actors: accounts_needing_update.map((f) => f.did),
-							}),
-						),
-					),
-					retry_with_backoff(() =>
-						batch_check_follows_back(
-							viewer_did,
-							accounts_needing_update.map((f) => f.did),
-						),
-					),
-				]);
-
-				const profile_by_did = new Map(
-					profiles.data.profiles.map((p) => [p.did, p]),
-				);
-
-				const activity_promises = accounts_needing_update.map(
-					(follow) =>
-						get_latest_activity(agent, follow.did, feed_options),
-				);
-
-				const activity_dates = await Promise.all(activity_promises);
-
-				const batch_results: InactiveFollow[] =
-					accounts_needing_update.map((follow, i) => {
-						const profile = profile_by_did.get(follow.did);
-						const last_activity = activity_dates[i];
-
-						return {
-							did: follow.did,
-							handle: follow.handle,
-							displayName: follow.displayName,
-							last_post: last_activity.toISOString(),
-							last_post_date: last_activity,
-							createdAt:
-								profile?.createdAt ||
-								profile?.indexedAt ||
-								new Date(0).toISOString(),
-							source: 'api' as const,
-							follows_back: follows_back_map.get(follow.did) || false,
-						};
-					});
-
-				results.push(...batch_results);
-				on_results?.(batch_results);
-
-				await retry_with_backoff(() =>
-					execute_batch_update(
-						batch_results.map((result) => {
-							const profile = profile_by_did.get(result.did);
-							return {
-								did: result.did,
-								handle: result.handle,
-								last_post_date: result.last_post,
-								post_count: profile?.postsCount || 0,
-								followers_count: profile?.followersCount || null,
-								follows_back:
-									follows_back_map.get(result.did) || false,
-								created_at:
-									profile?.createdAt || profile?.indexedAt || null,
-							};
-						}),
-					),
-				);
-			}
-
-			// Add cached results for accounts with recent data
-			const cached_results: InactiveFollow[] = chunk
-				.filter((account) => {
-					const cached = cached_map.get(account.did);
-					return (
-						cached &&
-						cached.last_checked &&
-						differenceInHours(new Date(), cached.last_checked) < 24
-					);
-				})
-				.map((account) => {
-					const cached = cached_map.get(account.did)!;
-					return {
-						did: account.did,
-						handle: account.handle,
-						displayName: account.displayName,
-						last_post: cached.last_post_date!.toISOString(),
-						last_post_date: cached.last_post_date!,
-						createdAt: cached.created_at || new Date(0).toISOString(),
-						source: 'cache' as const,
-						follows_back: cached.follows_back,
-					};
-				});
-
-			results.push(...cached_results);
-			if (cached_results.length > 0) on_results?.(cached_results);
+			results.push(...batch_results);
+			on_results?.(batch_results);
 			processed += chunk.length;
 
 			if (controller) {
@@ -178,43 +166,22 @@ export async function process_accounts_in_chunks(
 						current: processed,
 						total: accounts.length,
 					},
-					data_source:
-						accounts_needing_update.length > 0 ? 'api' : 'cache',
+					data_source: 'api',
 					current_batch_source:
-						accounts_needing_update.length > 0
-							? 'Fetching fresh data from Bluesky API'
-							: 'Using cached data',
+						'Fetching fresh data from Bluesky API',
 					cache_hits: cache_stats?.hits || 0,
 					cache_misses: cache_stats?.misses || 0,
 				});
 			}
-
-			if (chunks.length > 1) {
-				await new Promise((resolve) =>
-					setTimeout(resolve, delay_between_batches),
-				);
-			}
-		} catch (error: any) {
-			const api_error = error;
-			if (api_error.status === 429) {
-				await handle_rate_limit_error(api_error);
-				chunks.unshift(chunk);
-				continue;
-			}
-
-			if (
-				api_error?.cause?.code === 'ETIMEDOUT' ||
-				api_error?.status === 1
-			) {
-				console.log(`Network timeout processing chunk, retrying...`);
-				chunks.unshift(chunk);
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-				continue;
-			}
-
-			throw error;
 		}
-	}
+	};
+
+	await Promise.all(
+		Array.from(
+			{ length: Math.min(chunk_concurrency, chunks.length) },
+			worker,
+		),
+	);
 
 	return results;
 }

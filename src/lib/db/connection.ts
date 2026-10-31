@@ -88,6 +88,18 @@ export const init_db = async () => {
 			'TEXT',
 		);
 
+		// Whether an account follows a given viewer back. Per viewer, so
+		// account_activity.follows_back is no longer read.
+		client.exec(`
+			CREATE TABLE IF NOT EXISTS follows_back_cache (
+				viewer_did TEXT NOT NULL,
+				did TEXT NOT NULL,
+				follows_back INTEGER NOT NULL,
+				checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY (viewer_did, did)
+			)
+		`);
+
 		// A user's follow list, so repeat runs skip paging getFollows
 		client.exec(`
 			CREATE TABLE IF NOT EXISTS follow_list_cache (

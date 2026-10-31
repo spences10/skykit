@@ -1,4 +1,5 @@
 import {
+	batch_check_follows_back,
 	get_all_follows_for_user,
 	get_profiles_in_chunks,
 } from '#lib/server/api.js';
@@ -12,6 +13,10 @@ import {
 	store_follow_list,
 	type FollowSummary,
 } from '#lib/server/db/follow-list-cache.js';
+import {
+	get_cached_follows_back,
+	store_follows_back,
+} from '#lib/server/db/follows-back-cache.js';
 import { report_progress } from '#lib/server/utils.js';
 import type {
 	CacheStats,
@@ -43,10 +48,13 @@ async function get_follow_list(
 	return follows;
 }
 
+type CacheHit = { follow: FollowSummary; cached: CachedAccount };
+
 function to_cached_result(
 	follow: FollowSummary,
 	cached: CachedAccount,
 	created_at: string | null | undefined,
+	follows_back: boolean,
 ): InactiveFollow {
 	const last_post_date = cached.last_post_date ?? new Date(0);
 	return {
@@ -57,8 +65,53 @@ function to_cached_result(
 		last_post_date,
 		createdAt: created_at || new Date(0).toISOString(),
 		source: 'cache',
-		follows_back: cached.follows_back,
+		follows_back,
 	};
+}
+
+// Cached accounts missing a joined date or a follows-back value for this
+// viewer: fetch only the missing part, save it, and build the results
+async function complete_cached_hits(
+	viewer_did: string,
+	hits: CacheHit[],
+	follows_back: Map<string, boolean>,
+	controller?: ReadableStreamDefaultController,
+): Promise<InactiveFollow[]> {
+	const need_profile = hits
+		.filter((h) => !h.cached.created_at)
+		.map((h) => h.follow.did);
+	const need_follows_back = hits
+		.filter((h) => !follows_back.has(h.follow.did))
+		.map((h) => h.follow.did);
+
+	const [profile_map, fetched_follows_back] = await Promise.all([
+		get_profiles_in_chunks(need_profile, controller),
+		batch_check_follows_back(viewer_did, need_follows_back),
+	]);
+
+	const created_by_did = new Map<string, string>();
+	for (const [did, profile] of profile_map) {
+		const created_at = profile.createdAt || profile.indexedAt;
+		if (created_at) created_by_did.set(did, created_at);
+	}
+	store_created_at(
+		[...created_by_did].map(([did, created_at]) => ({
+			did,
+			created_at,
+		})),
+	);
+	store_follows_back(viewer_did, fetched_follows_back);
+
+	return hits.map((h) =>
+		to_cached_result(
+			h.follow,
+			h.cached,
+			h.cached.created_at || created_by_did.get(h.follow.did),
+			follows_back.get(h.follow.did) ??
+				fetched_follows_back.get(h.follow.did) ??
+				false,
+		),
+	);
 }
 
 export async function get_all_follows(
@@ -99,10 +152,7 @@ export async function get_all_follows(
 
 		// Split follows into fresh cache hits and accounts to fetch
 		const now = new Date();
-		const hits: Array<{
-			follow: FollowSummary;
-			cached: CachedAccount;
-		}> = [];
+		const hits: CacheHit[] = [];
 		const accounts_to_update: FollowSummary[] = [];
 		for (const follow of all_follows) {
 			const cached = cached_map.get(follow.did);
@@ -125,14 +175,24 @@ export async function get_all_follows(
 			),
 		};
 
-		// Hits with a stored creation date go out straight away
-		const results: InactiveFollow[] = [];
-		const ready = hits.filter((h) => h.cached.created_at);
-		const ready_results = ready.map((h) =>
-			to_cached_result(h.follow, h.cached, h.cached.created_at),
+		// Hits with everything stored go out straight away
+		const follows_back = get_cached_follows_back(
+			did,
+			hits.map((h) => h.follow.did),
 		);
-		results.push(...ready_results);
-		if (ready_results.length > 0) on_results?.(ready_results);
+		const is_complete = (h: CacheHit) =>
+			Boolean(h.cached.created_at) && follows_back.has(h.follow.did);
+		const results: InactiveFollow[] = hits
+			.filter(is_complete)
+			.map((h) =>
+				to_cached_result(
+					h.follow,
+					h.cached,
+					h.cached.created_at,
+					follows_back.get(h.follow.did)!,
+				),
+			);
+		if (results.length > 0) on_results?.([...results]);
 
 		if (controller) {
 			report_progress(controller, {
@@ -147,33 +207,16 @@ export async function get_all_follows(
 			});
 		}
 
-		// Rows cached before created_at existed: fetch profiles once to fill it
-		const missing_created = hits.filter((h) => !h.cached.created_at);
-		if (missing_created.length > 0) {
-			const profile_map = await get_profiles_in_chunks(
-				missing_created.map((h) => h.follow.did),
+		const incomplete = hits.filter((h) => !is_complete(h));
+		if (incomplete.length > 0) {
+			const completed = await complete_cached_hits(
+				did,
+				incomplete,
+				follows_back,
 				controller,
 			);
-			const backfill = missing_created.map((h) => {
-				const profile = profile_map.get(h.follow.did);
-				return {
-					did: h.follow.did,
-					created_at:
-						profile?.createdAt || profile?.indexedAt || null,
-				};
-			});
-			store_created_at(
-				backfill.flatMap((b) =>
-					b.created_at
-						? [{ did: b.did, created_at: b.created_at }]
-						: [],
-				),
-			);
-			const backfilled_results = missing_created.map((h, i) =>
-				to_cached_result(h.follow, h.cached, backfill[i].created_at),
-			);
-			results.push(...backfilled_results);
-			on_results?.(backfilled_results);
+			results.push(...completed);
+			on_results?.(completed);
 		}
 
 		if (accounts_to_update.length > 0) {
