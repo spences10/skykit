@@ -69,7 +69,7 @@
 					autocapitalize="off"
 					spellcheck="false"
 					placeholder="Enter handle (e.g. alice.bsky.social)"
-					class="input-bordered input join-item flex-1 focus:outline-none"
+					class="input join-item flex-1 focus:outline-none"
 				/>
 				<button
 					onclick={handle_search}

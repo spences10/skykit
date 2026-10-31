@@ -134,11 +134,9 @@
 					? 'opacity-50'
 					: ''}"
 			>
-				<div class="form-control">
+				<div>
 					<label class="label" for="days">
-						<span class="label-text font-medium">
-							Inactivity Threshold
-						</span>
+						<span class="font-medium"> Inactivity Threshold </span>
 					</label>
 					<div class="join w-full sm:w-auto">
 						<input
@@ -148,7 +146,7 @@
 							bind:value={inactive_state.days_threshold}
 							min="1"
 							max="365"
-							class="input-bordered input join-item w-full sm:w-24"
+							class="input join-item w-full sm:w-24"
 							aria-label="Days threshold"
 							disabled={exceeds_limit}
 						/>
@@ -228,7 +226,7 @@
 											bind:checked={inactive_state.show_never_posted}
 											aria-label="Show only users who never posted"
 										/>
-										<span class="label-text">Never Posted Only</span>
+										<span>Never Posted Only</span>
 									</label>
 									<label
 										class="label cursor-pointer justify-start gap-4"
@@ -239,7 +237,7 @@
 											bind:checked={inactive_state.hide_follows_back}
 											aria-label="Hide users who follow you back"
 										/>
-										<span class="label-text">Hide Follows Back</span>
+										<span>Hide Follows Back</span>
 									</label>
 								</div>
 							</div>

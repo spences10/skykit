@@ -25,7 +25,7 @@
 <select
 	bind:value={current_theme}
 	data-choose-theme
-	class="select-bordered select w-full"
+	class="select w-full"
 	onchange={set_theme}
 >
 	<option value="" disabled={current_theme !== ''}>Theme</option>

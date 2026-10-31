@@ -23,7 +23,6 @@
 		"test:e2e": "playwright test",
 		"test:ci": "pnpm run test:guardrails && vp test --run"
 	},
-	"packageManager": "pnpm@12.16.1",
 	"devDependencies": {
 		"@atproto/api": "^0.29.4",
 		"@fontsource-variable/manrope": "^5.2.8",
@@ -52,5 +51,6 @@
 		"vite-plus": "1.4.0",
 		"vitest": "5.0.5",
 		"vitest-browser-svelte": "^3.1.0"
-	}
+	},
+	"packageManager": "pnpm@12.16.1"
 }

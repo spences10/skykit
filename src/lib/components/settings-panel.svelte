@@ -58,16 +58,16 @@
 		>
 			<fieldset class="card-body">
 				<h3 class="card-title text-sm">Visible Sections</h3>
-				<fieldset>
+				<fieldset class="flex flex-wrap gap-x-6 gap-y-2">
 					{#each sections as { id, label }}
-						<label class="cursor-pointer">
-							<span class="label-text mr-2">{label}</span>
+						<label class="flex cursor-pointer items-center gap-2">
 							<input
 								type="checkbox"
 								class="checkbox"
 								checked={visibility_state.sections.includes(id)}
 								onchange={(e) => handle_change(id, e)}
 							/>
+							<span>{label}</span>
 						</label>
 					{/each}
 				</fieldset>
