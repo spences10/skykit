@@ -13,6 +13,11 @@ export default defineConfig({
 			preprocess: vitePreprocess(),
 		}),
 	],
+	// Fixed port: a second `pnpm dev` fails instead of moving to 5181
+	server: {
+		port: 5180,
+		strictPort: true,
+	},
 	test: {
 		projects: [
 			{
