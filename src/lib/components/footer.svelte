@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Heart } from '#lib/icons/index.js';
+	import Heart from '@lucide/svelte/icons/heart';
 </script>
 
 <footer class="py-8">
@@ -9,7 +9,7 @@
 		>
 			<p class="flex items-center gap-2">
 				Made with <Heart
-					class_names="h-4 w-4 text-primary fill-current hover:text-secondary"
+					class="h-4 w-4 fill-current text-primary hover:text-secondary"
 				/> by
 				<a
 					href="https://scottspence.com"

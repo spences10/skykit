@@ -1,11 +1,9 @@
 <script lang="ts">
-	import {
-		Calender,
-		CircleCheck,
-		InformationCircle,
-		Spark,
-	} from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import Info from '@lucide/svelte/icons/info';
+	import Zap from '@lucide/svelte/icons/zap';
 </script>
 
 {#if user_store.data.temporal}
@@ -16,9 +14,7 @@
 				class="tooltip cursor-pointer"
 				data-tip="How often you post and your consistency over time"
 			>
-				<InformationCircle
-					class_names="h-4 w-4 text-base-content/60"
-				/>
+				<Info class="h-4 w-4 text-base-content/60" />
 			</div>
 		</h3>
 		<dl
@@ -26,7 +22,7 @@
 		>
 			<div class="stat">
 				<dt class="stat-figure text-primary">
-					<Calender />
+					<Calendar />
 				</dt>
 				<dd class="stat-title">Daily Posts</dd>
 				<dd class="stat-value text-primary">
@@ -59,7 +55,7 @@
 
 			<div class="stat">
 				<dt class="stat-figure text-accent">
-					<Spark />
+					<Zap />
 				</dt>
 				<dd class="stat-title">Posting Streak</dd>
 				<dd class="stat-value text-accent">

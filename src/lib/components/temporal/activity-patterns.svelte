@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Info from '@lucide/svelte/icons/info';
 </script>
 
 {#if user_store.data.temporal}
@@ -14,9 +14,7 @@
 						class="tooltip cursor-pointer"
 						data-tip="Times of day when you post most frequently"
 					>
-						<InformationCircle
-							class_names="h-4 w-4 text-base-content/60"
-						/>
+						<Info class="h-4 w-4 text-base-content/60" />
 					</div>
 				</h3>
 				<dl class="space-y-2">
@@ -41,9 +39,7 @@
 						class="tooltip cursor-pointer"
 						data-tip="Days of the week when you're most active"
 					>
-						<InformationCircle
-							class_names="h-4 w-4 text-base-content/60"
-						/>
+						<Info class="h-4 w-4 text-base-content/60" />
 					</div>
 				</h3>
 				<dl class="space-y-2">

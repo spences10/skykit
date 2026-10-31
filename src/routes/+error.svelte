@@ -41,19 +41,16 @@
 	<div class="hero-content text-center">
 		<div class="max-w-md">
 			<div class="mb-8 flex justify-center">
-				<div class="placeholder avatar">
-					<div class="bg-neutral-focus w-32 rounded-full text-5xl">
-						{#if is_rate_limited}
-							<Snail class="size-16" aria-hidden="true" />
-						{:else if page.status === 404}
-							<Search class="size-16" aria-hidden="true" />
-						{:else}
-							<CircleQuestionMark
-								class="size-16"
-								aria-hidden="true"
-							/>
-						{/if}
-					</div>
+				<div
+					class="flex size-32 items-center justify-center rounded-full bg-base-300 text-base-content/70"
+				>
+					{#if is_rate_limited}
+						<Snail class="size-16" aria-hidden="true" />
+					{:else if page.status === 404}
+						<Search class="size-16" aria-hidden="true" />
+					{:else}
+						<CircleQuestionMark class="size-16" aria-hidden="true" />
+					{/if}
 				</div>
 			</div>
 

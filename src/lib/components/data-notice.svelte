@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { format_display_number } from '#lib/utils.js';
+	import Info from '@lucide/svelte/icons/info';
 	import { format, isValid, parseISO } from 'date-fns';
 
 	const max_posts = 100;
@@ -54,9 +54,7 @@
 					class="tooltip cursor-pointer"
 					data-tip="Overview of how many posts are included in this analysis"
 				>
-					<InformationCircle
-						class_names="h-5 w-5 text-base-content/60"
-					/>
+					<Info class="h-5 w-5 text-base-content/60" />
 				</div>
 			</h2>
 		</header>
@@ -83,7 +81,7 @@
 		</section>
 
 		<div class="alert alert-info">
-			<InformationCircle class_names="h-4 w-4" />
+			<Info class="h-4 w-4" />
 			<span>
 				Analysis is based on {format_display_number(analysed_posts)} posts
 				{#if date_range}

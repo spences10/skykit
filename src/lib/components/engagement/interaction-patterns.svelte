@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import Flame from '@lucide/svelte/icons/flame';
+	import Info from '@lucide/svelte/icons/info';
 </script>
 
 {#if user_store.data.engagement}
@@ -12,9 +12,7 @@
 				class="tooltip cursor-pointer"
 				data-tip="How your posts receive engagement from others"
 			>
-				<InformationCircle
-					class_names="h-4 w-4 text-base-content/60"
-				/>
+				<Info class="h-4 w-4 text-base-content/60" />
 			</div>
 		</h3>
 		<dl

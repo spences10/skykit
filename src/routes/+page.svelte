@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { MagnifyingGlass } from '#lib/icons/index.js';
+	import Search from '@lucide/svelte/icons/search';
 
 	let handle = $state('');
 	let loading = $state(false);
@@ -47,7 +47,7 @@
 <div class="container mx-auto max-w-xl p-4 pt-20">
 	<div class="mb-12 text-center">
 		<h1
-			class="mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
+			class="mb-4 bg-linear-to-r from-primary to-secondary bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
 		>
 			SkyKit
 		</h1>
@@ -79,7 +79,7 @@
 					{#if loading}
 						<span class="loading loading-spinner"></span>
 					{:else}
-						<MagnifyingGlass class_names="h-5 w-5" />
+						<Search class="h-5 w-5" />
 					{/if}
 					<span class="ml-2">
 						{loading ? null : 'Search'}

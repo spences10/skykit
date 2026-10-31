@@ -1,13 +1,11 @@
 <script lang="ts">
-	import {
-		Comment,
-		Edit,
-		InformationCircle,
-		Upload,
-	} from '#lib/icons/index.js';
 	import { number_crunch } from '#lib/number-crunch.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { get_tooltip_props } from '#lib/utils.js';
+	import Info from '@lucide/svelte/icons/info';
+	import MessageSquareMore from '@lucide/svelte/icons/message-square-more';
+	import SquarePen from '@lucide/svelte/icons/square-pen';
+	import Upload from '@lucide/svelte/icons/upload';
 </script>
 
 <section class="mb-6">
@@ -17,13 +15,13 @@
 			class="tooltip cursor-pointer"
 			data-tip="Breakdown of your posts by type (original posts, replies, and reposts)"
 		>
-			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+			<Info class="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
 	<dl class="stats w-full stats-vertical shadow md:stats-horizontal">
 		<div class="stat">
 			<dt class="stat-figure text-primary">
-				<Edit />
+				<SquarePen />
 			</dt>
 			<dd class="stat-title">Original Posts</dd>
 			<dd class="stat-value text-primary">
@@ -42,7 +40,7 @@
 
 		<div class="stat">
 			<dt class="stat-figure text-secondary">
-				<Comment />
+				<MessageSquareMore />
 			</dt>
 			<dd class="stat-title">Replies</dd>
 			<dd class="stat-value text-secondary">

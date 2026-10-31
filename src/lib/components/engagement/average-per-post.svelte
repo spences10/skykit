@@ -1,13 +1,11 @@
 <script lang="ts">
-	import {
-		Comment,
-		Heart,
-		InformationCircle,
-		Refresh,
-	} from '#lib/icons/index.js';
 	import { number_crunch } from '#lib/number-crunch.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { get_tooltip_props } from '#lib/utils.js';
+	import Heart from '@lucide/svelte/icons/heart';
+	import Info from '@lucide/svelte/icons/info';
+	import MessageSquareMore from '@lucide/svelte/icons/message-square-more';
+	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 </script>
 
 {#if user_store.data.engagement}
@@ -18,9 +16,7 @@
 				class="tooltip cursor-pointer"
 				data-tip="Average interactions received on your original posts"
 			>
-				<InformationCircle
-					class_names="h-4 w-4 text-base-content/60"
-				/>
+				<Info class="h-4 w-4 text-base-content/60" />
 			</div>
 		</h3>
 		<dl
@@ -52,7 +48,7 @@
 
 			<div class="stat">
 				<dt class="stat-figure text-secondary">
-					<Refresh />
+					<RefreshCw />
 				</dt>
 				<dd class="stat-title">Reposts</dd>
 				<dd class="stat-value text-secondary">
@@ -76,7 +72,7 @@
 
 			<div class="stat">
 				<dt class="stat-figure text-accent">
-					<Comment />
+					<MessageSquareMore />
 				</dt>
 				<dd class="stat-title">Replies</dd>
 				<dd class="stat-value text-accent">

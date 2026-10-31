@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Info from '@lucide/svelte/icons/info';
 	import { group_by_day } from './utils';
 </script>
 
@@ -12,9 +12,7 @@
 				class="tooltip cursor-pointer"
 				data-tip="Shows your most active posting times grouped by day of the week. Post counts are aggregated across multiple weeks."
 			>
-				<InformationCircle
-					class_names="h-4 w-4 text-base-content/60"
-				/>
+				<Info class="h-4 w-4 text-base-content/60" />
 			</div>
 		</h3>
 		<p class="mb-4 text-sm text-base-content/60">

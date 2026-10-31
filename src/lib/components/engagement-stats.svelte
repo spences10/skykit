@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Info from '@lucide/svelte/icons/info';
 	import {
 		AveragePerPost,
 		ConversationMetrics,
@@ -19,9 +19,7 @@
 					class="tooltip cursor-pointer"
 					data-tip="Analysis of interactions with your original posts (excluding reposts)"
 				>
-					<InformationCircle
-						class_names="h-5 w-5 text-base-content/60"
-					/>
+					<Info class="h-5 w-5 text-base-content/60" />
 				</div>
 				{#if user_store.data.temporal?.posting_frequency.date_range}
 					<div

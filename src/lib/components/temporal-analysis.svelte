@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Info from '@lucide/svelte/icons/info';
 	import ActivityPatterns from './temporal/activity-patterns.svelte';
 	import PeakActivityWindows from './temporal/peak-activity-windows.svelte';
 	import PostingFrequency from './temporal/posting-frequency.svelte';
@@ -32,9 +32,7 @@
 						class="tooltip cursor-pointer"
 						data-tip="Analysis of when and how frequently you post"
 					>
-						<InformationCircle
-							class_names="h-5 w-5 text-base-content/60"
-						/>
+						<Info class="h-5 w-5 text-base-content/60" />
 					</div>
 				</h2>
 

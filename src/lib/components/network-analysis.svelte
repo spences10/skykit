@@ -1,11 +1,9 @@
 <script lang="ts">
-	import {
-		Bell,
-		Comment,
-		InformationCircle,
-		People,
-	} from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Bell from '@lucide/svelte/icons/bell';
+	import Info from '@lucide/svelte/icons/info';
+	import MessageSquareMore from '@lucide/svelte/icons/message-square-more';
+	import Users from '@lucide/svelte/icons/users';
 
 	let expanded_clusters = $state<string[]>([]);
 
@@ -32,9 +30,7 @@
 					class="tooltip cursor-pointer"
 					data-tip="Analysis of your interactions and connections with other users"
 				>
-					<InformationCircle
-						class_names="h-5 w-5 text-base-content/60"
-					/>
+					<Info class="h-5 w-5 text-base-content/60" />
 				</div>
 				{#if user_store.data.temporal?.posting_frequency.date_range}
 					<div
@@ -59,9 +55,7 @@
 						class="tooltip cursor-pointer"
 						data-tip="Users you most frequently engage with through replies and mentions"
 					>
-						<InformationCircle
-							class_names="h-4 w-4 text-base-content/60"
-						/>
+						<Info class="h-4 w-4 text-base-content/60" />
 					</div>
 				</h3>
 				<p class="mb-4 text-sm text-base-content/60">
@@ -73,7 +67,7 @@
 					<section class="card bg-base-200">
 						<div class="card-body">
 							<h4 class="card-title text-sm">
-								<Comment class_names="h-5 w-5" />
+								<MessageSquareMore class="h-5 w-5" />
 								Most Replied To
 							</h4>
 							<dl class="space-y-2">
@@ -100,7 +94,7 @@
 					<section class="card bg-base-200">
 						<div class="card-body">
 							<h4 class="card-title text-sm">
-								<Bell class_names="h-5 w-5" />
+								<Bell class="h-5 w-5" />
 								Most Mentioned
 							</h4>
 							<dl class="space-y-2">
@@ -136,9 +130,7 @@
 							class="tooltip cursor-pointer"
 							data-tip="Groups of users you regularly interact with"
 						>
-							<InformationCircle
-								class_names="h-4 w-4 text-base-content/60"
-							/>
+							<Info class="h-4 w-4 text-base-content/60" />
 						</div>
 					</h3>
 					<div class="grid gap-4 md:grid-cols-1">
@@ -149,7 +141,7 @@
 										class="flex flex-col gap-2 sm:flex-row sm:items-center"
 									>
 										<div class="card-title text-sm">
-											<People class_names="h-5 w-5" />
+											<Users class="h-5 w-5" />
 											{cluster.name}
 										</div>
 										<span class="badge badge-accent">

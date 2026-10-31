@@ -9,13 +9,13 @@
 		SettingsPanel,
 		TemporalAnalysis,
 	} from '#lib/components/index.js';
-	import { Chevron } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { visibility_state } from '#lib/visibility.svelte.js';
 	import { enhance } from '$app/forms';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, slide } from 'svelte/transition';
@@ -185,8 +185,8 @@
 				aria-controls="raw-data"
 			>
 				{is_data_visible ? 'Hide' : 'Show'} raw data
-				<Chevron
-					class_names="ml-2 h-4 w-4 transition-transform {is_data_visible
+				<ChevronDown
+					class="ml-2 h-4 w-4 transition-transform {is_data_visible
 						? 'rotate-180'
 						: ''}"
 				/>

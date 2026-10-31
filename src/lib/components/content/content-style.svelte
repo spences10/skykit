@@ -1,12 +1,10 @@
 <script lang="ts">
-	import {
-		Image,
-		InformationCircle,
-		Link,
-	} from '#lib/icons/index.js';
 	import { number_crunch } from '#lib/number-crunch.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { get_tooltip_props } from '#lib/utils.js';
+	import ImageIcon from '@lucide/svelte/icons/image';
+	import Info from '@lucide/svelte/icons/info';
+	import LinkIcon from '@lucide/svelte/icons/link';
 </script>
 
 <section class="mb-6">
@@ -16,13 +14,13 @@
 			class="tooltip cursor-pointer"
 			data-tip="How you format your original posts with media and external links"
 		>
-			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+			<Info class="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
 	<dl class="stats w-full stats-vertical shadow sm:stats-horizontal">
 		<div class="stat">
 			<dt class="stat-figure text-info">
-				<Image />
+				<ImageIcon />
 			</dt>
 			<dd class="stat-title">Media Posts</dd>
 			<dd class="stat-value text-info">
@@ -41,7 +39,7 @@
 
 		<div class="stat">
 			<dt class="stat-figure text-success">
-				<Link />
+				<LinkIcon />
 			</dt>
 			<dd class="stat-title">Posts with Links</dd>
 			<dd class="stat-value text-success">

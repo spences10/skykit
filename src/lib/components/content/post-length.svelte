@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { get_tooltip_props } from '#lib/utils.js';
+	import Info from '@lucide/svelte/icons/info';
 </script>
 
 <section>
@@ -11,7 +11,7 @@
 			class="tooltip cursor-pointer"
 			data-tip="Statistics about your average post length"
 		>
-			<InformationCircle class_names="h-4 w-4 text-base-content/60" />
+			<Info class="h-4 w-4 text-base-content/60" />
 		</div>
 	</h3>
 	<dl class="stats w-full stats-vertical shadow sm:stats-horizontal">

@@ -1,11 +1,9 @@
 <script lang="ts">
-	import {
-		BarGraph,
-		Clipboard,
-		InformationCircle,
-		LightBulb,
-	} from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import ChartColumn from '@lucide/svelte/icons/chart-column';
+	import Clipboard from '@lucide/svelte/icons/clipboard';
+	import Info from '@lucide/svelte/icons/info';
+	import Lightbulb from '@lucide/svelte/icons/lightbulb';
 
 	const get_classification_description = (classification: string) => {
 		const descriptions: Record<string, string> = {
@@ -47,9 +45,7 @@
 					class="tooltip cursor-pointer"
 					data-tip="Best guess analysis of your account behavior and suggestions"
 				>
-					<InformationCircle
-						class_names="h-5 w-5 text-base-content/60"
-					/>
+					<Info class="h-5 w-5 text-base-content/60" />
 				</div>
 			</h2>
 
@@ -58,15 +54,13 @@
 				<header
 					class="mb-2 card-title flex items-center gap-2 text-sm"
 				>
-					<Clipboard class_names="h-5 w-5" />
+					<Clipboard class="h-5 w-5" />
 					Account Type
 					<div
 						class="tooltip tooltip-left cursor-pointer"
 						data-tip="Based on your posting frequency, engagement patterns, and content style. These categories are determined by analysing your last 300 posts."
 					>
-						<InformationCircle
-							class_names="h-4 w-4 text-base-content/60"
-						/>
+						<Info class="h-4 w-4 text-base-content/60" />
 					</div>
 				</header>
 				<ul class="flex flex-wrap gap-2" role="list">
@@ -90,15 +84,13 @@
 						<header
 							class="card-title flex items-center gap-2 text-sm"
 						>
-							<BarGraph class_names="h-5 w-5" />
+							<ChartColumn class="h-5 w-5" />
 							Behavioural Insights
 							<div
 								class="tooltip cursor-pointer"
 								data-tip="Observations about your posting and interaction patterns"
 							>
-								<InformationCircle
-									class_names="h-4 w-4 text-base-content/60"
-								/>
+								<Info class="h-4 w-4 text-base-content/60" />
 							</div>
 						</header>
 						{#if user_store.data.behavioural_insights}
@@ -119,15 +111,13 @@
 						<header
 							class="card-title flex items-center gap-2 text-sm"
 						>
-							<LightBulb class_names="h-5 w-5" />
+							<Lightbulb class="h-5 w-5" />
 							Strategy Suggestions
 							<div
 								class="tooltip cursor-pointer"
 								data-tip="Guessed recommendation to improve your engagement"
 							>
-								<InformationCircle
-									class_names="h-4 w-4 text-base-content/60"
-								/>
+								<Info class="h-4 w-4 text-base-content/60" />
 							</div>
 						</header>
 						{#if user_store.data.content_strategy_suggestions}

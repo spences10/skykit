@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Chevron } from '#lib/icons/index.js';
 	import { visibility_state } from '#lib/visibility.svelte.js';
 	import { page } from '$app/state';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import { slide } from 'svelte/transition';
 	import ThemeSelect from './theme-select.svelte';
 
@@ -44,8 +44,8 @@
 		aria-expanded={is_open}
 	>
 		Settings
-		<Chevron
-			class_names="h-4 w-4 transition-transform {is_open
+		<ChevronDown
+			class="h-4 w-4 transition-transform {is_open
 				? 'rotate-180'
 				: ''}"
 		/>

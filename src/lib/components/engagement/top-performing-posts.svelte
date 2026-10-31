@@ -1,14 +1,12 @@
 <script lang="ts">
-	import {
-		Comment,
-		Heart,
-		InformationCircle,
-		LinkOutgoing,
-		Refresh,
-	} from '#lib/icons/index.js';
 	import { number_crunch } from '#lib/number-crunch.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { get_tooltip_props } from '#lib/utils.js';
+	import ExternalLink from '@lucide/svelte/icons/external-link';
+	import Heart from '@lucide/svelte/icons/heart';
+	import Info from '@lucide/svelte/icons/info';
+	import MessageSquareMore from '@lucide/svelte/icons/message-square-more';
+	import RefreshCw from '@lucide/svelte/icons/refresh-cw';
 	import { slide } from 'svelte/transition';
 
 	let show_all_top_posts = $state(false);
@@ -26,9 +24,7 @@
 					class="tooltip cursor-pointer"
 					data-tip="Your posts with the highest total engagement"
 				>
-					<InformationCircle
-						class_names="h-4 w-4 text-base-content/60"
-					/>
+					<Info class="h-4 w-4 text-base-content/60" />
 				</div>
 			</h3>
 			{#if top_posts.length > 1}
@@ -50,7 +46,7 @@
 					</p>
 					<div class="flex items-center gap-6">
 						<button class="btn gap-2 btn-ghost text-primary btn-sm">
-							<Heart class_names="h-6 w-6" />
+							<Heart class="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
 									top_posts[0].post.likeCount || 0,
@@ -60,7 +56,7 @@
 							</span>
 						</button>
 						<button class="btn gap-2 btn-ghost text-secondary btn-sm">
-							<Refresh class_names="h-6 w-6" />
+							<RefreshCw class="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
 									top_posts[0].post.repostCount || 0,
@@ -70,7 +66,7 @@
 							</span>
 						</button>
 						<button class="btn gap-2 btn-ghost text-accent btn-sm">
-							<Comment class_names="h-6 w-6" />
+							<MessageSquareMore class="h-6 w-6" />
 							<span
 								{...get_tooltip_props(
 									top_posts[0].post.replyCount || 0,
@@ -85,7 +81,7 @@
 							rel="noopener noreferrer"
 							class="btn gap-2 btn-ghost text-info btn-sm"
 						>
-							<LinkOutgoing class_names="h-6 w-6" />
+							<ExternalLink class="h-6 w-6" />
 							<span class="sr-only">View post</span>
 						</a>
 					</div>
@@ -104,7 +100,7 @@
 									<button
 										class="btn gap-2 btn-ghost text-primary btn-sm"
 									>
-										<Heart class_names="h-6 w-6" />
+										<Heart class="h-6 w-6" />
 										<span
 											{...get_tooltip_props(post.post.likeCount || 0)}
 										>
@@ -114,7 +110,7 @@
 									<button
 										class="btn gap-2 btn-ghost text-secondary btn-sm"
 									>
-										<Refresh class_names="h-6 w-6" />
+										<RefreshCw class="h-6 w-6" />
 										<span
 											{...get_tooltip_props(
 												post.post.repostCount || 0,
@@ -126,7 +122,7 @@
 									<button
 										class="btn gap-2 btn-ghost text-accent btn-sm"
 									>
-										<Comment class_names="h-6 w-6" />
+										<MessageSquareMore class="h-6 w-6" />
 										<span
 											{...get_tooltip_props(
 												post.post.replyCount || 0,
@@ -141,7 +137,7 @@
 										rel="noopener noreferrer"
 										class="btn gap-2 btn-ghost text-info btn-sm"
 									>
-										<LinkOutgoing class_names="h-6 w-6" />
+										<ExternalLink class="h-6 w-6" />
 										<span class="sr-only">View post</span>
 									</a>
 								</div>
