@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { inactive_state } from '#lib/inactive.svelte.js';
-	import { flip } from 'svelte/animate';
 	import { cubicOut } from 'svelte/easing';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { slide } from 'svelte/transition';
@@ -49,7 +48,6 @@
 				<div
 					class="pb-6"
 					in:slide={{ duration: motion_ms, easing: cubicOut }}
-					animate:flip={{ duration: motion_ms, easing: cubicOut }}
 				>
 					<FollowCard {follow} />
 				</div>
