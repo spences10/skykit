@@ -1,6 +1,12 @@
 <script lang="ts">
+	import {
+		create_seo_config,
+		home_schema,
+		site_description,
+	} from '#lib/seo.js';
 	import { goto } from '$app/navigation';
 	import Search from '@lucide/svelte/icons/search';
+	import { Head, SchemaOrg } from 'svead';
 
 	let handle = $state('');
 	let loading = $state(false);
@@ -34,25 +40,15 @@
 			handle_search();
 		}
 	};
+
+	const seo_config = create_seo_config({
+		title: 'SkyKit · Free Bluesky analytics, no sign-in',
+		description: site_description,
+	});
 </script>
 
-<svelte:head>
-	<title>SkyKit - Bluesky User Stats</title>
-	<meta
-		name="description"
-		content="SkyKit is a tool to get stats about Bluesky users."
-	/>
-	<meta property="og:title" content="SkyKit - Bluesky User Stats" />
-	<meta
-		property="og:description"
-		content="SkyKit is a tool to get stats about Bluesky users."
-	/>
-	<meta property="og:url" content="https://skykit.blue/" />
-	<meta property="og:image" content="https://skykit.blue/og.png" />
-	<meta property="og:image:width" content="1200" />
-	<meta property="og:image:height" content="630" />
-	<meta name="twitter:card" content="summary_large_image" />
-</svelte:head>
+<Head {seo_config} />
+<SchemaOrg schema={home_schema()} />
 
 <div class="container mx-auto max-w-xl p-4 pt-20">
 	<div class="mb-12 text-center">

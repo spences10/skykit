@@ -2,7 +2,9 @@
 	import { InactiveFollows } from '#lib/components/index.js';
 	import { max_inactive_follows_limit } from '#lib/constants.js';
 	import { inactive_state } from '#lib/inactive.svelte.js';
+	import { create_seo_config } from '#lib/seo.js';
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+	import { Head } from 'svead';
 	import { cubicOut } from 'svelte/easing';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { slide } from 'svelte/transition';
@@ -52,17 +54,17 @@
 			});
 		}
 	};
+
+	const seo_config = $derived(
+		create_seo_config({
+			title: `Inactive follows for @${data.profile.handle} · SkyKit`,
+			description: `Find which accounts @${data.profile.handle} follows on Bluesky that have stopped posting. Free, no sign-in.`,
+			path: `/${data.profile.handle}/inactive`,
+		}),
+	);
 </script>
 
-<svelte:head>
-	<title>
-		Inactive Follows - {data.profile?.handle || 'Loading...'}
-	</title>
-	<meta
-		name="description"
-		content={`Check out ${data.profile?.handle || ''}'s inactive follows on Bluesky`}
-	/>
-</svelte:head>
+<Head {seo_config} />
 
 <main class="container mx-auto max-w-4xl p-4">
 	<nav class="mb-4" aria-label="Back navigation">

@@ -9,6 +9,11 @@
 		SettingsPanel,
 		TemporalAnalysis,
 	} from '#lib/components/index.js';
+	import {
+		create_seo_config,
+		page_url,
+		profile_schema,
+	} from '#lib/seo.js';
 	import { user_store } from '#lib/user-data.svelte.js';
 	import { visibility_state } from '#lib/visibility.svelte.js';
 	import { enhance } from '$app/forms';
@@ -16,6 +21,7 @@
 	import { page } from '$app/state';
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import { Head, SchemaOrg } from 'svead';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, slide } from 'svelte/transition';
@@ -68,34 +74,30 @@
 		console.error('Analysis failed:', error);
 		analysing = false;
 	}
+
+	const handle = $derived(
+		data.profile?.handle ?? page.params.handle ?? '',
+	);
+	const description = $derived(
+		`Followers, engagement, posting times and network for @${handle} on Bluesky. Free, no sign-in.`,
+	);
+	const seo_config = $derived(
+		create_seo_config({
+			title: `${data.profile?.displayName || handle} (@${handle}) Bluesky stats · SkyKit`,
+			description,
+			path: `/${handle}`,
+			image: page_url(`/${encodeURIComponent(handle)}/og.png`),
+			image_alt: `Bluesky stats card for @${handle}`,
+		}),
+	);
 </script>
 
-<svelte:head>
-	<title>SkyKit - {data.profile?.handle || 'Loading...'}</title>
-	<meta
-		name="description"
-		content={`Check out ${data.profile?.handle || ''}'s Bluesky stats`}
+<Head {seo_config} />
+{#if data.profile}
+	<SchemaOrg
+		schema={profile_schema(data.profile, `/${handle}`, description)}
 	/>
-	<meta
-		property="og:title"
-		content={`SkyKit - ${data.profile?.handle ?? page.params.handle}`}
-	/>
-	<meta
-		property="og:description"
-		content={`Check out ${data.profile?.handle ?? page.params.handle}'s Bluesky stats`}
-	/>
-	<meta
-		property="og:url"
-		content={`https://skykit.blue/${page.params.handle}`}
-	/>
-	<meta
-		property="og:image"
-		content={`https://skykit.blue/${encodeURIComponent(page.params.handle ?? '')}/og.png`}
-	/>
-	<meta property="og:image:width" content="1200" />
-	<meta property="og:image:height" content="630" />
-	<meta name="twitter:card" content="summary_large_image" />
-</svelte:head>
+{/if}
 
 <main class="container mx-auto max-w-4xl overflow-x-hidden p-4">
 	<nav class="mb-4">
