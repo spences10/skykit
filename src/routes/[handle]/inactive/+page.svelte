@@ -2,6 +2,7 @@
 	import { InactiveFollows } from '#lib/components/index.js';
 	import { max_inactive_follows_limit } from '#lib/constants.js';
 	import { inactive_state } from '#lib/inactive.svelte.js';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import { cubicOut } from 'svelte/easing';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { slide } from 'svelte/transition';
@@ -70,7 +71,8 @@
 			class="btn btn-ghost"
 			aria-label="Back to profile"
 		>
-			← Back to Profile
+			<ArrowLeft class="size-4" aria-hidden="true" />
+			Back to Profile
 		</a>
 	</nav>
 
@@ -113,7 +115,7 @@
 							</strong>.
 						</p>
 						<p class="mt-2 text-sm">
-							🚀💥 This is a free service - please don't abuse it.
+							This is a free service - please don't abuse it.
 						</p>
 					</div>
 				</div>

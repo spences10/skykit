@@ -22,7 +22,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (total_follows > max_inactive_follows_limit) {
 		return Response.json(
 			{
-				error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${max_inactive_follows_limit.toLocaleString()}. This is a free service - please don't abuse it! 🚀💥`,
+				error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${max_inactive_follows_limit.toLocaleString()}. This is a free service - please don't abuse it!`,
 				followsCount: total_follows,
 				limit: max_inactive_follows_limit,
 			},

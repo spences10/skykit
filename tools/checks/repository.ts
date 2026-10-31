@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { check_glyphs } from './glyphs.ts';
 import { check_naming } from './naming.ts';
 import { max_source_lines, private_path } from './policy.ts';
 import { check_effects } from './runes.ts';
@@ -83,6 +84,7 @@ export function inspect_repository(root: string) {
 			...check_naming(source),
 			...check_effects(source),
 			...check_ternaries(source),
+			...check_glyphs(source, text),
 		);
 		if (file.endsWith('.svelte')) {
 			findings.push(...check_markup_ternaries(file, text));

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { InformationCircle } from '#lib/icons/index.js';
 	import { user_store } from '#lib/user-data.svelte.js';
+	import Flame from '@lucide/svelte/icons/flame';
 </script>
 
 {#if user_store.data.engagement}
@@ -34,7 +35,10 @@
 				</dd>
 				<dd class="stat-desc">
 					{#if user_store.data.engagement.repost_rate >= 100}
-						All your posts get reposted! 🔥
+						<span class="inline-flex items-center gap-1">
+							All your posts get reposted!
+							<Flame class="size-4" aria-hidden="true" />
+						</span>
 					{:else}
 						Percentage of posts that get reposted
 					{/if}

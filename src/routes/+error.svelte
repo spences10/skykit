@@ -1,24 +1,28 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import CircleQuestionMark from '@lucide/svelte/icons/circle-question-mark';
+	import House from '@lucide/svelte/icons/house';
+	import Search from '@lucide/svelte/icons/search';
+	import Snail from '@lucide/svelte/icons/snail';
 
 	const funny_messages = [
-		'Oops! Looks like this page took a wrong turn at Albuquerque! 🗺️',
-		'404: User not found. They might be out getting coffee ☕',
-		"Houston, we have a problem... This page doesn't exist 🚀",
-		'Looks like this page is playing hide and seek (and winning) 🙈',
-		'This page has gone to get milk and may never return 🥛',
-		'Error 404: Page got lost in the Bluesky! ☁️',
-		'Whoopsie! This page is on a digital vacation 🏖️',
-		'Page not found - must be chasing butterflies 🦋',
+		'Oops! Looks like this page took a wrong turn at Albuquerque!',
+		'404: User not found. They might be out getting coffee',
+		"Houston, we have a problem... This page doesn't exist",
+		'Looks like this page is playing hide and seek (and winning)',
+		'This page has gone to get milk and may never return',
+		'Error 404: Page got lost in the Bluesky!',
+		'Whoopsie! This page is on a digital vacation',
+		'Page not found - must be chasing butterflies',
 	];
 
 	const rate_limit_messages = [
-		"Whoa there, speed racer! You're moving too fast! 🏃‍♂️💨",
-		'Time for a quick tea break! ☕',
-		"Let's take it easy for a moment! 🧘‍♂️",
-		'Too many requests - even ninjas need to rest! 🥷',
-		'Our hamsters need a breather! 🐹',
-		"Slow down buttercup, Rome wasn't analysed in a day! 🏛️",
+		"Whoa there, speed racer! You're moving too fast!",
+		'Time for a quick tea break!',
+		"Let's take it easy for a moment!",
+		'Too many requests - even ninjas need to rest!',
+		'Our hamsters need a breather!',
+		"Slow down buttercup, Rome wasn't analysed in a day!",
 	];
 
 	const error_message = page.error?.message;
@@ -40,11 +44,14 @@
 				<div class="placeholder avatar">
 					<div class="bg-neutral-focus w-32 rounded-full text-5xl">
 						{#if is_rate_limited}
-							🐌
+							<Snail class="size-16" aria-hidden="true" />
 						{:else if page.status === 404}
-							🔍
+							<Search class="size-16" aria-hidden="true" />
 						{:else}
-							🤔
+							<CircleQuestionMark
+								class="size-16"
+								aria-hidden="true"
+							/>
 						{/if}
 					</div>
 				</div>
@@ -65,14 +72,14 @@
 						<div class="mt-4 alert alert-warning">
 							<p>
 								The API needs a little break. Try again in a few
-								moments! 🎭
+								moments!
 							</p>
 						</div>
 					{/if}
 					<div class="mt-6 card-actions justify-center">
 						<a href="/" class="btn btn-wide gap-2 btn-primary">
 							<span>Take Me Home</span>
-							<span>🏠</span>
+							<House class="size-5" aria-hidden="true" />
 						</a>
 					</div>
 				</div>

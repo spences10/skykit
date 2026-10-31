@@ -40,7 +40,7 @@ export function create_stream_response(handle: string, days: number) {
 					encoder.encode(
 						`data: ${JSON.stringify({
 							type: 'error',
-							error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${max_inactive_follows_limit.toLocaleString()}. This is a free service - please don't abuse it! 🚀💥`,
+							error: `This account follows ${total_follows.toLocaleString()} people, which exceeds our limit of ${max_inactive_follows_limit.toLocaleString()}. This is a free service - please don't abuse it!`,
 							followsCount: total_follows,
 							limit: max_inactive_follows_limit,
 						})}\n\n`,

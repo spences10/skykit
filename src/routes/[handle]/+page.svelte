@@ -15,6 +15,7 @@
 	import { enhance } from '$app/forms';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
+	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import { flip } from 'svelte/animate';
 	import { quintOut } from 'svelte/easing';
 	import { crossfade, slide } from 'svelte/transition';
@@ -79,7 +80,10 @@
 
 <main class="container mx-auto max-w-4xl overflow-x-hidden p-4">
 	<nav class="mb-4">
-		<a href="/" class="btn btn-ghost"> ← Back to Search </a>
+		<a href="/" class="btn btn-ghost">
+			<ArrowLeft class="size-4" aria-hidden="true" />
+			Back to Search
+		</a>
 	</nav>
 
 	{#if store_initialized && data.profile}
