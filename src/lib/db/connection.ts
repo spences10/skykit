@@ -26,6 +26,24 @@ export const get_db = () => {
 	return db;
 };
 
+// Check the schema first so real ALTER failures are not swallowed
+function add_column_if_missing(
+	client: DatabaseSync,
+	table: string,
+	column: string,
+	definition: string,
+) {
+	const columns = client
+		.prepare(`PRAGMA table_info(${table})`)
+		.all()
+		.map((row) => row.name);
+	if (columns.includes(column)) return;
+	client.exec(
+		`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`,
+	);
+	console.log(`Added column ${table}.${column}`);
+}
+
 export const init_db = async () => {
 	const client = get_db();
 
@@ -55,23 +73,20 @@ export const init_db = async () => {
 			CREATE INDEX IF NOT EXISTS idx_handle ON account_activity(handle)
 		`);
 
-		// Add follows_back column if it doesn't exist (for existing databases)
-		try {
-			client.exec(`
-				ALTER TABLE account_activity ADD COLUMN follows_back BOOLEAN DEFAULT FALSE;
-			`);
-		} catch {
-			// Column might already exist, ignore the error
-		}
-
+		// Columns added after the table first shipped (for existing databases)
+		add_column_if_missing(
+			client,
+			'account_activity',
+			'follows_back',
+			'BOOLEAN DEFAULT FALSE',
+		);
 		// Profile creation date, so cached accounts need no profile fetch
-		try {
-			client.exec(`
-				ALTER TABLE account_activity ADD COLUMN created_at TEXT;
-			`);
-		} catch {
-			// Column might already exist, ignore the error
-		}
+		add_column_if_missing(
+			client,
+			'account_activity',
+			'created_at',
+			'TEXT',
+		);
 
 		// A user's follow list, so repeat runs skip paging getFollows
 		client.exec(`
