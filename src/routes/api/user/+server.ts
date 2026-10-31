@@ -4,6 +4,7 @@ import { rate_limiter } from '#lib/rate-limiter.js';
 import type { BskyProfile } from '#lib/types.js';
 import type { AppBskyActorDefs, AppBskyFeedDefs } from '@atproto/api';
 import { AtpAgent } from '@atproto/api';
+import { to_http_status } from '#lib/server/http-status.js';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -158,12 +159,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		return Response.json(response_data);
 	} catch (err) {
 		console.error('Bluesky API error:', err);
-		const status =
-			err && typeof err === 'object' && 'status' in err
-				? (err.status as number)
-				: 500;
 		const message =
 			err instanceof Error ? err.message : 'Failed to fetch data';
-		throw error(status, message);
+		throw error(to_http_status(err, message), message);
 	}
 };
