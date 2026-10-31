@@ -4,8 +4,8 @@
 	import { get_tooltip_props } from '#lib/utils.js';
 	import Info from '@lucide/svelte/icons/info';
 	import MessageSquareMore from '@lucide/svelte/icons/message-square-more';
+	import Repeat2 from '@lucide/svelte/icons/repeat-2';
 	import SquarePen from '@lucide/svelte/icons/square-pen';
-	import Upload from '@lucide/svelte/icons/upload';
 </script>
 
 <section class="mb-6">
@@ -57,7 +57,7 @@
 
 		<div class="stat">
 			<dt class="stat-figure text-accent">
-				<Upload />
+				<Repeat2 />
 			</dt>
 			<dd class="stat-title">Reposts</dd>
 			<dd class="stat-value text-accent">

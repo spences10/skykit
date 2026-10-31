@@ -1,5 +1,6 @@
 import type { BskyPost, TemporalPatterns } from '#lib/types.js';
 import {
+	differenceInCalendarDays,
 	differenceInDays,
 	differenceInMilliseconds,
 	format,
@@ -10,7 +11,7 @@ import {
 	setDay,
 	subDays,
 } from 'date-fns';
-import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 interface PostingMetrics {
 	total_days: number;
@@ -29,7 +30,16 @@ export function analyse_temporal_patterns(
 		toZonedTime(new Date(post.post.indexedAt), timezone),
 	);
 	const [earliest, latest] = get_date_range(dates, use_full_range);
-	const metrics = calculate_posting_metrics(dates, earliest, latest);
+	// Every figure covers the same window: posts older than it would
+	// otherwise inflate counts against the window's day total
+	const in_range = dates.filter(
+		(date) => date >= earliest && date <= latest,
+	);
+	const metrics = calculate_posting_metrics(
+		in_range,
+		earliest,
+		latest,
+	);
 
 	return {
 		posting_frequency: {
@@ -43,13 +53,10 @@ export function analyse_temporal_patterns(
 			active_days_percentage:
 				(metrics.active_days / metrics.total_days) * 100,
 			longest_streak: metrics.longest_streak,
-			most_active_hours: get_most_active_hours(dates, timezone),
-			most_active_days: get_most_active_days(dates, timezone),
+			most_active_hours: get_most_active_hours(in_range),
+			most_active_days: get_most_active_days(in_range),
 		},
-		peak_activity_windows: calculate_peak_activity_windows(
-			dates,
-			timezone,
-		),
+		peak_activity_windows: calculate_peak_activity_windows(in_range),
 		timezone: timezone,
 	};
 }
@@ -85,7 +92,8 @@ function calculate_posting_metrics(
 	earliest: Date,
 	latest: Date,
 ): PostingMetrics {
-	const total_days = differenceInDays(latest, earliest) + 1;
+	// Calendar days, so active days can never exceed the days in range
+	const total_days = differenceInCalendarDays(latest, earliest) + 1;
 	const posts_by_date = group_posts_by_date(dates);
 
 	return {
@@ -105,13 +113,14 @@ function group_posts_by_date(dates: Date[]): Map<string, number> {
 	return posts_by_date;
 }
 
+// Dates are already shifted into the viewer's timezone by toZonedTime,
+// so read their local fields; converting again would shift them twice
 function get_most_active_hours(
 	dates: Date[],
-	timezone: string,
 ): Array<[string, number]> {
 	const posting_hours = new Map<string, number>();
 	dates.forEach((date) => {
-		const hour_str = formatInTimeZone(date, timezone, 'HH:00');
+		const hour_str = format(date, 'HH:00');
 		posting_hours.set(
 			hour_str,
 			(posting_hours.get(hour_str) || 0) + 1,
@@ -124,11 +133,10 @@ function get_most_active_hours(
 
 function get_most_active_days(
 	dates: Date[],
-	timezone: string,
 ): Array<[string, number]> {
 	const posting_days = new Map<string, number>();
 	dates.forEach((date) => {
-		const day = formatInTimeZone(date, timezone, 'EEEE');
+		const day = format(date, 'EEEE');
 		posting_days.set(day, (posting_days.get(day) || 0) + 1);
 	});
 	return Array.from(posting_days.entries()).sort(
@@ -160,10 +168,7 @@ function calculate_longest_streak(
 	return max_streak;
 }
 
-function calculate_peak_activity_windows(
-	dates: Date[],
-	timezone: string,
-): string[] {
+function calculate_peak_activity_windows(dates: Date[]): string[] {
 	const day_hour_counts = new Map<number, Map<number, number>>();
 
 	dates.forEach((date) => {
@@ -196,11 +201,7 @@ function calculate_peak_activity_windows(
 	const windows: string[] = [];
 	top_days.forEach(([day]) => {
 		const hour_counts = day_hour_counts.get(day)!;
-		const day_name = formatInTimeZone(
-			setDay(new Date(), day),
-			timezone,
-			'EEEE',
-		);
+		const day_name = format(setDay(new Date(), day), 'EEEE');
 
 		// Get top hours for this day
 		const sorted_hours = Array.from(hour_counts.entries())
