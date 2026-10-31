@@ -76,6 +76,25 @@
 		name="description"
 		content={`Check out ${data.profile?.handle || ''}'s Bluesky stats`}
 	/>
+	<meta
+		property="og:title"
+		content={`SkyKit - ${data.profile?.handle ?? page.params.handle}`}
+	/>
+	<meta
+		property="og:description"
+		content={`Check out ${data.profile?.handle ?? page.params.handle}'s Bluesky stats`}
+	/>
+	<meta
+		property="og:url"
+		content={`https://skykit.blue/${page.params.handle}`}
+	/>
+	<meta
+		property="og:image"
+		content={`https://skykit.blue/${encodeURIComponent(page.params.handle ?? '')}/og.png`}
+	/>
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <main class="container mx-auto max-w-4xl overflow-x-hidden p-4">

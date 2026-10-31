@@ -42,6 +42,16 @@
 		name="description"
 		content="SkyKit is a tool to get stats about Bluesky users."
 	/>
+	<meta property="og:title" content="SkyKit - Bluesky User Stats" />
+	<meta
+		property="og:description"
+		content="SkyKit is a tool to get stats about Bluesky users."
+	/>
+	<meta property="og:url" content="https://skykit.blue/" />
+	<meta property="og:image" content="https://skykit.blue/og.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="container mx-auto max-w-xl p-4 pt-20">

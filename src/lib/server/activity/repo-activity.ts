@@ -1,6 +1,6 @@
 const slingshot = 'https://slingshot.microcosm.blue';
 const plc_directory = 'https://plc.directory';
-const user_agent = 'skykit (https://skykit.dev)';
+const user_agent = 'skykit (https://skykit.blue)';
 const request_timeout_ms = 5000;
 const tid_alphabet = '234567abcdefghijklmnopqrstuvwxyz';
 
