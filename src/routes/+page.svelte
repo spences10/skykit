@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { LandingDetails } from '#lib/components/index.js';
 	import {
 		create_seo_config,
 		home_schema,
@@ -50,15 +51,15 @@
 <Head {seo_config} />
 <SchemaOrg schema={home_schema()} />
 
-<div class="container mx-auto max-w-xl p-4 pt-20">
+<div class="container mx-auto max-w-2xl p-4 pt-20">
 	<div class="mb-12 text-center">
 		<h1
 			class="mb-4 bg-linear-to-r from-primary to-secondary bg-clip-text text-5xl leading-normal font-extrabold text-transparent"
 		>
 			SkyKit
 		</h1>
-		<p class="text-lg text-base-content/60">
-			Check out your Bluesky user stats
+		<p class="text-lg text-base-content/70">
+			Free Bluesky analytics for any handle
 		</p>
 	</div>
 
@@ -92,6 +93,11 @@
 					</span>
 				</button>
 			</div>
+			<p class="text-sm text-base-content/60">
+				No sign-in, no app password. Just a handle.
+			</p>
 		</div>
 	</div>
+
+	<LandingDetails />
 </div>

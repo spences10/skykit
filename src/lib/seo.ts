@@ -1,3 +1,4 @@
+import { features } from '#lib/landing.js';
 import type { BskyProfile } from '#lib/types.js';
 import type { SchemaOrgProps, SeoConfig } from 'svead';
 
@@ -39,6 +40,9 @@ const web_app = {
 	operatingSystem: 'Any',
 	browserRequirements: 'Requires JavaScript',
 	isAccessibleForFree: true,
+	featureList: features.map(
+		(feature) => `${feature.title}: ${feature.text}`,
+	),
 	offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
 	author: { '@id': author['@id'] },
 };
