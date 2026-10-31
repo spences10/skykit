@@ -1,4 +1,5 @@
 const slingshot = 'https://slingshot.microcosm.blue';
+const plc_directory = 'https://plc.directory';
 const user_agent = 'skykit (https://skykit.dev)';
 const request_timeout_ms = 5000;
 const tid_alphabet = '234567abcdefghijklmnopqrstuvwxyz';
@@ -29,13 +30,50 @@ async function fetch_json<T>(url: string): Promise<T> {
 	return response.json() as Promise<T>;
 }
 
+interface DidDocument {
+	service?: Array<{
+		id: string;
+		type: string;
+		serviceEndpoint: string;
+	}>;
+}
+
+export function pds_from_did_doc(doc: DidDocument): string | null {
+	const service = doc.service?.find(
+		(s) =>
+			s.id.endsWith('#atproto_pds') &&
+			s.type === 'AtprotoPersonalDataServer',
+	);
+	return service?.serviceEndpoint ?? null;
+}
+
+function did_doc_url(did: string): string | null {
+	if (did.startsWith('did:plc:')) return `${plc_directory}/${did}`;
+	if (did.startsWith('did:web:')) {
+		const host = decodeURIComponent(did.slice('did:web:'.length));
+		return `https://${host}/.well-known/did.json`;
+	}
+	return null;
+}
+
+// Slingshot also verifies the handle and returns 400 when it does not
+// resolve, so fall back to the DID document, which still names the PDS
 async function resolve_pds(did: string): Promise<string> {
 	const cached = pds_cache.get(did);
 	if (cached) return cached;
 
-	const { pds } = await fetch_json<{ pds: string }>(
-		`${slingshot}/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${encodeURIComponent(did)}`,
-	);
+	let pds: string | null = null;
+	try {
+		({ pds } = await fetch_json<{ pds: string }>(
+			`${slingshot}/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${encodeURIComponent(did)}`,
+		));
+	} catch (error) {
+		const url = did_doc_url(did);
+		if (!url) throw error;
+		pds = pds_from_did_doc(await fetch_json<DidDocument>(url));
+	}
+	if (!pds) throw new Error(`no PDS in DID document for ${did}`);
+
 	pds_cache.set(did, pds);
 	return pds;
 }

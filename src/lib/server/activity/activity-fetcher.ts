@@ -14,9 +14,11 @@ export async function get_latest_activity(
 		const last_commit = await get_last_commit_date(did);
 		if (last_commit) return last_commit;
 	} catch (error) {
+		// One line per account: the stack adds nothing for a network miss
+		const reason =
+			error instanceof Error ? error.message : String(error);
 		console.warn(
-			`Repo lookup failed for ${did}, falling back to feed:`,
-			error,
+			`Repo lookup failed for ${did}, falling back to feed: ${reason}`,
 		);
 	}
 

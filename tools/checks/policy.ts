@@ -1,9 +1,10 @@
 export const max_source_lines = 300;
 // Property names that owned types must mirror from external contracts:
-// Bluesky AppView profile and record fields.
+// Bluesky AppView profile and record fields, and DID document fields.
 export const external_property_names = new Set([
 	'displayName',
 	'createdAt',
+	'serviceEndpoint',
 ]);
 // No vendored UI source in skykit; kept so the shared checks read the same.
 export const vendored_ui = 'src/lib/components/ui/';
