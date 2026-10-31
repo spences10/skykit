@@ -192,4 +192,5 @@ export interface CachedAccount {
 	post_count: number | null;
 	followers_count: number | null;
 	follows_back: boolean;
+	created_at?: string | null;
 }

@@ -119,6 +119,11 @@ export function create_inactive_state() {
 							average_time_per_item: avg_time,
 							start_time: progress.start_time, // Preserve the original start time
 						};
+					} else if (data.type === 'results') {
+						inactive_follows = [
+							...inactive_follows,
+							...data.inactive_follows,
+						];
 					} else if (data.type === 'complete') {
 						inactive_follows = data.inactive_follows;
 						cache_stats = data.cache_stats;

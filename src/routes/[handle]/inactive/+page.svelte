@@ -2,11 +2,19 @@
 	import { InactiveFollows } from '#lib/components/index.js';
 	import { max_inactive_follows_limit } from '#lib/constants.js';
 	import { inactive_state } from '#lib/inactive.svelte.js';
+	import { cubicOut } from 'svelte/easing';
+	import { prefersReducedMotion } from 'svelte/motion';
+	import { slide } from 'svelte/transition';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let loading = $derived(inactive_state.loading);
+	let motion_ms = $derived(prefersReducedMotion.current ? 0 : 300);
+	// Unfiltered count, so a filter that matches nothing keeps the controls
+	let has_results = $derived(
+		inactive_state.inactive_follows.length > 0,
+	);
 	let inactive_follows = $derived(
 		inactive_state.filtered_and_sorted_follows,
 	);
@@ -161,104 +169,108 @@
 				</button>
 			</form>
 
-			{#if inactive_follows.length > 0}
-				<div class="divider"></div>
-
-				<!-- Controls Section -->
+			{#if has_results}
 				<div
-					class="stats w-full stats-vertical bg-base-200 shadow-sm sm:stats-horizontal"
+					transition:slide={{ duration: motion_ms, easing: cubicOut }}
 				>
-					<!-- Sort Controls -->
-					<div class="stat">
-						<div class="stat-title">Sort by Last Post</div>
-						<div class="stat-actions mt-2">
-							<div
-								class="join w-full rounded-box border border-primary"
-							>
-								<button
-									class="btn join-item flex-1 rounded-l-box {sort_direction ===
-									'desc'
-										? 'btn-primary'
-										: 'btn-ghost'}"
-									onclick={() =>
-										(inactive_state.sort_direction = 'desc')}
-									aria-pressed={sort_direction === 'desc'}
-								>
-									Newest First
-								</button>
-								<button
-									class="btn join-item flex-1 rounded-r-box {sort_direction ===
-									'asc'
-										? 'btn-primary'
-										: 'btn-ghost'}"
-									onclick={() =>
-										(inactive_state.sort_direction = 'asc')}
-									aria-pressed={sort_direction === 'asc'}
-								>
-									Oldest First
-								</button>
-							</div>
-						</div>
-					</div>
+					<div class="divider"></div>
 
-					<!-- Filter Controls -->
-					<div class="stat">
-						<div class="stat-title">Filter Options</div>
-						<div class="stat-actions mt-2">
-							<div class="flex flex-col gap-2">
-								<label
-									class="label cursor-pointer justify-start gap-4"
-								>
-									<input
-										type="checkbox"
-										class="checkbox checkbox-primary"
-										bind:checked={inactive_state.show_never_posted}
-										aria-label="Show only users who never posted"
-									/>
-									<span class="label-text">Never Posted Only</span>
-								</label>
-								<label
-									class="label cursor-pointer justify-start gap-4"
-								>
-									<input
-										type="checkbox"
-										class="checkbox checkbox-primary"
-										bind:checked={inactive_state.hide_follows_back}
-										aria-label="Hide users who follow you back"
-									/>
-									<span class="label-text">Hide Follows Back</span>
-								</label>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Statistics and Actions -->
-				<div class="mt-4">
+					<!-- Controls Section -->
 					<div
 						class="stats w-full stats-vertical bg-base-200 shadow-sm sm:stats-horizontal"
 					>
+						<!-- Sort Controls -->
 						<div class="stat">
-							<div class="stat-title">Inactive Follows Found</div>
-							<div class="stat-value text-primary">
-								{inactive_follows.length}
-							</div>
-							<div class="stat-desc">
-								{days_threshold} days or more of inactivity
+							<div class="stat-title">Sort by Last Post</div>
+							<div class="stat-actions mt-2">
+								<div
+									class="join w-full rounded-box border border-primary"
+								>
+									<button
+										class="btn join-item flex-1 rounded-l-box {sort_direction ===
+										'desc'
+											? 'btn-primary'
+											: 'btn-ghost'}"
+										onclick={() =>
+											(inactive_state.sort_direction = 'desc')}
+										aria-pressed={sort_direction === 'desc'}
+									>
+										Newest First
+									</button>
+									<button
+										class="btn join-item flex-1 rounded-r-box {sort_direction ===
+										'asc'
+											? 'btn-primary'
+											: 'btn-ghost'}"
+										onclick={() =>
+											(inactive_state.sort_direction = 'asc')}
+										aria-pressed={sort_direction === 'asc'}
+									>
+										Oldest First
+									</button>
+								</div>
 							</div>
 						</div>
+
+						<!-- Filter Controls -->
 						<div class="stat">
-							<div class="stat-actions">
-								<button
-									class="btn btn-primary"
-									onclick={open_all_profiles}
-									aria-label={`Open all ${inactive_follows.length} profiles in new tabs`}
-								>
-									Open All Profiles ({inactive_follows.length})
-								</button>
-								<div class="stat-desc mt-2">
-									<span class="font-black">Note:</span> This will open a
-									new tab for each profile.
+							<div class="stat-title">Filter Options</div>
+							<div class="stat-actions mt-2">
+								<div class="flex flex-col gap-2">
+									<label
+										class="label cursor-pointer justify-start gap-4"
+									>
+										<input
+											type="checkbox"
+											class="checkbox checkbox-primary"
+											bind:checked={inactive_state.show_never_posted}
+											aria-label="Show only users who never posted"
+										/>
+										<span class="label-text">Never Posted Only</span>
+									</label>
+									<label
+										class="label cursor-pointer justify-start gap-4"
+									>
+										<input
+											type="checkbox"
+											class="checkbox checkbox-primary"
+											bind:checked={inactive_state.hide_follows_back}
+											aria-label="Hide users who follow you back"
+										/>
+										<span class="label-text">Hide Follows Back</span>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Statistics and Actions -->
+					<div class="mt-4">
+						<div
+							class="stats w-full stats-vertical bg-base-200 shadow-sm sm:stats-horizontal"
+						>
+							<div class="stat">
+								<div class="stat-title">Inactive Follows Found</div>
+								<div class="stat-value text-primary">
+									{inactive_follows.length}
+								</div>
+								<div class="stat-desc">
+									{days_threshold} days or more of inactivity
+								</div>
+							</div>
+							<div class="stat">
+								<div class="stat-actions">
+									<button
+										class="btn btn-primary"
+										onclick={open_all_profiles}
+										aria-label={`Open all ${inactive_follows.length} profiles in new tabs`}
+									>
+										Open All Profiles ({inactive_follows.length})
+									</button>
+									<div class="stat-desc mt-2">
+										<span class="font-black">Note:</span> This will open
+										a new tab for each profile.
+									</div>
 								</div>
 							</div>
 						</div>

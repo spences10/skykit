@@ -1,10 +1,11 @@
 import { rate_limiter } from '#lib/rate-limiter.js';
 import type { InactiveFollow } from '#lib/types.js';
-import type { AppBskyActorDefs, AtpAgent } from '@atproto/api';
+import type { AtpAgent } from '@atproto/api';
 import { differenceInHours } from 'date-fns';
 import { batch_check_follows_back } from '../api';
 import { handle_rate_limit_error } from '../api/rate-limit-handler';
 import { get_cached_accounts_by_did } from '../db/account-cache';
+import type { FollowSummary } from '../db/follow-list-cache';
 import { execute_batch_update } from '../inactive-process';
 import {
 	chunk_array,
@@ -32,10 +33,11 @@ export function filter_inactive_follows(
 
 export async function process_accounts_in_chunks(
 	viewer_did: string,
-	accounts: AppBskyActorDefs.ProfileView[],
+	accounts: FollowSummary[],
 	agent: AtpAgent,
 	controller?: ReadableStreamDefaultController,
 	cache_stats?: { hits: number; misses: number },
+	on_results?: (batch: InactiveFollow[]) => void,
 ): Promise<InactiveFollow[]> {
 	const chunks = chunk_array(accounts, profile_chunk_size);
 	const results: InactiveFollow[] = [];
@@ -84,6 +86,10 @@ export async function process_accounts_in_chunks(
 					),
 				]);
 
+				const profile_by_did = new Map(
+					profiles.data.profiles.map((p) => [p.did, p]),
+				);
+
 				const activity_promises = accounts_needing_update.map(
 					(follow) =>
 						get_latest_activity(agent, follow.did, feed_options),
@@ -93,7 +99,7 @@ export async function process_accounts_in_chunks(
 
 				const batch_results: InactiveFollow[] =
 					accounts_needing_update.map((follow, i) => {
-						const profile = profiles.data.profiles[i];
+						const profile = profile_by_did.get(follow.did);
 						const last_activity = activity_dates[i];
 
 						return {
@@ -103,26 +109,33 @@ export async function process_accounts_in_chunks(
 							last_post: last_activity.toISOString(),
 							last_post_date: last_activity,
 							createdAt:
-								profile.indexedAt || new Date(0).toISOString(),
+								profile?.createdAt ||
+								profile?.indexedAt ||
+								new Date(0).toISOString(),
 							source: 'api' as const,
 							follows_back: follows_back_map.get(follow.did) || false,
 						};
 					});
 
 				results.push(...batch_results);
+				on_results?.(batch_results);
 
 				await retry_with_backoff(() =>
 					execute_batch_update(
-						batch_results.map((result, index) => ({
-							did: result.did,
-							handle: result.handle,
-							last_post_date: result.last_post,
-							post_count:
-								profiles.data.profiles[index].postsCount || 0,
-							followers_count:
-								profiles.data.profiles[index].followersCount || null,
-							follows_back: follows_back_map.get(result.did) || false,
-						})),
+						batch_results.map((result) => {
+							const profile = profile_by_did.get(result.did);
+							return {
+								did: result.did,
+								handle: result.handle,
+								last_post_date: result.last_post,
+								post_count: profile?.postsCount || 0,
+								followers_count: profile?.followersCount || null,
+								follows_back:
+									follows_back_map.get(result.did) || false,
+								created_at:
+									profile?.createdAt || profile?.indexedAt || null,
+							};
+						}),
 					),
 				);
 			}
@@ -145,13 +158,14 @@ export async function process_accounts_in_chunks(
 						displayName: account.displayName,
 						last_post: cached.last_post_date!.toISOString(),
 						last_post_date: cached.last_post_date!,
-						createdAt: new Date(0).toISOString(), // We don't have this in cache
+						createdAt: cached.created_at || new Date(0).toISOString(),
 						source: 'cache' as const,
 						follows_back: cached.follows_back,
 					};
 				});
 
 			results.push(...cached_results);
+			if (cached_results.length > 0) on_results?.(cached_results);
 			processed += chunk.length;
 
 			if (controller) {

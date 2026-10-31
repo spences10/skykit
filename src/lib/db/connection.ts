@@ -64,6 +64,24 @@ export const init_db = async () => {
 			// Column might already exist, ignore the error
 		}
 
+		// Profile creation date, so cached accounts need no profile fetch
+		try {
+			client.exec(`
+				ALTER TABLE account_activity ADD COLUMN created_at TEXT;
+			`);
+		} catch {
+			// Column might already exist, ignore the error
+		}
+
+		// A user's follow list, so repeat runs skip paging getFollows
+		client.exec(`
+			CREATE TABLE IF NOT EXISTS follow_list_cache (
+				did TEXT PRIMARY KEY,
+				follows TEXT NOT NULL,
+				fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			)
+		`);
+
 		console.log('Database initialized successfully');
 	} catch (error: unknown) {
 		console.error('Failed to initialize database:', error);
