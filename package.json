@@ -32,7 +32,7 @@
 		"@fontsource-variable/manrope": "^5.2.8",
 		"@fontsource-variable/playpen-sans": "^5.2.9",
 		"@fontsource-variable/victor-mono": "^5.2.8",
-		"@lucide/svelte": "^1.64.0",
+		"@lucide/svelte": "^1.65.0",
 		"@playwright/test": "1.64.1",
 		"@sveltejs/adapter-node": "6.0.1",
 		"@sveltejs/kit": "3.1.1",
