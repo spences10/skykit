@@ -30,6 +30,7 @@ function ensure_profile_fields(
 		followsCount: profile.followsCount || 0,
 		postsCount: profile.postsCount || 0,
 		indexedAt: profile.indexedAt || new Date().toISOString(),
+		links: profile.links,
 	};
 }
 

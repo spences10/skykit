@@ -107,6 +107,35 @@
 				</section>
 			{/if}
 
+			{#if user_store.data.profile.links?.length}
+				<nav class="mt-4" aria-label="Profile links">
+					<ul class="flex flex-wrap gap-2">
+						{#each user_store.data.profile.links as link (link.uri)}
+							<li>
+								<a
+									href={link.url}
+									target="_blank"
+									rel="noopener noreferrer nofollow"
+									class="badge gap-1.5 rounded-box border-0 bg-base-200 badge-lg hover:bg-base-300"
+								>
+									{#if link.icon}
+										<img
+											src={link.icon}
+											alt=""
+											class="h-4 w-4 rounded-sm"
+										/>
+									{/if}
+									<span class="max-w-48 truncate">
+										{link.title ||
+											link.url.replace(/^https?:\/\//, '')}
+									</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</nav>
+			{/if}
+
 			<footer class="mt-4 card-actions justify-end">
 				<a
 					href={`/${user_store.data.profile.handle}/inactive`}
