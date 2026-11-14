@@ -28,7 +28,7 @@
 		"@resvg/resvg-js": "2.6.2"
 	},
 	"devDependencies": {
-		"@atproto/api": "^0.30.0",
+		"@atproto/api": "^0.31.0",
 		"@fontsource-variable/manrope": "^5.2.8",
 		"@fontsource-variable/playpen-sans": "^5.2.9",
 		"@fontsource-variable/victor-mono": "^5.2.8",
