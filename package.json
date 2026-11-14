@@ -42,7 +42,7 @@
 		"@types/node": "^26.6.4",
 		"@typescript/native": "npm:typescript@^7.0.2",
 		"@vitest/browser-playwright": "5.1.0",
-		"daisyui": "5.7.50",
+		"daisyui": "5.8.0",
 		"date-fns": "^4.1.0",
 		"date-fns-tz": "^3.2.0",
 		"fathom-client": "^3.7.2",
