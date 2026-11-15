@@ -220,8 +220,8 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@voidzero-dev/vite-plus-core@1.6.0(@types/node@26.6.6)(jiti@2.7.0)(typescript@6.0.3))(playwright@1.65.0)(vitest@5.1.0)
       daisyui:
-        specifier: 5.7.50
-        version: 5.7.50
+        specifier: 5.8.0
+        version: 5.8.0
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
@@ -1297,8 +1297,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  daisyui@5.7.50:
-    resolution: {integrity: sha512-+/LRqnTCoc7s/bJEKKwtJSwzeXCVdAmRdNmZeZzgHCaQ9PJyl7j+2V2U32GQDMyD+VDkP9e/+JGoC72Y1hLk7w==}
+  daisyui@5.8.0:
+    resolution: {integrity: sha512-pIdff0OLXTgCNvbRZlY2W2qjCnJd7DgRLyTpzhHgg+JqMzVDsQoRzJXyDKyPCOUYvTFHlOt97+JCeGyxQav4Zw==}
 
   date-fns-tz@3.2.0:
     resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
@@ -2473,7 +2473,7 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  daisyui@5.7.50: {}
+  daisyui@5.8.0: {}
 
   date-fns-tz@3.2.0(date-fns@4.4.0):
     dependencies:
