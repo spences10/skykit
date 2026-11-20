@@ -188,7 +188,7 @@ importers:
     devDependencies:
       '@atproto/api':
         specifier: ^0.32.0
-        version: 0.32.0
+        version: 0.32.2
       '@fontsource-variable/manrope':
         specifier: ^5.2.8
         version: 5.3.0
@@ -276,8 +276,8 @@ importers:
 
 packages:
 
-  '@atproto/api@0.32.0':
-    resolution: {integrity: sha512-2wsISZ1Gkh38aN9LLnlJXREbqkDyrMxKaaei2poTZRE75aZ068xRkSGRY7aczfKr7Gz6Vvz5ZPIAzHLrtNYeHA==}
+  '@atproto/api@0.32.2':
+    resolution: {integrity: sha512-DSgkhHohW9MCPcH4d9I7dm32svh8fOM6c28+tQgyQU0H1cm61FTOVi8LwdsQPJSZUicMI9AQHHtj+6++ZcIrvA==}
     engines: {node: '>=22'}
 
   '@atproto/common-web@0.5.17':
@@ -1795,7 +1795,7 @@ packages:
 
 snapshots:
 
-  '@atproto/api@0.32.0':
+  '@atproto/api@0.32.2':
     dependencies:
       '@atproto/common-web': 0.5.17
       '@atproto/lexicon': 0.7.19
